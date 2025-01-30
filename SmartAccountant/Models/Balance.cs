@@ -1,9 +1,8 @@
-﻿namespace SmartAccountant.Models
+﻿namespace SmartAccountant.Models;
+
+public class Balance
 {
-    public class Balance
-    {
-        public MonetaryValue Amount { get; set; }
+    public MonetaryValue Amount { get; set; }
 
 
-    }
 }
