@@ -7,6 +7,7 @@
     <UserSecretsId>aspnet-SmartAccountant-86632249-4d55-4740-9b14-e86f040776be</UserSecretsId>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
     <NeutralLanguage>en-US</NeutralLanguage>
+    <ApiProject>true</ApiProject>
   </PropertyGroup>
 
   <ItemGroup>
@@ -24,6 +25,7 @@
     <ProjectReference Include="..\FileStorage\FileStorage.csproj" />
     <ProjectReference Include="..\SmartAccountant.Abstractions\SmartAccountant.Abstractions.csproj" />
     <ProjectReference Include="..\SmartAccountant.Identity\SmartAccountant.Identity.csproj" />
+    <ProjectReference Include="..\SmartAccountant.Models\SmartAccountant.Models.csproj" />
   </ItemGroup>
 
   <ItemGroup>

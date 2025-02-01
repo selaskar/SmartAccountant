@@ -30,6 +30,8 @@ public sealed partial class ImportStatementController(ILogger<ImportStatementCon
     [ProducesResponseType<BadRequestObjectResult>(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Upload([FromForm] Guid accountId, [Required] IFormFile file, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(file);
+
         if (file.Length == 0)
             return BadRequest(Messages.UploadedStatementFileEmpty);
 
@@ -40,7 +42,6 @@ public sealed partial class ImportStatementController(ILogger<ImportStatementCon
             return BadRequest(Messages.UploadedStatementFileTypeNotSupported);
 
         //TODO: virus scan
-
 
         UploadStarting();
         try
