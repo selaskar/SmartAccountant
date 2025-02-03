@@ -22,7 +22,7 @@ internal static class FileTypeValidator
     };
 
     /// <remarks>The method leaves the position of file stream intact.</remarks>
-    public static async Task<bool> IsValidFileExtension(ImportFile file, CancellationToken cancellationToken)
+    public static async Task<bool> IsValidFile(ImportFile file, CancellationToken cancellationToken)
     {
         string fileName = file.FileName;
         if (string.IsNullOrEmpty(fileName))
@@ -30,7 +30,7 @@ internal static class FileTypeValidator
 
         string ext = Path.GetExtension(fileName);
 
-        if (string.IsNullOrEmpty(ext))
+        if (string.IsNullOrEmpty(ext) || string.IsNullOrWhiteSpace(Path.GetFileNameWithoutExtension(fileName)))
             return false;
 
         ext = ext.ToUpperInvariant();

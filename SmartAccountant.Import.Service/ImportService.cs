@@ -27,7 +27,7 @@ public sealed partial class ImportService(ILogger<ImportService> logger, IStorag
 
         try
         {
-            if (!await FileTypeValidator.IsValidFileExtension(request.File, cancellationToken))
+            if (!await FileTypeValidator.IsValidFile(request.File, cancellationToken))
                 throw new ImportException(Messages.UploadedStatementFileTypeNotSupported);
 
             Guid documentId = await SaveFile(request.AccountId, request.File, cancellationToken);

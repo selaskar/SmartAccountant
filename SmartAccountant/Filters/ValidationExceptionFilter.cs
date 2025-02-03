@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace SmartAccountant.Filters;
 
-public class ValidationExceptionFilter : IExceptionFilter
+internal sealed class ValidationExceptionFilter : IExceptionFilter
 {
     public void OnException(ExceptionContext context)
     {

@@ -7,8 +7,11 @@
     <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
   </PropertyGroup>
 
-  <ItemGroup Condition="'$(ApiProject)'=='true' or '$(TestProject)'=='true'">
-    <!-- Including additional .globalconfig to override some rules from the primary configuration. -->
+  <!-- Including additional .globalconfig to override some rules from the primary configuration. -->
+  <ItemGroup Condition="'$(ApiProject)'=='true'">
     <GlobalAnalyzerConfigFiles Include="$(MSBuildThisFileDirectory)additional_config\CodeAnalysis.api.globalconfig" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(TestProject)'=='true'">
+    <GlobalAnalyzerConfigFiles Include="$(MSBuildThisFileDirectory)additional_config\CodeAnalysis.test.globalconfig" />
   </ItemGroup>
 </Project>

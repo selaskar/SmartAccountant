@@ -1,0 +1,8 @@
+is_global = true #Doesn't make this top-level. Distinguishes this file from .editorconfig files.
+global_level = 101
+
+# CA1515: Consider making public types internal
+dotnet_diagnostic.CA1515.severity = none
+
+# CA2000: Dispose objects before losing scope
+dotnet_diagnostic.CA2000.severity = none
