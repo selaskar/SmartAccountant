@@ -120,6 +120,9 @@
   <data name="CannotSaveUploadedStatementFile" xml:space="preserve">
     <value>An error occurred while saving the uploaded file.</value>
   </data>
+  <data name="PeriodStartNotEarlierThanPeriodEnd" xml:space="preserve">
+    <value>Period start date should be earlier than end date.</value>
+  </data>
   <data name="UploadedStatementFileEmpty" xml:space="preserve">
     <value>Statement file shouldn't be empty.</value>
   </data>

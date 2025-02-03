@@ -1,6 +1,7 @@
 ﻿using Azure.Core;
-using Azure.Storage.Blobs;
+using Azure.Storage;
 using FileStorage.Options;
+using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.DependencyInjection;
 using SmartAccountant.Abstractions.Interfaces;
 
@@ -8,9 +9,16 @@ namespace FileStorage.Extensions;
 
 public static class StorageServiceCollectionExtensions
 {
-    public static IServiceCollection RegisterBlobStorageClient(this IServiceCollection services, TokenCredential credential, AzureStorageOptions storageOptions)
+    public static IServiceCollection ConfigureStorage(this IServiceCollection services, TokenCredential credential, AzureStorageOptions storageOptions)
     {
-        services.AddScoped(serviceProvider => new BlobServiceClient(new Uri(storageOptions.ServiceAddress), credential));
+        services.AddAzureClients((clientBuilder) =>
+        {
+            clientBuilder.UseCredential(credential);
+
+            clientBuilder.AddBlobServiceClient(new Uri(storageOptions.ServiceAddress))
+                .ConfigureOptions(options => options.TransferValidation.Upload.ChecksumAlgorithm = StorageChecksumAlgorithm.Auto);
+        });
+
         services.AddScoped<IStorageService, StorageService>();
 
         return services;

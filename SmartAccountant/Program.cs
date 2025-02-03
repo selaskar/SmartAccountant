@@ -4,7 +4,9 @@ using FileStorage.Options;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Identity.Web;
+using SmartAccountant.Filters;
 using SmartAccountant.Identity.Extensions;
+using SmartAccountant.Import.Service.Extensions;
 
 namespace SmartAccountant;
 
@@ -19,16 +21,18 @@ internal sealed class Program
         //Runtime handles the exceptions thrown by the cancellation token that is passed to the action.
         //No need for custom exception filter.
         builder.Services
-            .AddControllers()
+            .AddControllers(options => options.Filters.Add<ValidationExceptionFilter>())
             .AddJsonOptions(options => options.JsonSerializerOptions.AllowTrailingCommas = true);
 
         ConfigureDocumentation(builder);
 
         TokenCredential credential = builder.Services.ConfigureIdentity(builder.Configuration);
 
-        builder.Services.RegisterBlobStorageClient(credential, GetOptions<AzureStorageOptions>(builder.Configuration, AzureStorageOptions.Section));
-        
         ConfigureLogging(builder, credential);
+
+        builder.Services.ConfigureStorage(credential, GetOptions<AzureStorageOptions>(builder.Configuration, AzureStorageOptions.Section));
+
+        builder.Services.ConfigureImport();
 
         BuildAndRun(builder);
     }
@@ -67,6 +71,7 @@ internal sealed class Program
         {
             config.ConnectionString = builder.Configuration.GetValue<string>("ApplicationInsights:ConnectionString");
 
+            //TODO: doesn't cache the token
             if (builder.Environment.IsDevelopment())
                 config.SetAzureTokenCredential(credential);
         }, configureApplicationInsightsLoggerOptions: option => { });
@@ -80,7 +85,7 @@ internal sealed class Program
         if (app.Environment.IsDevelopment())
         {
             app.MapOpenApi().RequireAuthorization(AuthPolicies.ApiConsumer.ToString());
-            
+
             app.UseSwaggerUI(options => options.SwaggerEndpoint("/openapi/v1.json", "v1"));
         }
 

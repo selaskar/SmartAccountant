@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace SmartAccountant.Resources {
+namespace SmartAccountant.Import.Service.Resources {
     using System;
     
     
@@ -39,7 +39,7 @@ namespace SmartAccountant.Resources {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("SmartAccountant.Resources.Messages", typeof(Messages).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("SmartAccountant.Import.Service.Resources.Messages", typeof(Messages).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -66,6 +66,15 @@ namespace SmartAccountant.Resources {
         internal static string CannotSaveUploadedStatementFile {
             get {
                 return ResourceManager.GetString("CannotSaveUploadedStatementFile", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Period start date should be earlier than end date..
+        /// </summary>
+        internal static string PeriodStartNotEarlierThanPeriodEnd {
+            get {
+                return ResourceManager.GetString("PeriodStartNotEarlierThanPeriodEnd", resourceCulture);
             }
         }
         
