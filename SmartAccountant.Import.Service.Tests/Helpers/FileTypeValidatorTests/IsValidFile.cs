@@ -55,7 +55,7 @@ public class IsValidFile
         };
 
         // Act
-        var result = await FileTypeValidator.IsValidFile(file, CancellationToken.None);
+        bool result = await FileTypeValidator.IsValidFile(file, CancellationToken.None);
 
         // Assert
         Assert.IsTrue(result);
@@ -73,28 +73,70 @@ public class IsValidFile
         };
 
         // Act
-        var result = await FileTypeValidator.IsValidFile(file, CancellationToken.None);
+        bool result = await FileTypeValidator.IsValidFile(file, CancellationToken.None);
 
         // Assert
         Assert.IsFalse(result);
     }
 
     [TestMethod]
-    public async Task ReturnsTrueForUnknownFileExtension()
+    public async Task ReturnsFalseForUnknownFileExtension()
     {
         // Arrange
         var file = new ImportFile
         {
             FileName = "test.unknown",
-            ContentType = "application/unknown",
+            ContentType = "application/vnd.ms-excel",
+            OpenReadStream = () => new MemoryStream([0xD0, 0xCF, 0x11, 0xE0, 0xA1, 0xB1, 0x1A, 0xE1])
+        };
+
+        // Act
+        bool result = await FileTypeValidator.IsValidFile(file, CancellationToken.None);
+
+        // Assert
+        Assert.IsFalse(result);
+    }
+
+    [TestMethod]
+    [DataRow("test.xls")]
+    [DataRow("test.XLS")]
+    public async Task IsCaseInsensitiveForValidFile(string fileName)
+    {
+        // Arrange
+        var file = new ImportFile
+        {
+            FileName = fileName,
+            ContentType = "application/vnd.ms-excel",
+            OpenReadStream = () => new MemoryStream([0xD0, 0xCF, 0x11, 0xE0, 0xA1, 0xB1, 0x1A, 0xE1])
+        };
+
+        // Act
+        bool result = await FileTypeValidator.IsValidFile(file, CancellationToken.None);
+
+        // Assert
+        Assert.IsTrue(result);
+    }
+
+    [TestMethod]
+    [DataRow("test.xls")]
+    [DataRow("test.XLS")]
+    [DataRow("test.unknown")]
+    [DataRow("test.UNKNOWN")]
+    public async Task IsCaseInsensitiveForInvalidFile(string fileName)
+    {
+        // Arrange
+        var file = new ImportFile
+        {
+            FileName = fileName,
+            ContentType = "application/vnd.ms-excel",
             OpenReadStream = () => new MemoryStream([0x00, 0x00, 0x00, 0x00])
         };
 
         // Act
-        var result = await FileTypeValidator.IsValidFile(file, CancellationToken.None);
+        bool result = await FileTypeValidator.IsValidFile(file, CancellationToken.None);
 
         // Assert
-        Assert.IsTrue(result);
+        Assert.IsFalse(result);
     }
 
     [TestMethod]
@@ -112,7 +154,7 @@ public class IsValidFile
         };
 
         // Act
-        var result = await FileTypeValidator.IsValidFile(file, CancellationToken.None);
+        bool result = await FileTypeValidator.IsValidFile(file, CancellationToken.None);
 
         // Assert
         Assert.IsFalse(result);
@@ -134,7 +176,7 @@ public class IsValidFile
         };
 
         // Act
-        var result = await FileTypeValidator.IsValidFile(file, CancellationToken.None);
+        bool result = await FileTypeValidator.IsValidFile(file, CancellationToken.None);
 
         // Assert
         Assert.IsFalse(result);
@@ -152,12 +194,29 @@ public class IsValidFile
         };
 
         // Act
-        var result = await FileTypeValidator.IsValidFile(file, CancellationToken.None);
+        bool result = await FileTypeValidator.IsValidFile(file, CancellationToken.None);
 
         // Assert
         Assert.IsFalse(result);
     }
 
+    [TestMethod]
+    public async Task ReturnsFalseForEmptyContent()
+    {
+        // Arrange
+        var file = new ImportFile
+        {
+            FileName = "test.xls",
+            ContentType = "application/vnd.ms-excel",
+            OpenReadStream = () => new MemoryStream([])
+        };
+
+        // Act
+        bool result = await FileTypeValidator.IsValidFile(file, CancellationToken.None);
+
+        // Assert
+        Assert.IsFalse(result);
+    }
 
     [TestMethod]
     public void ReturnsCanceledTaskWhenCancellationRequested()

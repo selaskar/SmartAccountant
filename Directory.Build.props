@@ -13,5 +13,6 @@
   </ItemGroup>
   <ItemGroup Condition="'$(TestProject)'=='true'">
     <GlobalAnalyzerConfigFiles Include="$(MSBuildThisFileDirectory)additional_config\CodeAnalysis.test.globalconfig" />
+    <AssemblyAttribute Include="System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute" />
   </ItemGroup>
 </Project>

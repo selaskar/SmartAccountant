@@ -35,19 +35,16 @@ internal static class FileTypeValidator
 
         ext = ext.ToUpperInvariant();
 
-        // If we don't have a signature for this file type, so we assume it's valid.
-        if (!fileSignature.TryGetValue(ext, out var value))
-            return true;
-
-        if (file.ContentType != value.contentType)
+        // If we don't have a signature for this file type, we don't confirm its validity.
+        if (!fileSignature.TryGetValue(ext, out var tuple))
             return false;
 
-        if (value.signature.Count == 0)
-            return true;
+        if (file.ContentType != tuple.contentType)
+            return false;
 
         Stream readStream = file.OpenReadStream();
 
-        int maxSignatureLength = value.signature.Max(x => x.Length);
+        int maxSignatureLength = tuple.signature.Max(x => x.Length);
         byte[] fileData = new byte[maxSignatureLength];
         int readBytes = await readStream.ReadAsync(fileData, cancellationToken);
 
@@ -58,7 +55,7 @@ internal static class FileTypeValidator
         readStream.Seek(-readBytes, SeekOrigin.Current);
 
         // Check if the file signature matches any of the known signatures.
-        foreach (byte[] bytes in value.signature.Where(sig => sig.Length <= readBytes))
+        foreach (byte[] bytes in tuple.signature.Where(sig => sig.Length <= readBytes))
         {
             var curFileSig = new byte[bytes.Length];
             Array.Copy(fileData, curFileSig, bytes.Length);

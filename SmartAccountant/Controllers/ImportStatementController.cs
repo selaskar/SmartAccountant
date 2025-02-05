@@ -40,7 +40,6 @@ public sealed partial class ImportStatementController(IImportService importServi
             {
                 FileName = file.FileName,
                 ContentType = file.ContentType,
-                Length = file.Length,
                 OpenReadStream = file.OpenReadStream
             },
         };
