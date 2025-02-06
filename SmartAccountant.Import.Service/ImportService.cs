@@ -11,7 +11,11 @@ using SmartAccountant.Models;
 
 namespace SmartAccountant.Import.Service;
 
-public sealed partial class ImportService(ILogger<ImportService> logger, IStorageService storageService, IValidator<ImportStatementModel> validator)
+public sealed partial class ImportService(
+    ILogger<ImportService> logger,
+    IValidator<ImportStatementModel> validator,
+    IStorageService storageService,
+    ISpreadsheetParser parser)
     : IImportService
 {
     /// <remarks>In bytes</remarks>
@@ -32,13 +36,27 @@ public sealed partial class ImportService(ILogger<ImportService> logger, IStorag
 
             Guid documentId = await SaveFile(request.AccountId, request.File, cancellationToken);
 
-            return new Statement()
+            //TODO: assign document id
+            var statement = new Statement()
             {
                 Id = Guid.NewGuid(),
-                Account = request.AccountId,
+                AccountId = request.AccountId,
+                Account = new SavingAccount
+                {
+                    Id = request.AccountId,
+                    Bank = Bank.GarantiBBVA,
+                    AccountNumber = "", //TODO: may be read from file.
+                    FriendlyName = ""
+                },
                 PeriodStart = request.PeriodStart,
                 PeriodEnd = request.PeriodEnd,
             };
+
+            parser.ReadStatement(statement, request.File.OpenReadStream());
+
+            decimal net = statement.Transactions.Sum(x => x.Amount.Amount);
+
+            return statement; //TODO: statement response model
         }
         catch (Exception ex) when (ex is not OperationCanceledException and not ImportException)
         {
@@ -48,6 +66,7 @@ public sealed partial class ImportService(ILogger<ImportService> logger, IStorag
         }
     }
 
+    /// <remarks>Leaves the stream in the beginning position.</remarks>
     /// <exception cref="StorageException"/>
     /// <exception cref="OperationCanceledException"/>
     private async Task<Guid> SaveFile(Guid accountId, ImportFile file, CancellationToken cancellationToken)
@@ -59,6 +78,8 @@ public sealed partial class ImportService(ILogger<ImportService> logger, IStorag
 
         using Stream readStream = file.OpenReadStream();
         await storageService.WriteToFile(UploadsContainerName, path, readStream, cancellationToken);
+
+        readStream.Seek(0, SeekOrigin.Begin);
 
         UploadSucceeded();
 

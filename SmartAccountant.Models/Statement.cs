@@ -4,7 +4,9 @@ public class Statement
 {
     public Guid Id { get; init; }
 
-    public Guid Account { get; init; }
+    public Guid AccountId { get; init; }
+
+    public Account? Account { get; set; }
 
     public DateTimeOffset PeriodStart { get; init; }
 

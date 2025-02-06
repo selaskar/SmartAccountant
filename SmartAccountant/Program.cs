@@ -7,6 +7,7 @@ using Microsoft.Identity.Web;
 using SmartAccountant.Filters;
 using SmartAccountant.Identity.Extensions;
 using SmartAccountant.Import.Service.Extensions;
+using SmartAccountant.Services.Parser.Extensions;
 
 namespace SmartAccountant;
 
@@ -33,6 +34,8 @@ internal sealed class Program
         builder.Services.ConfigureStorage(credential, GetOptions<AzureStorageOptions>(builder.Configuration, AzureStorageOptions.Section));
 
         builder.Services.ConfigureImport();
+
+        builder.Services.ConfigureParser();
 
         BuildAndRun(builder);
     }

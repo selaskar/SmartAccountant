@@ -1,10 +1,7 @@
 ﻿namespace SmartAccountant.Models;
 
-public readonly record struct MonetaryValue
+public readonly record struct MonetaryValue(decimal Amount, Currency Currency)
 {
-    public decimal Amount { get; init; }
-
-    public Currency Currency { get; init; }
 }
 
 public enum Currency

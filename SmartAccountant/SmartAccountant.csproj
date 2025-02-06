@@ -27,6 +27,7 @@
     <ProjectReference Include="..\SmartAccountant.Identity\SmartAccountant.Identity.csproj" />
     <ProjectReference Include="..\SmartAccountant.Import.Service\SmartAccountant.Import.Service.csproj" />
     <ProjectReference Include="..\SmartAccountant.Models\SmartAccountant.Models.csproj" />
+    <ProjectReference Include="..\SmartAccountant.Services.Parser\SmartAccountant.Services.Parser.csproj" />
   </ItemGroup>
 
 </Project>

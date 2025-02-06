@@ -2,27 +2,22 @@
 
 public abstract class Account
 {
-    public Guid Id { get; set; }
+    public Guid Id { get; init; }
 
-    public required string AccountNumber { get; set; }
+    public Bank Bank { get; init; }
 
-    public required string FriendlyName { get; set; }
+    public string? FriendlyName { get; init; }
 
     public abstract BalanceType NormalBalance { get; }
+}
+public enum Bank
+{
+    Unknown = 0,
+    GarantiBBVA = 1,
 }
 
 public enum BalanceType
 {
     Debit = 0,
     Credit = 1,
-}
-
-public class SavingAccount : Account
-{
-    public override BalanceType NormalBalance => BalanceType.Debit;
-}
-
-public class CreditAccount : Account
-{
-    public override BalanceType NormalBalance => BalanceType.Credit;
 }

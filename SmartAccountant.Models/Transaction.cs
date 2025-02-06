@@ -2,20 +2,17 @@
 
 public abstract class Transaction
 {
-    public Guid Id { get; set; }
+    public Guid Id { get; init; }
 
-    public required Account Account { get; set; }
+    public required Guid StatementId { get; init; }
 
-    public string? ReferenceNumber { get; set; }
+    public string? ReferenceNumber { get; init; }
 
-    public DateTimeOffset Timestamp { get; set; }
+    public DateTimeOffset Timestamp { get; init; }
 
-    public MonetaryValue Amount { get; set; }
-}
+    public MonetaryValue Amount { get; init; }
 
-public class Deposit : Transaction
-{
-
+    public string? Note { get; init; }
 }
 
 //TODO: category and sub-categories?
@@ -26,5 +23,6 @@ public enum TransactionType
     TransferIn = 2,
     TransferOut = 3,
     Expense = 4,
-    Installment
+    Installment = 5,
+    DebtPayment = 6,
 }
