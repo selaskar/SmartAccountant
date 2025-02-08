@@ -32,7 +32,7 @@ public class ExcelSpreadsheetParserService(IStatementParseStrategyFactory factor
             switch (statement.Account.NormalBalance)
             {
                 case BalanceType.Debit:
-                    statementParseStrategy.ParseDebitStatement(statement, worksheet, sharedStringTable);
+                    statementParseStrategy.ParseDebitStatement((DebitStatement)statement, worksheet, sharedStringTable);
                     break;
                 case BalanceType.Credit:
                     statementParseStrategy.ParseCreditStatement(statement, worksheet, sharedStringTable);

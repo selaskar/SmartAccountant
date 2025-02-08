@@ -1,0 +1,25 @@
+﻿using AutoMapper;
+using SmartAccountant.Abstractions.Exceptions;
+using SmartAccountant.Repositories.Core.Abstract;
+using SmartAccountant.Repositories.Core.DataContexts;
+
+namespace SmartAccountant.Repositories.Core;
+
+internal sealed class StatementRepository(CoreDbContext dbContext, IMapper mapper) : IStatementRepository
+{
+    /// <inheritdoc/>
+    public async Task Insert(Models.Statement statement, CancellationToken cancellationToken)
+    {
+        try
+        {
+            Entities.Statement entity = mapper.Map<Entities.Statement>(statement);
+
+            dbContext.Statements.Add(entity);
+            await dbContext.SaveChangesAsync(cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            throw new RepositoryException($"Failed to insert statement ({statement.Id}).", ex);
+        }
+    }
+}

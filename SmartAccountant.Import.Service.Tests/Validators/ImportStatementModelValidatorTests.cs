@@ -14,11 +14,37 @@ public class ImportStatementModelValidatorTests
     public void Initialize() => sut = new();
 
     [TestMethod]
+    public void ReturnsErrorForEmptyRequestId()
+    {
+        // Arrange
+        ImportStatementModel model = new()
+        {
+            RequestId = Guid.Empty,
+            AccountId = Guid.NewGuid(),
+            PeriodStart = new DateTimeOffset(2025, 02, 01, 0, 0, 0, TimeSpan.Zero),
+            PeriodEnd = new DateTimeOffset(2025, 02, 28, 0, 0, 0, TimeSpan.Zero),
+            File = new ImportFile()
+            {
+                FileName = "file.txt",
+                ContentType = "text/plain",
+                OpenReadStream = () => new MemoryStream([])
+            }
+        };
+
+        // Act
+        TestValidationResult<ImportStatementModel> result = sut.TestValidate(model);
+
+        // Assert
+        result.ShouldHaveValidationErrorFor(x => x.RequestId).Only();
+    }
+
+    [TestMethod]
     public void ReturnsErrorForEmptyAccountId()
     {
         // Arrange
         ImportStatementModel model = new()
         {
+            RequestId = Guid.NewGuid(),
             AccountId = Guid.Empty,
             PeriodStart = new DateTimeOffset(2025, 02, 01, 0, 0, 0, TimeSpan.Zero),
             PeriodEnd = new DateTimeOffset(2025, 02, 28, 0, 0, 0, TimeSpan.Zero),
@@ -43,6 +69,7 @@ public class ImportStatementModelValidatorTests
         // Arrange
         ImportStatementModel model = new()
         {
+            RequestId = Guid.NewGuid(),
             AccountId = Guid.NewGuid(),
             PeriodStart = new DateTimeOffset(2025, 02, 01, 0, 0, 0, TimeSpan.Zero),
             PeriodEnd = new DateTimeOffset(2025, 02, 28, 0, 0, 0, TimeSpan.Zero),
@@ -67,6 +94,7 @@ public class ImportStatementModelValidatorTests
         // Arrange
         ImportStatementModel model = new()
         {
+            RequestId = Guid.NewGuid(),
             AccountId = Guid.NewGuid(),
             PeriodStart = new DateTimeOffset(2025, 02, 01, 0, 0, 0, TimeSpan.Zero),
             PeriodEnd = new DateTimeOffset(2025, 02, 28, 0, 0, 0, TimeSpan.Zero),
@@ -86,6 +114,7 @@ public class ImportStatementModelValidatorTests
         // Arrange
         ImportStatementModel model = new()
         {
+            RequestId = Guid.NewGuid(),
             AccountId = Guid.NewGuid(),
             PeriodStart = new DateTimeOffset(2025, 02, 01, 0, 0, 0, TimeSpan.Zero),
             PeriodEnd = new DateTimeOffset(2025, 02, 28, 0, 0, 0, TimeSpan.Zero),
@@ -113,6 +142,7 @@ public class ImportStatementModelValidatorTests
 
         ImportStatementModel model = new()
         {
+            RequestId = Guid.NewGuid(),
             AccountId = Guid.NewGuid(),
             PeriodStart = new DateTimeOffset(2025, 02, 01, 0, 0, 0, TimeSpan.Zero),
             PeriodEnd = new DateTimeOffset(2025, 02, 28, 0, 0, 0, TimeSpan.Zero),
@@ -125,7 +155,7 @@ public class ImportStatementModelValidatorTests
                 //new MemoryStream(Enumerable.Repeat((byte)0, (int)ImportService.MaxFileSize + 1).ToArray()),
             }
         };
-        
+
         // Act
         TestValidationResult<ImportStatementModel> result = sut.TestValidate(model);
 
@@ -142,6 +172,7 @@ public class ImportStatementModelValidatorTests
 
         ImportStatementModel model = new()
         {
+            RequestId = Guid.NewGuid(),
             AccountId = Guid.NewGuid(),
             PeriodStart = new DateTimeOffset(2025, 02, 01, 0, 0, 0, TimeSpan.Zero),
             PeriodEnd = new DateTimeOffset(2025, 02, 28, 0, 0, 0, TimeSpan.Zero),

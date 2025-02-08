@@ -7,7 +7,7 @@ using SmartAccountant.Abstractions.Interfaces;
 
 namespace FileStorage.Extensions;
 
-public static class StorageServiceCollectionExtensions
+public static class ServiceCollectionExtensions
 {
     public static IServiceCollection ConfigureStorage(this IServiceCollection services, TokenCredential credential, AzureStorageOptions storageOptions)
     {

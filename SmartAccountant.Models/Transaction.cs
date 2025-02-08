@@ -1,9 +1,7 @@
 ﻿namespace SmartAccountant.Models;
 
-public abstract class Transaction
+public abstract class Transaction : BaseModel
 {
-    public Guid Id { get; init; }
-
     public required Guid StatementId { get; init; }
 
     public string? ReferenceNumber { get; init; }

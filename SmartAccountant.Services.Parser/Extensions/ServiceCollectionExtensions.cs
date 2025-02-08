@@ -6,7 +6,7 @@ using SmartAccountant.Services.Parser.ParseStrategies;
 
 namespace SmartAccountant.Services.Parser.Extensions;
 
-public static class ParserServiceCollectionExtensions
+public static class ServiceCollectionExtensions
 {
     public static IServiceCollection ConfigureParser(this IServiceCollection services)
     {

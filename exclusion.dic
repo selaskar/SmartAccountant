@@ -4,3 +4,7 @@ officedocument
 spreadsheetml
 yyyy
 Garanti
+uniqueidentifier
+smallint
+nvarchar
+datetimeoffset

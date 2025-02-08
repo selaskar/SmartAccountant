@@ -6,7 +6,7 @@ using SmartAccountant.Import.Service.Validators;
 
 namespace SmartAccountant.Import.Service.Extensions;
 
-public static class ImportServiceCollectionExtensions
+public static class ServiceCollectionExtensions
 {
     public static IServiceCollection ConfigureImport(this IServiceCollection services)
     {

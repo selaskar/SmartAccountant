@@ -44,6 +44,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmartAccountant.Core.Tests"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmartAccountant.Services.Parser", "SmartAccountant.Services.Parser\SmartAccountant.Services.Parser.csproj", "{958631B5-9946-4367-B8C1-C7B1A9E5484E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmartAccountant.Repositories.Core", "SmartAccountant.Repositories.Core\SmartAccountant.Repositories.Core.csproj", "{9F2E2E38-4EBA-4F41-A12C-A929A174244E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -98,6 +100,10 @@ Global
 		{958631B5-9946-4367-B8C1-C7B1A9E5484E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{958631B5-9946-4367-B8C1-C7B1A9E5484E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{958631B5-9946-4367-B8C1-C7B1A9E5484E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9F2E2E38-4EBA-4F41-A12C-A929A174244E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9F2E2E38-4EBA-4F41-A12C-A929A174244E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9F2E2E38-4EBA-4F41-A12C-A929A174244E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9F2E2E38-4EBA-4F41-A12C-A929A174244E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

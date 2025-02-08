@@ -1,0 +1,22 @@
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
+using SmartAccountant.Models;
+
+namespace SmartAccountant.Repositories.Core.Entities;
+
+[Index(nameof(HolderId))]
+internal abstract class Account
+{
+    public Guid Id { get; set; }
+
+    public Guid HolderId { get; set; }
+
+    public Bank Bank { get; set; }
+
+    [StringLength(50)]
+    public string? FriendlyName { get; set; }
+
+    [NotMapped]
+    public abstract BalanceType NormalBalance { get; }
+}

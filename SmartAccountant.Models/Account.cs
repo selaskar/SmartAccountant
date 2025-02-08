@@ -1,16 +1,22 @@
-﻿namespace SmartAccountant.Models;
+﻿using System.ComponentModel.DataAnnotations;
+using System.Diagnostics.CodeAnalysis;
 
-public abstract class Account
+namespace SmartAccountant.Models;
+
+public abstract class Account : BaseModel
 {
-    public Guid Id { get; init; }
+    public Guid HolderId { get; init; }
 
     public Bank Bank { get; init; }
 
+    [StringLength(50)]
     public string? FriendlyName { get; init; }
 
     public abstract BalanceType NormalBalance { get; }
 }
-public enum Bank
+
+[SuppressMessage("Design", "CA1028:Enum Storage should be Int32", Justification = "We map this enum to a database column.")]
+public enum Bank : short
 {
     Unknown = 0,
     GarantiBBVA = 1,

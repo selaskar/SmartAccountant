@@ -1,11 +1,13 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.Net.Mime;
+﻿using System.Net.Mime;
+using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SmartAccountant.Abstractions.Exceptions;
 using SmartAccountant.Abstractions.Interfaces;
 using SmartAccountant.Abstractions.Models.Request;
 using SmartAccountant.Models;
+using SmartAccountant.Models.Request;
+using SmartAccountant.Models.Response;
 
 namespace SmartAccountant.Controllers;
 
@@ -15,38 +17,29 @@ namespace SmartAccountant.Controllers;
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
 [ProducesResponseType(StatusCodes.Status403Forbidden)]
 [ProducesResponseType(StatusCodes.Status499ClientClosedRequest)]
-public sealed partial class ImportStatementController(IImportService importService) : ControllerBase
+public sealed partial class ImportStatementController(IImportService importService, IMapper mapper) : ControllerBase
 {
     [EndpointSummary("Allows importing external statement reports to an account.")]
     [HttpPost("[action]")]
     [Consumes(MediaTypeNames.Multipart.FormData)]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType<BadRequestObjectResult>(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<Statement>> Upload(
-        [FromForm] Guid accountId,
-        [Required] IFormFile file,
-        [FromForm] DateTimeOffset periodStart,
-        [FromForm] DateTimeOffset periodEnd,
-        CancellationToken cancellationToken)
+    public async Task<ActionResult<UploadStatementResponse>> Upload([FromForm] UploadStatementRequest request, CancellationToken cancellationToken)
     {
-        ArgumentNullException.ThrowIfNull(file);
+        ArgumentNullException.ThrowIfNull(request);
 
-        ImportStatementModel requestModel = new ImportStatementModel
-        {
-            AccountId = accountId,
-            PeriodStart = periodStart,
-            PeriodEnd = periodEnd,
-            File = new ImportFile()
-            {
-                FileName = file.FileName,
-                ContentType = file.ContentType,
-                OpenReadStream = file.OpenReadStream
-            },
-        };
+        ImportStatementModel requestModel = mapper.Map<ImportStatementModel>(request);
 
         try
         {
-            return await importService.ImportStatement(requestModel, cancellationToken);
+            Statement statement = await importService.ImportStatement(requestModel, cancellationToken);
+
+            UploadStatementResponse response = mapper.Map<UploadStatementResponse>(statement) with
+            {
+                RequestId = request.RequestId
+            };
+
+            return Ok(response);
         }
         catch (ImportException ex)
         {

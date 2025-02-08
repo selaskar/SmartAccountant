@@ -1,9 +1,7 @@
 ﻿namespace SmartAccountant.Models;
 
-public class Statement
+public abstract class Statement : BaseModel
 {
-    public Guid Id { get; init; }
-
     public Guid AccountId { get; init; }
 
     public Account? Account { get; set; }
@@ -13,4 +11,6 @@ public class Statement
     public DateTimeOffset PeriodEnd { get; init; }
 
     public IList<Transaction> Transactions { get; init; } = [];
+
+    public IList<StatementDocument> Documents { get; init; } = [];
 }

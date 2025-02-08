@@ -8,6 +8,7 @@ using SmartAccountant.Core.Helpers;
 using SmartAccountant.Import.Service.Helpers;
 using SmartAccountant.Import.Service.Resources;
 using SmartAccountant.Models;
+using SmartAccountant.Repositories.Core.Abstract;
 
 namespace SmartAccountant.Import.Service;
 
@@ -15,6 +16,9 @@ public sealed partial class ImportService(
     ILogger<ImportService> logger,
     IValidator<ImportStatementModel> validator,
     IStorageService storageService,
+    IAuthorizationService authorizationService,
+    IAccountRepository accountRepository,
+    IStatementRepository statementRepository,
     ISpreadsheetParser parser)
     : IImportService
 {
@@ -29,70 +33,133 @@ public sealed partial class ImportService(
     {
         validator.ValidateAndThrowSafe(request);
 
+        if (!await FileTypeValidator.IsValidFile(request.File, cancellationToken))
+            throw new ImportException(Messages.UploadedStatementFileTypeNotSupported);
+
+        Guid? userId = authorizationService.UserId
+            ?? throw new ImportException(Messages.UserNotAuthenticated);
+
+        Account account = ValidateAccountHolder(userId.Value, request.AccountId, cancellationToken);
+
+        Statement statement = Parse(request, account);
+
+        await SaveFile(statement, request.File, cancellationToken);
+
         try
         {
-            if (!await FileTypeValidator.IsValidFile(request.File, cancellationToken))
-                throw new ImportException(Messages.UploadedStatementFileTypeNotSupported);
+            await statementRepository.Insert(statement, cancellationToken);
 
-            Guid documentId = await SaveFile(request.AccountId, request.File, cancellationToken);
+            return statement;
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            PersistFailed(ex, account.Id);
 
-            //TODO: assign document id
-            var statement = new Statement()
+            throw new ImportException(Messages.CannotSaveImportedStatement, ex);
+        }
+    }
+
+    /// <exception cref="ImportException" />
+    private Account ValidateAccountHolder(Guid userId, Guid accountId, CancellationToken cancellationToken)
+    {
+        try
+        {
+            return accountRepository.GetAccountsOfUser(userId)
+                .ToBlockingEnumerable(cancellationToken)
+                .FirstOrDefault(x => x.Id == accountId)
+               ?? throw new ImportException(Messages.AccountDoesNotBelongToUser); // or does not exist
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException and not ImportException)
+        {
+            AccountHolderVerificationFailed(ex, accountId);
+
+            throw new ImportException(Messages.CannotValidateAccountHolder, ex);
+        }
+    }
+
+    /// <exception cref="ImportException"/>
+    private Statement Parse(ImportStatementModel request, Account account)
+    {
+        try
+        {
+            Statement statement = account.NormalBalance switch
             {
-                Id = Guid.NewGuid(),
-                AccountId = request.AccountId,
-                Account = new SavingAccount
+                BalanceType.Debit => new DebitStatement()
                 {
-                    Id = request.AccountId,
-                    Bank = Bank.GarantiBBVA,
-                    AccountNumber = "", //TODO: may be read from file.
-                    FriendlyName = ""
+                    Id = Guid.NewGuid(),
+                    AccountId = request.AccountId,
+                    Account = account,
+                    PeriodStart = request.PeriodStart,
+                    PeriodEnd = request.PeriodEnd,
+                    Currency = ((SavingAccount)account).Currency,
                 },
-                PeriodStart = request.PeriodStart,
-                PeriodEnd = request.PeriodEnd,
+                BalanceType.Credit => throw new NotImplementedException($"Balance type ({account.NormalBalance}) is not implemented yet."),
+                _ => throw new NotImplementedException($"Balance type ({account.NormalBalance}) is not implemented yet.")
             };
 
             parser.ReadStatement(statement, request.File.OpenReadStream());
 
-            decimal net = statement.Transactions.Sum(x => x.Amount.Amount);
-
-            return statement; //TODO: statement response model
+            return statement;
         }
-        catch (Exception ex) when (ex is not OperationCanceledException and not ImportException)
+        catch (Exception ex)
         {
-            UploadFailed(ex, request.AccountId);
+            ParseFailed(ex, account.Id);
 
             throw new ImportException(Messages.CannotSaveUploadedStatementFile, ex);
         }
     }
 
-    /// <remarks>Leaves the stream in the beginning position.</remarks>
-    /// <exception cref="StorageException"/>
+    /// <remarks>Leaves the file stream in the beginning position.</remarks>
+    /// <exception cref="ImportException"/>
     /// <exception cref="OperationCanceledException"/>
-    private async Task<Guid> SaveFile(Guid accountId, ImportFile file, CancellationToken cancellationToken)
+    private async Task SaveFile(Statement statement, ImportFile file, CancellationToken cancellationToken)
     {
-        UploadStarting();
+        try
+        {
+            UploadStarting();
 
-        var documentId = Guid.NewGuid();
-        string path = $"{AccountsFolderName}/{accountId:D}/{DateTimeOffset.UtcNow.ToString(@"yyyy/MM", CultureInfo.InvariantCulture)}/{documentId:D}";
+            var documentId = Guid.NewGuid();
+            string path = $"{AccountsFolderName}/{statement.AccountId:D}/{DateTimeOffset.UtcNow.ToString(@"yyyy/MM", CultureInfo.InvariantCulture)}/{documentId:D}";
 
-        using Stream readStream = file.OpenReadStream();
-        await storageService.WriteToFile(UploadsContainerName, path, readStream, cancellationToken);
+            using Stream readStream = file.OpenReadStream();
+            await storageService.WriteToFile(UploadsContainerName, path, readStream, cancellationToken);
 
-        readStream.Seek(0, SeekOrigin.Begin);
+            readStream.Seek(0, SeekOrigin.Begin);
 
-        UploadSucceeded();
+            UploadSucceeded();
 
-        return documentId;
+            statement.Documents.Add(new StatementDocument()
+            {
+                DocumentId = documentId,
+                StatementId = statement.Id,
+                Statement = statement,
+                FilePath = path
+            });
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            UploadFailed(ex, statement.AccountId);
+
+            throw new ImportException(Messages.CannotSaveUploadedStatementFile, ex);
+        }
     }
 
 
-    [LoggerMessage(Level = LogLevel.Trace, Message = "Starting to save the uploaded file.")]
+    [LoggerMessage(Level = LogLevel.Error, Message = "An error occurred while verifying the holder of account ({AccountId}).")]
+    private partial void AccountHolderVerificationFailed(Exception ex, Guid accountId);
+
+    [LoggerMessage(Level = LogLevel.Error, Message = "Parsing of statement document failed for account ({AccountId}).")]
+    private partial void ParseFailed(Exception ex, Guid accountId);
+
+    [LoggerMessage(Level = LogLevel.Trace, Message = "Starting to save the uploaded document.")]
     private partial void UploadStarting();
 
-    [LoggerMessage(Level = LogLevel.Trace, Message = "Statement file successfully uploaded.")]
+    [LoggerMessage(Level = LogLevel.Trace, Message = "Statement document successfully uploaded.")]
     private partial void UploadSucceeded();
-
-    [LoggerMessage(Level = LogLevel.Error, Message = "An error occurred while saving the uploaded file for account ({AccountId}).")]
+    
+    [LoggerMessage(Level = LogLevel.Error, Message = "An error occurred while saving the uploaded document for account ({AccountId}).")]
     private partial void UploadFailed(Exception ex, Guid accountId);
+
+    [LoggerMessage(Level = LogLevel.Error, Message = "Persisting of uploaded statement failed for account ({AccountId}).")]
+    private partial void PersistFailed(Exception ex, Guid accountId);
 }

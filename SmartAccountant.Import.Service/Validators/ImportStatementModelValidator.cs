@@ -11,6 +11,8 @@ internal sealed class ImportStatementModelValidator : AbstractValidator<ImportSt
     {
         ClassLevelCascadeMode = CascadeMode.Stop;
 
+        RuleFor(x => x.RequestId).NotEmpty();
+
         RuleFor(x => x.AccountId).NotEmpty();
 
         RuleFor(x => x.File).NotNull().SetValidator(new ImportFileValidator());

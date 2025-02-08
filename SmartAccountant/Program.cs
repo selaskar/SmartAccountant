@@ -7,6 +7,8 @@ using Microsoft.Identity.Web;
 using SmartAccountant.Filters;
 using SmartAccountant.Identity.Extensions;
 using SmartAccountant.Import.Service.Extensions;
+using SmartAccountant.Mappers;
+using SmartAccountant.Repositories.Core.Extensions;
 using SmartAccountant.Services.Parser.Extensions;
 
 namespace SmartAccountant;
@@ -33,9 +35,13 @@ internal sealed class Program
 
         builder.Services.ConfigureStorage(credential, GetOptions<AzureStorageOptions>(builder.Configuration, AzureStorageOptions.Section));
 
+        builder.Services.ConfigureCoreRepository(builder.Configuration);
+
         builder.Services.ConfigureImport();
 
         builder.Services.ConfigureParser();
+
+        builder.Services.AddAutoMapper(typeof(RequestResponseMappings));
 
         BuildAndRun(builder);
     }

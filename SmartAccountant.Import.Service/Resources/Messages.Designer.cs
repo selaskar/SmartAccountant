@@ -61,11 +61,38 @@ namespace SmartAccountant.Import.Service.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to An error occurred while saving the uploaded file..
+        ///   Looks up a localized string similar to Account does not belong to the authenticated user..
+        /// </summary>
+        internal static string AccountDoesNotBelongToUser {
+            get {
+                return ResourceManager.GetString("AccountDoesNotBelongToUser", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to An error occurred while persisting the imported statement..
+        /// </summary>
+        internal static string CannotSaveImportedStatement {
+            get {
+                return ResourceManager.GetString("CannotSaveImportedStatement", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to An error occurred while saving the uploaded document..
         /// </summary>
         internal static string CannotSaveUploadedStatementFile {
             get {
                 return ResourceManager.GetString("CannotSaveUploadedStatementFile", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to An error occurred while validating the account holder information..
+        /// </summary>
+        internal static string CannotValidateAccountHolder {
+            get {
+                return ResourceManager.GetString("CannotValidateAccountHolder", resourceCulture);
             }
         }
         
@@ -102,6 +129,15 @@ namespace SmartAccountant.Import.Service.Resources {
         internal static string UploadedStatementFileTypeNotSupported {
             get {
                 return ResourceManager.GetString("UploadedStatementFileTypeNotSupported", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to User is not authenticated..
+        /// </summary>
+        internal static string UserNotAuthenticated {
+            get {
+                return ResourceManager.GetString("UserNotAuthenticated", resourceCulture);
             }
         }
     }

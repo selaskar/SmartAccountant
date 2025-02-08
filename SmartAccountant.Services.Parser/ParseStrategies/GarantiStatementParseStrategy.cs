@@ -7,14 +7,17 @@ using SmartAccountant.Services.Parser.Extensions;
 
 namespace SmartAccountant.Services.Parser.ParseStrategies;
 
-//TODO: parsing culture and date style
 internal sealed class GarantiStatementParseStrategy : IStatementParseStrategy
 {
     /// <inheritdoc/>
-    public void ParseDebitStatement(Statement statement, Worksheet worksheet, SharedStringTable stringTable)
+    public void ParseDebitStatement(DebitStatement statement, Worksheet worksheet, SharedStringTable stringTable)
     {
+        short rowCount = 0;
         foreach (Row row in worksheet.Descendants<Row>().Skip(11))
-            statement.Transactions.Add(ParseDebitTransaction(statement, row, stringTable));
+        {
+            DebitTransaction transaction = ParseDebitTransaction(statement, rowCount++, row, stringTable);
+            statement.Transactions.Add(transaction);
+        }
     }
 
     /// <inheritdoc/>
@@ -25,7 +28,7 @@ internal sealed class GarantiStatementParseStrategy : IStatementParseStrategy
 
 
     /// <exception cref="ParserException"/>
-    private static DebitTransaction ParseDebitTransaction(Statement statement, Row row, SharedStringTable stringTable)
+    private static DebitTransaction ParseDebitTransaction(DebitStatement statement, short order, Row row, SharedStringTable stringTable)
     {
         // Expected row format: Date (0), Description (1), Amount (2), Remaining Balance (3), Reference Number (4)
 
@@ -37,22 +40,23 @@ internal sealed class GarantiStatementParseStrategy : IStatementParseStrategy
         if (string.IsNullOrWhiteSpace(dateString))
             throw new ParserException("Unrecognized file format. Expected to have transaction date at column A.");
 
-        if (!DateTime.TryParseExact(dateString, "dd/MM/yyyy", CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out var date))
+        if (!DateTime.TryParseExact(dateString, "dd/MM/yyyy", CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal, out var date))
             throw new ParserException($"Unrecognized file format. Could not parse transaction date '{dateString}'.");
 
 
-        MonetaryValue amount = new(ParseDecimal(row.GetCellValue(2, stringTable)), Currency.TRY);
-        MonetaryValue remainingBalance = new(ParseDecimal(row.GetCellValue(3, stringTable)), Currency.TRY);
+        MonetaryValue amount = new(ParseDecimal(row.GetCellValue(2, stringTable)), statement.Currency);
+        MonetaryValue remainingBalance = new(ParseDecimal(row.GetCellValue(3, stringTable)), statement.Currency);
 
         return new DebitTransaction
         {
             Id = Guid.NewGuid(),
             StatementId = statement.Id,
-            Timestamp = date,
+            Timestamp = new DateTimeOffset(date, TimeSpan.Zero),
             Amount = amount,
-            RemainingBalance = remainingBalance,
             ReferenceNumber = row.GetCellValue(4, stringTable),
-            Note = row.GetCellValue(1, stringTable)
+            Note = row.GetCellValue(1, stringTable),
+            RemainingBalance = remainingBalance,
+            Order = order
         };
     }
 

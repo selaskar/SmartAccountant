@@ -3,11 +3,12 @@ using Azure.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using SmartAccountant.Abstractions.Interfaces;
 using SmartAccountant.Identity.Options;
 
 namespace SmartAccountant.Identity.Extensions;
 
-public static class IdentityServiceCollectionExtensions
+public static class ServiceCollectionExtensions
 {
     public static TokenCredential ConfigureIdentity(this IServiceCollection services, IConfiguration configuration)
     {
@@ -17,6 +18,8 @@ public static class IdentityServiceCollectionExtensions
             .Bind(configuration.GetRequiredSection(IdentityOptions.Section), binderOptions => binderOptions.ErrorOnUnknownConfiguration = true)
             .ValidateDataAnnotations()
             .ValidateOnStart();
+
+        services.AddScoped<IAuthorizationService, AuthorizationService>();
 
         //Using this approach makes sure that option configuration is proper, before it is being used below.
         using IServiceScope scope = services.BuildServiceProvider().CreateScope();
