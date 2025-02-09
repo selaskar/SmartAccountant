@@ -6,7 +6,7 @@ using SmartAccountant.Models.Response;
 
 namespace SmartAccountant.Mappers;
 
-internal class RequestResponseMappings : Profile
+internal sealed class RequestResponseMappings : Profile
 {
     public RequestResponseMappings()
     {

@@ -1,6 +1,4 @@
-﻿//TODO: rename file to match class name.
-
-using System.Globalization;
+﻿using System.Globalization;
 using DocumentFormat.OpenXml.Spreadsheet;
 using SmartAccountant.Abstractions.Exceptions;
 using SmartAccountant.Models;
