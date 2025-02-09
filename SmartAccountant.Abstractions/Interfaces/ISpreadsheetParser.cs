@@ -11,5 +11,6 @@ public interface ISpreadsheetParser
     /// </remarks>
     /// <exception cref="ParserException" />
     /// <exception cref="ArgumentNullException" />
-    void ReadStatement(Statement statement, Stream stream);
+    void ReadStatement<TTransaction>(Statement<TTransaction> statement, Stream stream)
+         where TTransaction : Transaction;
 }

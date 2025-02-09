@@ -10,7 +10,10 @@ public abstract class Statement : BaseModel
 
     public DateTimeOffset PeriodEnd { get; init; }
 
-    public IList<Transaction> Transactions { get; init; } = [];
-
     public IList<StatementDocument> Documents { get; init; } = [];
+}
+
+public abstract class Statement<TTransaction> : Statement where TTransaction : Transaction
+{
+    public IList<TTransaction> Transactions { get; init; } = [];
 }

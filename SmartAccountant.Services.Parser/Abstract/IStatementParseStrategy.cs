@@ -4,11 +4,9 @@ using SmartAccountant.Models;
 
 namespace SmartAccountant.Services.Parser.Abstract;
 
-public interface IStatementParseStrategy
+internal interface IStatementParseStrategy<TTransaction> where TTransaction : Transaction
 {
     /// <exception cref="ParserException"/>
-    public void ParseDebitStatement(DebitStatement statement, Worksheet worksheet, SharedStringTable stringTable);
-
-    /// <exception cref="ParserException"/>
-    public void ParseCreditStatement(Statement statement, Worksheet worksheet, SharedStringTable stringTable);
+    /// <exception cref="ArgumentException"/>
+    public void ParseStatement(Statement<TTransaction> statement, Worksheet worksheet, SharedStringTable stringTable);
 }

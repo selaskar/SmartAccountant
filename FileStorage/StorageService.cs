@@ -6,7 +6,7 @@ using SmartAccountant.Abstractions.Interfaces;
 
 namespace FileStorage;
 
-public class StorageService(BlobServiceClient client) : IStorageService
+internal class StorageService(BlobServiceClient client) : IStorageService
 {
     /// <inheritdoc/>
     public async Task WriteToFile(string container, string filePath, Stream stream, CancellationToken cancellationToken)

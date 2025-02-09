@@ -5,6 +5,7 @@ using SmartAccountant.Abstractions.Exceptions;
 using SmartAccountant.Abstractions.Interfaces;
 using SmartAccountant.Abstractions.Models.Request;
 using SmartAccountant.Core.Helpers;
+using SmartAccountant.Import.Service.Abstract;
 using SmartAccountant.Import.Service.Helpers;
 using SmartAccountant.Import.Service.Resources;
 using SmartAccountant.Models;
@@ -12,14 +13,15 @@ using SmartAccountant.Repositories.Core.Abstract;
 
 namespace SmartAccountant.Import.Service;
 
-public sealed partial class ImportService(
+internal sealed partial class ImportService(
     ILogger<ImportService> logger,
     IValidator<ImportStatementModel> validator,
     IStorageService storageService,
     IAuthorizationService authorizationService,
     IAccountRepository accountRepository,
-    IStatementRepository statementRepository,
-    ISpreadsheetParser parser)
+    IStatementFactory statementFactory,
+    ISpreadsheetParser parser,
+    IStatementRepository statementRepository)
     : IImportService
 {
     /// <remarks>In bytes</remarks>
@@ -82,22 +84,9 @@ public sealed partial class ImportService(
     {
         try
         {
-            Statement statement = account.NormalBalance switch
-            {
-                BalanceType.Debit => new DebitStatement()
-                {
-                    Id = Guid.NewGuid(),
-                    AccountId = request.AccountId,
-                    Account = account,
-                    PeriodStart = request.PeriodStart,
-                    PeriodEnd = request.PeriodEnd,
-                    Currency = ((SavingAccount)account).Currency,
-                },
-                BalanceType.Credit => throw new NotImplementedException($"Balance type ({account.NormalBalance}) is not implemented yet."),
-                _ => throw new NotImplementedException($"Balance type ({account.NormalBalance}) is not implemented yet.")
-            };
+            Statement statement = statementFactory.Create(request, account);
 
-            parser.ReadStatement(statement, request.File.OpenReadStream());
+            parser.ReadStatement((Statement<DebitTransaction>)statement, request.File.OpenReadStream());
 
             return statement;
         }
@@ -156,7 +145,7 @@ public sealed partial class ImportService(
 
     [LoggerMessage(Level = LogLevel.Trace, Message = "Statement document successfully uploaded.")]
     private partial void UploadSucceeded();
-    
+
     [LoggerMessage(Level = LogLevel.Error, Message = "An error occurred while saving the uploaded document for account ({AccountId}).")]
     private partial void UploadFailed(Exception ex, Guid accountId);
 

@@ -1,4 +1,5 @@
-﻿using Azure.Core;
+﻿using System.Diagnostics.CodeAnalysis;
+using Azure.Core;
 using Azure.Storage;
 using FileStorage.Options;
 using Microsoft.Extensions.Azure;
@@ -7,6 +8,7 @@ using SmartAccountant.Abstractions.Interfaces;
 
 namespace FileStorage.Extensions;
 
+[ExcludeFromCodeCoverage]
 public static class ServiceCollectionExtensions
 {
     public static IServiceCollection ConfigureStorage(this IServiceCollection services, TokenCredential credential, AzureStorageOptions storageOptions)

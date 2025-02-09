@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.Diagnostics.CodeAnalysis;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -9,6 +10,7 @@ using SmartAccountant.Repositories.Core.Options;
 
 namespace SmartAccountant.Repositories.Core.Extensions;
 
+[ExcludeFromCodeCoverage]
 public static class ServiceCollectionExtensions
 {
     public static IServiceCollection ConfigureCoreRepository(this IServiceCollection services, IConfiguration configuration)
@@ -22,7 +24,7 @@ public static class ServiceCollectionExtensions
         {
             CoreDatabaseOptions options = services.GetRequiredService<IOptions<CoreDatabaseOptions>>().Value;
 
-            builder.UseSqlServer(options.ConnectionString);
+            builder.UseSqlServer(options.ConnectionString, options => options.EnableRetryOnFailure());
         });
 
         services.AddAutoMapper(typeof(EntityToModelMappings));

@@ -7,10 +7,11 @@ using SmartAccountant.Services.Parser.Abstract;
 
 namespace SmartAccountant.Services.Parser;
 
-public class ExcelSpreadsheetParserService(IStatementParseStrategyFactory factory) : ISpreadsheetParser
+internal class ExcelSpreadsheetParserService(IStatementParseStrategyFactory factory) : ISpreadsheetParser
 {
     /// <inheritdoc />
-    public void ReadStatement(Statement statement, Stream stream)
+    public void ReadStatement<TTransaction>(Statement<TTransaction> statement, Stream stream)
+         where TTransaction : Transaction
     {
         ArgumentNullException.ThrowIfNull(statement);
         ArgumentNullException.ThrowIfNull(statement.Account);
@@ -27,19 +28,8 @@ public class ExcelSpreadsheetParserService(IStatementParseStrategyFactory factor
 
             SharedStringTable sharedStringTable = document.WorkbookPart.GetPartsOfType<SharedStringTablePart>().First().SharedStringTable;
 
-            IStatementParseStrategy statementParseStrategy = factory.Create(statement.Account.Bank);
-
-            switch (statement.Account.NormalBalance)
-            {
-                case BalanceType.Debit:
-                    statementParseStrategy.ParseDebitStatement((DebitStatement)statement, worksheet, sharedStringTable);
-                    break;
-                case BalanceType.Credit:
-                    statementParseStrategy.ParseCreditStatement(statement, worksheet, sharedStringTable);
-                    break;
-                default:
-                    throw new NotImplementedException($"Balance type ({statement.Account.NormalBalance}) is not implemented yet.");
-            };
+            IStatementParseStrategy<TTransaction> statementParseStrategy = factory.Create<TTransaction>(statement.Account.Bank);
+            statementParseStrategy.ParseStatement(statement, worksheet, sharedStringTable);
         }
         catch (Exception ex) when (ex is not OperationCanceledException and not ParserException)
         {

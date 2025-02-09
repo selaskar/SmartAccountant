@@ -2,8 +2,9 @@
 
 namespace SmartAccountant.Services.Parser.Abstract;
 
-public interface IStatementParseStrategyFactory
+internal interface IStatementParseStrategyFactory
 {
     /// <exception cref="NotImplementedException" />
-    IStatementParseStrategy Create(Bank bank);
+    IStatementParseStrategy<TTransaction> Create<TTransaction>(Bank bank)
+         where TTransaction : Transaction;
 }

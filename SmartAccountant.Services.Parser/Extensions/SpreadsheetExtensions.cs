@@ -1,26 +1,51 @@
-﻿using System.Globalization;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using DocumentFormat.OpenXml.Spreadsheet;
 
 namespace SmartAccountant.Services.Parser.Extensions;
 
 internal static class SpreadsheetExtensions
 {
-    internal static string GetCellValue(this Row row, int index, SharedStringTable stringTable)
+    /// <exception cref="ArgumentOutOfRangeException"/>
+    internal static Cell GetCell(this Row row, int index)
     {
-        return row.Descendants<Cell>().ElementAt(index).GetCellValue(stringTable);
+        return row.Descendants<Cell>().ElementAt(index);
     }
 
-    internal static string GetCellValue(this Cell cell, SharedStringTable stringTable)
+    /// <summary>When <see cref="CellType.DataType"/> is <see cref="CellValues.SharedString"/>, 
+    /// a valid <paramref name="stringTable"/> must be supplied.</summary>
+    /// <exception cref="ArgumentNullException" />
+    internal static string GetCellValue(this Cell cell, SharedStringTable? stringTable)
     {
         if (cell.CellValue?.Text is null)
             return string.Empty;
 
-        if (cell.DataType != null && cell.DataType == CellValues.SharedString)
+        if (cell.DataType?.Value != CellValues.SharedString)
+            return cell.CellValue.Text;
+
+        ArgumentNullException.ThrowIfNull(stringTable);
+
+        var stringReference = int.Parse(cell.CellValue.Text, CultureInfo.InvariantCulture);
+        return stringTable.ElementAt(stringReference).InnerText;
+    }
+
+    internal static bool TryGetDecimalValue(this Cell cell, [NotNullWhen(true)] out decimal? value)
+    {
+        if (string.IsNullOrWhiteSpace(cell.CellValue?.Text))
         {
-            var stringReference = int.Parse(cell.CellValue.Text, CultureInfo.InvariantCulture);
-            return stringTable.ElementAt(stringReference).InnerText;
+            value = null;
+            return false;
         }
 
-        return cell.CellValue.Text;
+        if (cell.CellValue.TryGetDecimal(out decimal value2))
+        {
+            value = value2;
+            return true;
+        }
+        else
+        {
+            value = null;
+            return false;
+        }
     }
 }
