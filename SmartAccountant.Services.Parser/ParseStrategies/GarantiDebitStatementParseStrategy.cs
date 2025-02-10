@@ -10,6 +10,9 @@ namespace SmartAccountant.Services.Parser.ParseStrategies;
 
 internal sealed class GarantiDebitStatementParseStrategy : IStatementParseStrategy<DebitTransaction>
 {
+    /// Non-empty rows
+    internal const int HeaderRowCount = 11;
+
     /// <inheritdoc/>
     public void ParseStatement(Statement<DebitTransaction> statement, Worksheet worksheet, SharedStringTable stringTable)
     {
@@ -19,13 +22,13 @@ internal sealed class GarantiDebitStatementParseStrategy : IStatementParseStrate
         try
         {
             short rowCount = 0;
-            foreach (Row row in worksheet.Descendants<Row>().Skip(11))
+            foreach (Row row in worksheet.Descendants<Row>().Skip(HeaderRowCount))
             {
                 DebitTransaction transaction = ParseDebitTransaction(debitStatement, rowCount++, row, stringTable);
                 statement.Transactions.Add(transaction);
             }
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not ParserException)
         {
             throw new ParserException("An error occurred while parsing the statement document.", ex);
         }
@@ -79,7 +82,6 @@ internal sealed class GarantiDebitStatementParseStrategy : IStatementParseStrate
         if (statement.Transactions.Count == 0)
             return;
 
-        //TODO: test with 1 trx in total
         decimal totalAmount = statement.Transactions.Skip(1).Sum(x => x.Amount.Amount);
 
         decimal initialBalance = statement.Transactions.First().RemainingBalance.Amount;
