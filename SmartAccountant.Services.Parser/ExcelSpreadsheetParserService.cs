@@ -20,7 +20,7 @@ internal class ExcelSpreadsheetParserService(IStatementParseStrategyFactory fact
         {
             using var document = SpreadsheetDocument.Open(stream, false);
 
-            string sheetId = document.WorkbookPart?.Workbook.Descendants<Sheet>().FirstOrDefault()?.Id?.Value
+            string sheetId = document.WorkbookPart?.Workbook?.Descendants<Sheet>().FirstOrDefault()?.Id?.Value
                 ?? throw new ParserException("Document does not contain a sheet.");
 
             WorksheetPart worksheetPart = (WorksheetPart)document.WorkbookPart!.GetPartById(sheetId);
@@ -31,7 +31,7 @@ internal class ExcelSpreadsheetParserService(IStatementParseStrategyFactory fact
             IStatementParseStrategy<TTransaction> statementParseStrategy = factory.Create<TTransaction>(statement.Account.Bank);
             statementParseStrategy.ParseStatement(statement, worksheet, sharedStringTable);
         }
-        catch (Exception ex) when (ex is not OperationCanceledException and not ParserException)
+        catch (Exception ex) when (ex is not ParserException)
         {
             throw new ParserException("An unexpected error occurred while parsing the spreadsheet.", ex);
         }

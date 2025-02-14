@@ -222,7 +222,7 @@ public class IsValidFile
     public void ReturnsCanceledTaskWhenCancellationRequested()
     {
         // Arrange
-        CancellationTokenSource cancellationTokenSource = new(0);
+        using CancellationTokenSource cancellationTokenSource = new(0);
 
         var mockStream = new Mock<Stream>();
         mockStream.Setup((x) => x.ReadAsync(It.IsAny<Memory<byte>>(), Match.Create((CancellationToken token) => token.IsCancellationRequested)))

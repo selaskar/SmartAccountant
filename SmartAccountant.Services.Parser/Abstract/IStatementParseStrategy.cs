@@ -8,5 +8,5 @@ internal interface IStatementParseStrategy<TTransaction> where TTransaction : Tr
 {
     /// <exception cref="ParserException"/>
     /// <exception cref="ArgumentException"/>
-    public void ParseStatement(Statement<TTransaction> statement, Worksheet worksheet, SharedStringTable stringTable);
+    void ParseStatement(Statement<TTransaction> statement, Worksheet worksheet, SharedStringTable stringTable);
 }
