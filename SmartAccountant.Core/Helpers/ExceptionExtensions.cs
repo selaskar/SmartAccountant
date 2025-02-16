@@ -21,7 +21,13 @@ public static class ExceptionExtensions
 
         if (exception is AggregateException aggrEx)
         {
-            foreach (Exception innerEx in aggrEx.InnerExceptions.SelectMany(e => e.GetAllExceptions()))
+            // AggregateException includes top-level inner exception messages in its message already.
+            // Therefore, we skip inner exceptions.
+            var innerInnerExceptions = aggrEx.InnerExceptions
+                .Where(x => x.InnerException != null)
+                .SelectMany(x => x.InnerException!.GetAllExceptions());
+
+            foreach (Exception innerEx in innerInnerExceptions)
             {
                 yield return innerEx;
             }
