@@ -47,21 +47,11 @@ internal sealed partial class ImportService(
 
         await SaveFile(statement, request.File, cancellationToken);
 
-        try
-        {
-            await statementRepository.Insert(statement, cancellationToken);
-
-            return statement;
-        }
-        catch (Exception ex) when (ex is not OperationCanceledException)
-        {
-            PersistFailed(ex, account.Id);
-
-            throw new ImportException(Messages.CannotSaveImportedStatement, ex);
-        }
+        return await PersistStatement(statement, cancellationToken);
     }
 
     /// <exception cref="ImportException" />
+    /// <exception cref="OperationCanceledException" />
     private Account ValidateAccountHolder(Guid userId, Guid accountId, CancellationToken cancellationToken)
     {
         try
@@ -87,14 +77,14 @@ internal sealed partial class ImportService(
             Statement statement = statementFactory.Create(request, account);
 
             parser.ReadStatement((Statement<DebitTransaction>)statement, request.File.OpenReadStream());
-
+            
             return statement;
         }
         catch (Exception ex)
         {
             ParseFailed(ex, account.Id);
 
-            throw new ImportException(Messages.CannotSaveUploadedStatementFile, ex);
+            throw new ImportException(Messages.CannotParseUploadedStatementFile, ex);
         }
     }
 
@@ -133,6 +123,23 @@ internal sealed partial class ImportService(
         }
     }
 
+    /// <exception cref="ImportException"/>
+    /// <exception cref="OperationCanceledException"/>
+    private async Task<Statement> PersistStatement(Statement statement, CancellationToken cancellationToken)
+    {
+        try
+        {
+            await statementRepository.Insert(statement, cancellationToken);
+
+            return statement;
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            PersistFailed(ex, statement.AccountId);
+
+            throw new ImportException(Messages.CannotSaveImportedStatement, ex);
+        }
+    }
 
     [LoggerMessage(Level = LogLevel.Error, Message = "An error occurred while verifying the holder of account ({AccountId}).")]
     private partial void AccountHolderVerificationFailed(Exception ex, Guid accountId);

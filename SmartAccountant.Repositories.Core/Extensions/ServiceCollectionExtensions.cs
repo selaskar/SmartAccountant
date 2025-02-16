@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using Azure.Core;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -24,7 +25,7 @@ public static class ServiceCollectionExtensions
         {
             CoreDatabaseOptions options = services.GetRequiredService<IOptions<CoreDatabaseOptions>>().Value;
 
-            builder.UseSqlServer(options.ConnectionString, options => options.EnableRetryOnFailure());
+            builder.UseAzureSql(options.ConnectionString);
         });
 
         services.AddAutoMapper(typeof(EntityToModelMappings));

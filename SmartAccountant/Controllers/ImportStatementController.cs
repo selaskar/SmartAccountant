@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using SmartAccountant.Abstractions.Exceptions;
 using SmartAccountant.Abstractions.Interfaces;
 using SmartAccountant.Abstractions.Models.Request;
+using SmartAccountant.Core.Helpers;
 using SmartAccountant.Models;
 using SmartAccountant.Models.Request;
 using SmartAccountant.Models.Response;
@@ -43,7 +44,7 @@ public sealed partial class ImportStatementController(IImportService importServi
         }
         catch (ImportException ex)
         {
-            return BadRequest(ex.Message);
+            return BadRequest(ex.GetAllMessages());
         }
     }
 }

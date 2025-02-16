@@ -5,6 +5,7 @@ using Moq;
 using SmartAccountant.Abstractions.Exceptions;
 using SmartAccountant.Models;
 using SmartAccountant.Services.Parser.Abstract;
+using SmartAccountant.Services.Parser.Resources;
 
 namespace SmartAccountant.Services.Parser.Tests.ExcelSpreadsheetParserServiceTests;
 
@@ -40,7 +41,7 @@ public class ReadStatement
     }
 
     [TestMethod]
-    public void ThrowParserExceptionForMissingSheet()
+    public void ThrowParserExceptionForMissingSpreadsheetParts()
     {
         // Arrange
         var statement = new DebitStatement
@@ -54,14 +55,41 @@ public class ReadStatement
 
         using var stream = new MemoryStream();
 
+        //Checking for missing workbook part
         using var document = SpreadsheetDocument.Create(stream, SpreadsheetDocumentType.Workbook);
-        document.AddWorkbookPart();
         document.Save();
-
         stream.Position = 0;
+        AssertParserException();
 
-        // Act, Assert
-        Assert.ThrowsException<ParserException>(() => sut.ReadStatement(statement, stream));
+        //Checking for missing workbook
+        WorkbookPart workbookPart = document.AddWorkbookPart();
+        document.Save();
+        stream.Position = 0;
+        AssertParserException();
+
+        //Checking for missing sheet
+        workbookPart.Workbook = new Workbook();
+        var worksheetPart = workbookPart.AddNewPart<WorksheetPart>();
+        worksheetPart.Worksheet = new Worksheet(new SheetData());
+        document.Save();
+        stream.Position = 0;
+        AssertParserException();
+
+        //Checking for missing sheet id
+        workbookPart.Workbook.AppendChild(new Sheets(
+            new Sheet
+            {
+                Id = null,
+            }));
+        document.Save();
+        stream.Position = 0;
+        AssertParserException();
+
+        void AssertParserException()
+        {
+            var exception = Assert.ThrowsException<ParserException>(() => sut.ReadStatement(statement, stream));
+            Assert.AreEqual(Messages.UploadedDocumentMissingSheet, exception.Message);
+        }
     }
 
     [TestMethod]
@@ -79,10 +107,14 @@ public class ReadStatement
 
         using MemoryStream stream = GetValidSpreadsheet();
 
-        mockFactory.Setup(x => x.Create<Transaction>(It.IsAny<Bank>())).Throws<Exception>();
+        mockFactory.Setup(x => x.Create<Transaction>(It.IsAny<Bank>())).Throws(() => new InvalidOperationException("test"));
 
         // Act, Assert
-        Assert.ThrowsException<ParserException>(() => sut.ReadStatement(statement, stream));
+        var exception = Assert.ThrowsException<ParserException>(() => sut.ReadStatement(statement, stream));
+
+        Assert.IsNotNull(exception.InnerException);
+        Assert.IsInstanceOfType<InvalidOperationException>(exception.InnerException);
+        Assert.AreEqual("test", exception.InnerException.Message);
     }
 
     [TestMethod]
@@ -117,18 +149,19 @@ public class ReadStatement
         using var document = SpreadsheetDocument.Create(stream, SpreadsheetDocumentType.Workbook);
 
         //work book
-        var workbookPart = document.AddWorkbookPart();
+        WorkbookPart workbookPart = document.AddWorkbookPart();
         workbookPart.Workbook = new Workbook();
 
         //work sheet
         var worksheetPart = workbookPart.AddNewPart<WorksheetPart>();
         worksheetPart.Worksheet = new Worksheet(new SheetData());
-        workbookPart.Workbook.AppendChild(new Sheets(new Sheet
-        {
-            Id = workbookPart.GetIdOfPart(worksheetPart),
-            SheetId = 1,
-            Name = "Sheet1"
-        }));
+        workbookPart.Workbook.AppendChild(new Sheets(
+            new Sheet
+            {
+                Id = workbookPart.GetIdOfPart(worksheetPart),
+                SheetId = 1,
+                Name = "Sheet1"
+            }));
 
         //string table
         var sharedStringTablePart = workbookPart.AddNewPart<SharedStringTablePart>();

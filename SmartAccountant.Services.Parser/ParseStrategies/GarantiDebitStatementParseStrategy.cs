@@ -1,10 +1,12 @@
 ﻿using System.Globalization;
+using System.Text;
 using DocumentFormat.OpenXml.Spreadsheet;
 using SmartAccountant.Abstractions.Exceptions;
 using SmartAccountant.Models;
 using SmartAccountant.Services.Parser.Abstract;
 using SmartAccountant.Services.Parser.Extensions;
 using SmartAccountant.Services.Parser.Helpers;
+using SmartAccountant.Services.Parser.Resources;
 
 namespace SmartAccountant.Services.Parser.ParseStrategies;
 
@@ -12,6 +14,12 @@ internal sealed class GarantiDebitStatementParseStrategy : IStatementParseStrate
 {
     /// Non-empty rows
     internal const int HeaderRowCount = 11;
+
+    private static readonly CompositeFormat InsufficientRowNumber = CompositeFormat.Parse(Messages.InsufficientRowNumber);
+    private static readonly CompositeFormat TransactionDateColumnMissing = CompositeFormat.Parse(Messages.TransactionDateColumnMissing);
+    private static readonly CompositeFormat UnexpectedDateFormat = CompositeFormat.Parse(Messages.UnexpectedDateFormat);
+    private static readonly CompositeFormat UnexpectedAmountFormat = CompositeFormat.Parse(Messages.UnexpectedAmountFormat);
+    private static readonly CompositeFormat UnexpectedRemainingAmountFormat = CompositeFormat.Parse(Messages.UnexpectedRemainingAmountFormat);
 
     /// <inheritdoc/>
     public void ParseStatement(Statement<DebitTransaction> statement, Worksheet worksheet, SharedStringTable stringTable)
@@ -30,7 +38,7 @@ internal sealed class GarantiDebitStatementParseStrategy : IStatementParseStrate
         }
         catch (Exception ex) when (ex is not ParserException)
         {
-            throw new ParserException("An error occurred while parsing the statement document.", ex);
+            throw new ParserException(Messages.UnexpectedError, ex);
         }
 
         CrossCheck(debitStatement);
@@ -44,21 +52,21 @@ internal sealed class GarantiDebitStatementParseStrategy : IStatementParseStrate
         // Expected row format: Date (0), Description (1), Amount (2), Remaining Balance (3), Reference Number (4)
 
         if (row.ChildElements.Count < 5)
-            throw new ParserException($"Unrecognized file format. Column count ({row.ChildElements.Count}) was expected to be at least 5.");
+            throw new ParserException(FormatMessage(InsufficientRowNumber, row.ChildElements.Count));
 
         string dateString = row.GetCell(0).GetCellValue(stringTable);
 
         if (string.IsNullOrWhiteSpace(dateString))
-            throw new ParserException($"Unrecognized file format. Expected to have transaction date at column A (item: {order + 1}).");
+            throw new ParserException(FormatMessage(TransactionDateColumnMissing, order + 1));
 
         if (!DateTime.TryParseExact(dateString, "dd/MM/yyyy", CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal, out var date))
-            throw new ParserException($"Unrecognized file format. Could not parse transaction date '{dateString}' (item: {order + 1}).");
+            throw new ParserException(FormatMessage(UnexpectedDateFormat, dateString, order + 1));
 
         if (!row.GetCell(2).TryGetDecimalValue(out decimal? amountValue))
-            throw new ParserException($"Transaction (item: {order + 1}) doesn't have a valid amount value.");
+            throw new ParserException(FormatMessage(UnexpectedAmountFormat, order + 1));
 
         if (!row.GetCell(3).TryGetDecimalValue(out decimal? remainingBalanceValue))
-            throw new ParserException($"Transaction (item: {order + 1}) doesn't have a valid remaining amount value.");
+            throw new ParserException(FormatMessage(UnexpectedRemainingAmountFormat, order + 1));
 
         MonetaryValue amount = new(amountValue.Value.Round(), statement.Currency);
         MonetaryValue remainingBalance = new(remainingBalanceValue.Value.Round(), statement.Currency);
@@ -76,6 +84,10 @@ internal sealed class GarantiDebitStatementParseStrategy : IStatementParseStrate
         };
     }
 
+    private static string FormatMessage(CompositeFormat format, params object[] parameters)=>
+        string.Format(CultureInfo.InvariantCulture, format, parameters);
+
+
     /// <exception cref="ParserException"/>
     private static void CrossCheck(DebitStatement statement)
     {
@@ -89,6 +101,6 @@ internal sealed class GarantiDebitStatementParseStrategy : IStatementParseStrate
         decimal closingBalance = statement.Transactions.Last().RemainingBalance.Amount;
 
         if (initialBalance + totalAmount != closingBalance)
-            throw new ParserException("Total amount of transactions and remaining balance do not match.");
+            throw new ParserException(Messages.TransactionAmountAndBalanceNotMatch);
     }
 }

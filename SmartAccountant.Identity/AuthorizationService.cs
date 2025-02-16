@@ -1,6 +1,6 @@
-﻿using System.IdentityModel.Tokens.Jwt;
-using System.Security.Principal;
+﻿using System.Security.Principal;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Identity.Web;
 using SmartAccountant.Abstractions.Interfaces;
 
 namespace SmartAccountant.Identity;
@@ -12,14 +12,15 @@ internal sealed class AuthorizationService(IHttpContextAccessor httpContextAcces
     {
         get
         {
-            IIdentity? identity = httpContextAccessor.HttpContext.User.Identity;
+            IIdentity? identity = httpContextAccessor.HttpContext?.User.Identity;
 
             if (identity?.IsAuthenticated != true)
                 return null;
 
-            string? sid = httpContextAccessor.HttpContext.User.FindFirst(JwtRegisteredClaimNames.Sid)?.Value;
 
-            return sid is null ? null : Guid.Parse(sid);
+            string? objectId = httpContextAccessor.HttpContext!.User.FindFirst(ClaimConstants.ObjectId)?.Value;
+
+            return objectId is null ? null : Guid.Parse(objectId);
         }
     }
 }

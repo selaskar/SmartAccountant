@@ -4,6 +4,7 @@ using SmartAccountant.Abstractions.Exceptions;
 using SmartAccountant.Abstractions.Interfaces;
 using SmartAccountant.Models;
 using SmartAccountant.Services.Parser.Abstract;
+using SmartAccountant.Services.Parser.Resources;
 
 namespace SmartAccountant.Services.Parser;
 
@@ -20,10 +21,10 @@ internal class ExcelSpreadsheetParserService(IStatementParseStrategyFactory fact
         {
             using var document = SpreadsheetDocument.Open(stream, false);
 
-            string sheetId = document.WorkbookPart?.Workbook?.Descendants<Sheet>().FirstOrDefault()?.Id?.Value
-                ?? throw new ParserException("Document does not contain a sheet.");
+            string sheetPartId = document.WorkbookPart?.Workbook?.Descendants<Sheet>().FirstOrDefault()?.Id?.Value
+                ?? throw new ParserException(Messages.UploadedDocumentMissingSheet);
 
-            WorksheetPart worksheetPart = (WorksheetPart)document.WorkbookPart!.GetPartById(sheetId);
+            WorksheetPart worksheetPart = (WorksheetPart)document.WorkbookPart!.GetPartById(sheetPartId);
             Worksheet worksheet = worksheetPart.Worksheet;
 
             SharedStringTable sharedStringTable = document.WorkbookPart.GetPartsOfType<SharedStringTablePart>().First().SharedStringTable;
@@ -33,7 +34,7 @@ internal class ExcelSpreadsheetParserService(IStatementParseStrategyFactory fact
         }
         catch (Exception ex) when (ex is not ParserException)
         {
-            throw new ParserException("An unexpected error occurred while parsing the spreadsheet.", ex);
+            throw new ParserException(Messages.UnexpectedError, ex);
         }
     }
 }

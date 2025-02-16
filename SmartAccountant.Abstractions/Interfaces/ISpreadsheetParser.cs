@@ -6,11 +6,18 @@ namespace SmartAccountant.Abstractions.Interfaces;
 public interface ISpreadsheetParser
 {
     /// <remarks>
-    /// Statement object should have a reference to a valid account object.
-    /// Can leave statement object in dirty state, if encounters an error during parse.
+    ///     <para>
+    ///         Statement object should have a reference to a valid account object.
+    ///     </para>
+    /// 
+    ///     <para>
+    ///         Can leave statement object in dirty state, if encounters an error during parse.
+    ///     </para>
     /// </remarks>
     /// <exception cref="ParserException" />
-    /// <exception cref="ArgumentNullException" />
+    /// <exception cref="ArgumentNullException">
+    ///     If statement or its account is null.
+    /// </exception>
     void ReadStatement<TTransaction>(Statement<TTransaction> statement, Stream stream)
          where TTransaction : Transaction;
 }

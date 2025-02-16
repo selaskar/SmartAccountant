@@ -7,6 +7,24 @@ namespace SmartAccountant.Services.Parser.Tests.Extensions.SpreadsheetExtensions
 public class TryGetDecimalValue
 {
     [TestMethod]
+    public void ReturnFalseForSharedStringCells()
+    {
+        // Arrange
+        Cell cell = new()
+        {
+            CellValue = new CellValue("38"),
+            DataType = CellValues.SharedString
+        };
+
+        // Act
+        bool result = cell.TryGetDecimalValue(out decimal? value);
+
+        // Assert
+        Assert.IsFalse(result);
+        Assert.IsNull(value);
+    }
+
+    [TestMethod]
     public void ReturnFalseForMissingCellValue()
     {
         // Arrange

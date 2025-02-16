@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace SmartAccountant.Import.Service.Resources {
+namespace SmartAccountant.Services.Parser.Resources {
     using System;
     
     
@@ -39,7 +39,7 @@ namespace SmartAccountant.Import.Service.Resources {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("SmartAccountant.Import.Service.Resources.Messages", typeof(Messages).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("SmartAccountant.Services.Parser.Resources.Messages", typeof(Messages).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -61,92 +61,74 @@ namespace SmartAccountant.Import.Service.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Account does not belong to the authenticated user..
+        ///   Looks up a localized string similar to Unrecognized file format. Column count ({0}) was expected to be at least 5..
         /// </summary>
-        internal static string AccountDoesNotBelongToUser {
+        internal static string InsufficientRowNumber {
             get {
-                return ResourceManager.GetString("AccountDoesNotBelongToUser", resourceCulture);
+                return ResourceManager.GetString("InsufficientRowNumber", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to An error occurred while parsing the uploaded statement document..
+        ///   Looks up a localized string similar to Total amount of transactions and the remaining balance do not match..
         /// </summary>
-        internal static string CannotParseUploadedStatementFile {
+        internal static string TransactionAmountAndBalanceNotMatch {
             get {
-                return ResourceManager.GetString("CannotParseUploadedStatementFile", resourceCulture);
+                return ResourceManager.GetString("TransactionAmountAndBalanceNotMatch", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to An error occurred while persisting the imported statement..
+        ///   Looks up a localized string similar to Unrecognized file format. Expected to have transaction date at column A (item: {0})..
         /// </summary>
-        internal static string CannotSaveImportedStatement {
+        internal static string TransactionDateColumnMissing {
             get {
-                return ResourceManager.GetString("CannotSaveImportedStatement", resourceCulture);
+                return ResourceManager.GetString("TransactionDateColumnMissing", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to An error occurred while saving the uploaded document..
+        ///   Looks up a localized string similar to Transaction (item: {0}) doesn&apos;t have a valid amount value..
         /// </summary>
-        internal static string CannotSaveUploadedStatementFile {
+        internal static string UnexpectedAmountFormat {
             get {
-                return ResourceManager.GetString("CannotSaveUploadedStatementFile", resourceCulture);
+                return ResourceManager.GetString("UnexpectedAmountFormat", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to An error occurred while validating the account holder information..
+        ///   Looks up a localized string similar to Unrecognized date format. Could not parse transaction date &apos;{0}&apos; (item: {1})..
         /// </summary>
-        internal static string CannotValidateAccountHolder {
+        internal static string UnexpectedDateFormat {
             get {
-                return ResourceManager.GetString("CannotValidateAccountHolder", resourceCulture);
+                return ResourceManager.GetString("UnexpectedDateFormat", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Period start date should be earlier than end date..
+        ///   Looks up a localized string similar to An unexpected error occurred while parsing the spreadsheet..
         /// </summary>
-        internal static string PeriodStartNotEarlierThanPeriodEnd {
+        internal static string UnexpectedError {
             get {
-                return ResourceManager.GetString("PeriodStartNotEarlierThanPeriodEnd", resourceCulture);
+                return ResourceManager.GetString("UnexpectedError", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Statement file shouldn&apos;t be empty..
+        ///   Looks up a localized string similar to Transaction (item: {0}) doesn&apos;t have a valid remaining amount value..
         /// </summary>
-        internal static string UploadedStatementFileEmpty {
+        internal static string UnexpectedRemainingAmountFormat {
             get {
-                return ResourceManager.GetString("UploadedStatementFileEmpty", resourceCulture);
+                return ResourceManager.GetString("UnexpectedRemainingAmountFormat", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Statement file size shouldn&apos;t exceed 1 MB..
+        ///   Looks up a localized string similar to Could not find a sheet in the document..
         /// </summary>
-        internal static string UploadedStatementFileTooBig {
+        internal static string UploadedDocumentMissingSheet {
             get {
-                return ResourceManager.GetString("UploadedStatementFileTooBig", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Only Microsoft Excel sheets are accepted..
-        /// </summary>
-        internal static string UploadedStatementFileTypeNotSupported {
-            get {
-                return ResourceManager.GetString("UploadedStatementFileTypeNotSupported", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to User is not authenticated..
-        /// </summary>
-        internal static string UserNotAuthenticated {
-            get {
-                return ResourceManager.GetString("UserNotAuthenticated", resourceCulture);
+                return ResourceManager.GetString("UploadedDocumentMissingSheet", resourceCulture);
             }
         }
     }

@@ -31,6 +31,14 @@ internal static class SpreadsheetExtensions
 
     internal static bool TryGetDecimalValue(this Cell cell, [NotNullWhen(true)] out decimal? value)
     {
+        if (cell.DataType?.Value == CellValues.SharedString)
+        {
+            //This type of cells include integer values as pointers to shared strings.
+            //We should not interpret them as numeric values.
+            value = null;
+            return false;
+        }
+
         if (string.IsNullOrWhiteSpace(cell.CellValue?.Text))
         {
             value = null;
