@@ -141,10 +141,10 @@
   <data name="UploadedStatementFileTooBig" xml:space="preserve">
     <value>Statement file size shouldn't exceed 1 MB.</value>
   </data>
-  <data name="UploadedStatementFileTypeNotSupported" xml:space="preserve">
-    <value>Only Microsoft Excel sheets are accepted.</value>
-  </data>
   <data name="UserNotAuthenticated" xml:space="preserve">
     <value>User is not authenticated.</value>
+  </data>
+  <data name="UploadedStatementFileTypeNotSupported" xml:space="preserve">
+    <value>Only Microsoft Excel workbooks are accepted.</value>
   </data>
 </root>

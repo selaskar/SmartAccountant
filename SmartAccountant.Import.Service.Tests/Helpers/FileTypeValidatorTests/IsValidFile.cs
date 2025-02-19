@@ -7,6 +7,11 @@ namespace SmartAccountant.Import.Service.Tests.Helpers.FileTypeValidatorTests;
 [TestClass]
 public class IsValidFile
 {
+    private FileTypeValidator sut = null!;
+
+    [TestInitialize]
+    public void Initialize() => sut = new FileTypeValidator();
+
     [TestMethod]
     public async Task ReturnsTrueForValidXlsFile()
     {
@@ -19,7 +24,7 @@ public class IsValidFile
         };
 
         // Act
-        bool result = await FileTypeValidator.IsValidFile(file, CancellationToken.None);
+        bool result = await sut.IsValidFile(file, CancellationToken.None);
 
         // Assert
         Assert.IsTrue(result);
@@ -37,7 +42,7 @@ public class IsValidFile
         };
 
         // Act
-        bool result = await FileTypeValidator.IsValidFile(file, CancellationToken.None);
+        bool result = await sut.IsValidFile(file, CancellationToken.None);
 
         // Assert
         Assert.IsFalse(result);
@@ -55,7 +60,7 @@ public class IsValidFile
         };
 
         // Act
-        bool result = await FileTypeValidator.IsValidFile(file, CancellationToken.None);
+        bool result = await sut.IsValidFile(file, CancellationToken.None);
 
         // Assert
         Assert.IsTrue(result);
@@ -73,7 +78,7 @@ public class IsValidFile
         };
 
         // Act
-        bool result = await FileTypeValidator.IsValidFile(file, CancellationToken.None);
+        bool result = await sut.IsValidFile(file, CancellationToken.None);
 
         // Assert
         Assert.IsFalse(result);
@@ -91,7 +96,7 @@ public class IsValidFile
         };
 
         // Act
-        bool result = await FileTypeValidator.IsValidFile(file, CancellationToken.None);
+        bool result = await sut.IsValidFile(file, CancellationToken.None);
 
         // Assert
         Assert.IsFalse(result);
@@ -111,7 +116,7 @@ public class IsValidFile
         };
 
         // Act
-        bool result = await FileTypeValidator.IsValidFile(file, CancellationToken.None);
+        bool result = await sut.IsValidFile(file, CancellationToken.None);
 
         // Assert
         Assert.IsTrue(result);
@@ -133,7 +138,7 @@ public class IsValidFile
         };
 
         // Act
-        bool result = await FileTypeValidator.IsValidFile(file, CancellationToken.None);
+        bool result = await sut.IsValidFile(file, CancellationToken.None);
 
         // Assert
         Assert.IsFalse(result);
@@ -154,7 +159,7 @@ public class IsValidFile
         };
 
         // Act
-        bool result = await FileTypeValidator.IsValidFile(file, CancellationToken.None);
+        bool result = await sut.IsValidFile(file, CancellationToken.None);
 
         // Assert
         Assert.IsFalse(result);
@@ -176,7 +181,7 @@ public class IsValidFile
         };
 
         // Act
-        bool result = await FileTypeValidator.IsValidFile(file, CancellationToken.None);
+        bool result = await sut.IsValidFile(file, CancellationToken.None);
 
         // Assert
         Assert.IsFalse(result);
@@ -194,7 +199,7 @@ public class IsValidFile
         };
 
         // Act
-        bool result = await FileTypeValidator.IsValidFile(file, CancellationToken.None);
+        bool result = await sut.IsValidFile(file, CancellationToken.None);
 
         // Assert
         Assert.IsFalse(result);
@@ -212,7 +217,7 @@ public class IsValidFile
         };
 
         // Act
-        bool result = await FileTypeValidator.IsValidFile(file, CancellationToken.None);
+        bool result = await sut.IsValidFile(file, CancellationToken.None);
 
         // Assert
         Assert.IsFalse(result);
@@ -236,7 +241,7 @@ public class IsValidFile
         };
 
         // Act
-        Task result = FileTypeValidator.IsValidFile(file, cancellationTokenSource.Token);
+        Task result = sut.IsValidFile(file, cancellationTokenSource.Token);
 
         // Assert
         Assert.AreEqual(TaskStatus.Canceled, result.Status);

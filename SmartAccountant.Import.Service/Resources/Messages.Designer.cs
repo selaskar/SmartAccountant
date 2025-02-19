@@ -133,7 +133,7 @@ namespace SmartAccountant.Import.Service.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Only Microsoft Excel sheets are accepted..
+        ///   Looks up a localized string similar to Only Microsoft Excel workbooks are accepted..
         /// </summary>
         internal static string UploadedStatementFileTypeNotSupported {
             get {

@@ -1,8 +1,9 @@
 ﻿using SmartAccountant.Abstractions.Models.Request;
+using SmartAccountant.Import.Service.Abstract;
 
 namespace SmartAccountant.Import.Service.Helpers;
 
-internal static class FileTypeValidator
+internal class FileTypeValidator : IFileTypeValidator
 {
 
     private static readonly Dictionary<string, (string contentType, List<byte[]> signature)> fileSignature = new()
@@ -21,8 +22,8 @@ internal static class FileTypeValidator
         },
     };
 
-    /// <remarks>The method leaves the position of file stream intact.</remarks>
-    public static async Task<bool> IsValidFile(ImportFile file, CancellationToken cancellationToken)
+    /// <inheritdoc/>
+    public async Task<bool> IsValidFile(ImportFile file, CancellationToken cancellationToken)
     {
         string fileName = file.FileName;
         if (string.IsNullOrEmpty(fileName))

@@ -6,7 +6,6 @@ using SmartAccountant.Abstractions.Interfaces;
 using SmartAccountant.Abstractions.Models.Request;
 using SmartAccountant.Core.Helpers;
 using SmartAccountant.Import.Service.Abstract;
-using SmartAccountant.Import.Service.Helpers;
 using SmartAccountant.Import.Service.Resources;
 using SmartAccountant.Models;
 using SmartAccountant.Repositories.Core.Abstract;
@@ -16,11 +15,12 @@ namespace SmartAccountant.Import.Service;
 internal sealed partial class ImportService(
     ILogger<ImportService> logger,
     IValidator<ImportStatementModel> validator,
-    IStorageService storageService,
+    IFileTypeValidator fileTypeValidator,
     IAuthorizationService authorizationService,
     IAccountRepository accountRepository,
     IStatementFactory statementFactory,
     ISpreadsheetParser parser,
+    IStorageService storageService,
     IStatementRepository statementRepository)
     : IImportService
 {
@@ -35,7 +35,7 @@ internal sealed partial class ImportService(
     {
         validator.ValidateAndThrowSafe(request);
 
-        if (!await FileTypeValidator.IsValidFile(request.File, cancellationToken))
+        if (!await fileTypeValidator.IsValidFile(request.File, cancellationToken))
             throw new ImportException(Messages.UploadedStatementFileTypeNotSupported);
 
         Guid? userId = authorizationService.UserId
@@ -47,7 +47,9 @@ internal sealed partial class ImportService(
 
         await SaveFile(statement, request.File, cancellationToken);
 
-        return await PersistStatement(statement, cancellationToken);
+        await PersistStatement(statement, cancellationToken);
+
+        return statement;
     }
 
     /// <exception cref="ImportException" />
@@ -125,13 +127,11 @@ internal sealed partial class ImportService(
 
     /// <exception cref="ImportException"/>
     /// <exception cref="OperationCanceledException"/>
-    private async Task<Statement> PersistStatement(Statement statement, CancellationToken cancellationToken)
+    private async Task PersistStatement(Statement statement, CancellationToken cancellationToken)
     {
         try
         {
             await statementRepository.Insert(statement, cancellationToken);
-
-            return statement;
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
