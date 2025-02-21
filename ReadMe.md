@@ -9,11 +9,15 @@
 * All `ValidationExceptions` are handled by an exception filter.
 No need to handle them in controllers.
 
+
+### Test projects
 * Add the following build property to all test projects.
 
 ```
 <TestProject>true</TestProject>
 ```
+
+* SDK version of test projects (MSTest.Sdk) needs to be manually updated rather than through individual NuGet package updates.
 
 * Name test methods as that have 'should'/'must' in the beginning of the name.
 E.g., ThrowValidationExceptionForInvalidRequest().

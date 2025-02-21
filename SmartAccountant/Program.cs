@@ -1,4 +1,5 @@
 using Azure.Core;
+using Azure.Monitor.OpenTelemetry.AspNetCore;
 using FileStorage.Extensions;
 using FileStorage.Options;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -76,14 +77,12 @@ internal sealed class Program
 
     private static void ConfigureLogging(WebApplicationBuilder builder, TokenCredential credential)
     {
-        builder.Logging.AddApplicationInsights(configureTelemetryConfiguration: config =>
+        builder.Services.AddOpenTelemetry().UseAzureMonitor(options =>
         {
-            config.ConnectionString = builder.Configuration.GetValue<string>("ApplicationInsights:ConnectionString");
+            options.ConnectionString = builder.Configuration.GetValue<string>("AzureMonitor:ConnectionString");
 
-            //TODO: doesn't cache the token
-            if (builder.Environment.IsDevelopment())
-                config.SetAzureTokenCredential(credential);
-        }, configureApplicationInsightsLoggerOptions: option => { });
+            options.Credential = credential;
+        });
     }
 
     private static void BuildAndRun(WebApplicationBuilder builder)
