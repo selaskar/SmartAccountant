@@ -9,7 +9,7 @@ internal abstract class Statement
     public Guid AccountId { get; set; }
 
     [ForeignKey(nameof(AccountId))]
-    public required Account Account { get; set; }
+    public Account? Account { get; set; }
 
     public DateTimeOffset PeriodStart { get; set; }
 

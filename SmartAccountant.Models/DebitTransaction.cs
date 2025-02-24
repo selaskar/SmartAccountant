@@ -1,6 +1,6 @@
 ﻿namespace SmartAccountant.Models;
 
-public class DebitTransaction : Transaction
+public record class DebitTransaction : Transaction
 {
     /// <summary>
     /// Balance after the transaction

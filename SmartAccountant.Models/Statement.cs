@@ -1,6 +1,6 @@
 ﻿namespace SmartAccountant.Models;
 
-public abstract class Statement : BaseModel
+public abstract record class Statement : BaseModel
 {
     public Guid AccountId { get; init; }
 
@@ -13,7 +13,7 @@ public abstract class Statement : BaseModel
     public IList<StatementDocument> Documents { get; init; } = [];
 }
 
-public abstract class Statement<TTransaction> : Statement where TTransaction : Transaction
+public abstract record class Statement<TTransaction> : Statement where TTransaction : Transaction
 {
     public IList<TTransaction> Transactions { get; init; } = [];
 }

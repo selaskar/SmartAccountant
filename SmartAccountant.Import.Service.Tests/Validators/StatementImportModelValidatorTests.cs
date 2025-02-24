@@ -6,9 +6,9 @@ using SmartAccountant.Import.Service.Validators;
 namespace SmartAccountant.Import.Service.Tests.Validators;
 
 [TestClass]
-public class ImportStatementModelValidatorTests
+public class StatementImportModelValidatorTests
 {
-    private ImportStatementModelValidator sut = null!;
+    private StatementImportModelValidator sut = null!;
 
     [TestInitialize]
     public void Initialize() => sut = new();
@@ -17,7 +17,7 @@ public class ImportStatementModelValidatorTests
     public void ReturnsErrorForEmptyRequestId()
     {
         // Arrange
-        ImportStatementModel model = new()
+        DebitStatementImportModel model = new()
         {
             RequestId = Guid.Empty,
             AccountId = Guid.NewGuid(),
@@ -32,7 +32,7 @@ public class ImportStatementModelValidatorTests
         };
 
         // Act
-        TestValidationResult<ImportStatementModel> result = sut.TestValidate(model);
+        TestValidationResult<DebitStatementImportModel> result = sut.TestValidate(model);
 
         // Assert
         result.ShouldHaveValidationErrorFor(x => x.RequestId).Only();
@@ -42,7 +42,7 @@ public class ImportStatementModelValidatorTests
     public void ReturnsErrorForEmptyAccountId()
     {
         // Arrange
-        ImportStatementModel model = new()
+        DebitStatementImportModel model = new()
         {
             RequestId = Guid.NewGuid(),
             AccountId = Guid.Empty,
@@ -57,7 +57,7 @@ public class ImportStatementModelValidatorTests
         };
 
         // Act
-        TestValidationResult<ImportStatementModel> result = sut.TestValidate(model);
+        TestValidationResult<DebitStatementImportModel> result = sut.TestValidate(model);
 
         // Assert
         result.ShouldHaveValidationErrorFor(x => x.AccountId).Only();
@@ -67,7 +67,7 @@ public class ImportStatementModelValidatorTests
     public void ReturnsErrorForInvalidImportFile()
     {
         // Arrange
-        ImportStatementModel model = new()
+        DebitStatementImportModel model = new()
         {
             RequestId = Guid.NewGuid(),
             AccountId = Guid.NewGuid(),
@@ -82,7 +82,7 @@ public class ImportStatementModelValidatorTests
         };
 
         // Act
-        TestValidationResult<ImportStatementModel> result = sut.TestValidate(model);
+        TestValidationResult<DebitStatementImportModel> result = sut.TestValidate(model);
 
         // Assert
         result.ShouldHaveValidationErrorFor(x => x.File.FileExtension).Only();
@@ -92,7 +92,7 @@ public class ImportStatementModelValidatorTests
     public void ReturnsErrorForNullImportFile()
     {
         // Arrange
-        ImportStatementModel model = new()
+        DebitStatementImportModel model = new()
         {
             RequestId = Guid.NewGuid(),
             AccountId = Guid.NewGuid(),
@@ -102,7 +102,7 @@ public class ImportStatementModelValidatorTests
         };
 
         // Act
-        TestValidationResult<ImportStatementModel> result = sut.TestValidate(model);
+        TestValidationResult<DebitStatementImportModel> result = sut.TestValidate(model);
 
         // Assert
         result.ShouldHaveValidationErrorFor(x => x.File).Only();
@@ -112,7 +112,7 @@ public class ImportStatementModelValidatorTests
     public void ReturnsErrorForEmptyStream()
     {
         // Arrange
-        ImportStatementModel model = new()
+        DebitStatementImportModel model = new()
         {
             RequestId = Guid.NewGuid(),
             AccountId = Guid.NewGuid(),
@@ -127,7 +127,7 @@ public class ImportStatementModelValidatorTests
         };
 
         // Act
-        TestValidationResult<ImportStatementModel> result = sut.TestValidate(model);
+        TestValidationResult<DebitStatementImportModel> result = sut.TestValidate(model);
 
         // Assert
         result.ShouldHaveValidationErrorFor(x => x.File.Length).Only();
@@ -140,7 +140,7 @@ public class ImportStatementModelValidatorTests
         var mockStream = new Mock<Stream>();
         mockStream.Setup(x => x.Length).Returns(ImportService.MaxFileSize + 1);
 
-        ImportStatementModel model = new()
+        DebitStatementImportModel model = new()
         {
             RequestId = Guid.NewGuid(),
             AccountId = Guid.NewGuid(),
@@ -157,7 +157,7 @@ public class ImportStatementModelValidatorTests
         };
 
         // Act
-        TestValidationResult<ImportStatementModel> result = sut.TestValidate(model);
+        TestValidationResult<DebitStatementImportModel> result = sut.TestValidate(model);
 
         // Assert
         result.ShouldHaveValidationErrorFor(x => x.File.Length).Only();
@@ -170,7 +170,7 @@ public class ImportStatementModelValidatorTests
         var mockStream = new Mock<Stream>();
         mockStream.Setup(x => x.Length).Returns(ImportService.MaxFileSize);
 
-        ImportStatementModel model = new()
+        DebitStatementImportModel model = new()
         {
             RequestId = Guid.NewGuid(),
             AccountId = Guid.NewGuid(),
@@ -185,7 +185,7 @@ public class ImportStatementModelValidatorTests
         };
 
         // Act
-        TestValidationResult<ImportStatementModel> result = sut.TestValidate(model);
+        TestValidationResult<DebitStatementImportModel> result = sut.TestValidate(model);
 
         // Assert
         result.ShouldNotHaveAnyValidationErrors();

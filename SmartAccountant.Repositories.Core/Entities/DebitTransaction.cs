@@ -10,5 +10,6 @@ internal sealed class DebitTransaction : Transaction
 
     public Currency RemainingAmountCurrency { get; set; }
 
+    //TODO: probably unnecessary
     public short Order { get; set; }
 }

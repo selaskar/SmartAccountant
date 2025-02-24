@@ -12,14 +12,11 @@ using SmartAccountant.Repositories.Core.Abstract;
 
 namespace SmartAccountant.Import.Service;
 
-internal sealed partial class ImportService(
+internal abstract partial class ImportService(
     ILogger<ImportService> logger,
-    IValidator<ImportStatementModel> validator,
     IFileTypeValidator fileTypeValidator,
     IAuthorizationService authorizationService,
     IAccountRepository accountRepository,
-    IStatementFactory statementFactory,
-    ISpreadsheetParser parser,
     IStorageService storageService,
     IStatementRepository statementRepository)
     : IImportService
@@ -30,10 +27,11 @@ internal sealed partial class ImportService(
     private const string UploadsContainerName = "uploads";
     private const string AccountsFolderName = "accounts";
 
+
     /// <inheritdoc/>
-    public async Task<Statement> ImportStatement(ImportStatementModel request, CancellationToken cancellationToken)
+    public async Task<Statement> ImportDebitStatement(DebitStatementImportModel request, CancellationToken cancellationToken)
     {
-        validator.ValidateAndThrowSafe(request);
+        Validate(request);
 
         if (!await fileTypeValidator.IsValidFile(request.File, cancellationToken))
             throw new ImportException(Messages.UploadedStatementFileTypeNotSupported);
@@ -51,6 +49,37 @@ internal sealed partial class ImportService(
 
         return statement;
     }
+
+    /*
+    /// <inheritdoc/>
+    public async Task<Statement> ImportCreditCardStatement(CreditCardStatementImportModel request, CancellationToken cancellationToken)
+    {
+        validator.ValidateAndThrowSafe(request);
+
+        if (!await fileTypeValidator.IsValidFile(request.File, cancellationToken))
+            throw new ImportException(Messages.UploadedStatementFileTypeNotSupported);
+
+        Guid? userId = authorizationService.UserId
+            ?? throw new ImportException(Messages.UserNotAuthenticated);
+
+        Account account = ValidateAccountHolder(userId.Value, request.AccountId, cancellationToken);
+
+        Statement statement = ParseCreditCard(request, account);
+
+        await SaveFile(statement, request.File, cancellationToken);
+
+        await PersistStatement(statement, cancellationToken);
+
+        return statement;
+    }*/
+
+
+    /// <exception cref="ValidationException"/>
+    protected abstract void Validate(AbstractStatementImportModel model);
+
+    /// <exception cref="ImportException"/>
+    protected abstract Statement Parse(AbstractStatementImportModel model, Account account);
+
 
     /// <exception cref="ImportException" />
     /// <exception cref="OperationCanceledException" />
@@ -71,24 +100,26 @@ internal sealed partial class ImportService(
         }
     }
 
+    /*
     /// <exception cref="ImportException"/>
-    private Statement Parse(ImportStatementModel request, Account account)
+    private CreditCardStatement ParseCreditCard(CreditCardStatementImportModel model, Account account)
     {
         try
         {
-            Statement statement = statementFactory.Create(request, account);
+            var statement = (CreditCardStatement)statementFactory.Create(model, account);
 
-            parser.ReadStatement((Statement<DebitTransaction>)statement, request.File.OpenReadStream());
-            
+            parser.ReadStatement(statement, model.File.OpenReadStream(), account.Bank);
+
             return statement;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not ImportException)
         {
             ParseFailed(ex, account.Id);
 
             throw new ImportException(Messages.CannotParseUploadedStatementFile, ex);
         }
     }
+    */
 
     /// <remarks>Leaves the file stream in the beginning position.</remarks>
     /// <exception cref="ImportException"/>
@@ -142,20 +173,61 @@ internal sealed partial class ImportService(
     }
 
     [LoggerMessage(Level = LogLevel.Error, Message = "An error occurred while verifying the holder of account ({AccountId}).")]
-    private partial void AccountHolderVerificationFailed(Exception ex, Guid accountId);
+    protected partial void AccountHolderVerificationFailed(Exception ex, Guid accountId);
 
     [LoggerMessage(Level = LogLevel.Error, Message = "Parsing of statement document failed for account ({AccountId}).")]
-    private partial void ParseFailed(Exception ex, Guid accountId);
+    protected partial void ParseFailed(Exception ex, Guid accountId);
 
     [LoggerMessage(Level = LogLevel.Trace, Message = "Starting to save the uploaded document.")]
-    private partial void UploadStarting();
+    protected partial void UploadStarting();
 
     [LoggerMessage(Level = LogLevel.Trace, Message = "Statement document successfully uploaded.")]
-    private partial void UploadSucceeded();
+    protected partial void UploadSucceeded();
 
     [LoggerMessage(Level = LogLevel.Error, Message = "An error occurred while saving the uploaded document for account ({AccountId}).")]
-    private partial void UploadFailed(Exception ex, Guid accountId);
+    protected partial void UploadFailed(Exception ex, Guid accountId);
 
     [LoggerMessage(Level = LogLevel.Error, Message = "Persisting of uploaded statement failed for account ({AccountId}).")]
-    private partial void PersistFailed(Exception ex, Guid accountId);
+    protected partial void PersistFailed(Exception ex, Guid accountId);
+}
+
+internal sealed class DebitImportService(
+    ILogger<ImportService> logger,
+    IValidator<DebitStatementImportModel> validator,
+    IFileTypeValidator fileTypeValidator,
+    IAuthorizationService authorizationService,
+    IAccountRepository accountRepository,
+    IStatementFactory statementFactory,
+    ISpreadsheetParser parser,
+    IStorageService storageService,
+    IStatementRepository statementRepository) :
+        ImportService(logger, fileTypeValidator, authorizationService, accountRepository, storageService, statementRepository)
+{
+    /// <inheritdoc/>
+    protected override void Validate(AbstractStatementImportModel model)
+    {
+        validator.ValidateAndThrowSafe((DebitStatementImportModel)model);
+    }
+
+    /// <inheritdoc/>
+    protected override Statement Parse(AbstractStatementImportModel model, Account account)
+    {
+        try
+        {
+            DebitStatementImportModel debitStatementImportModel = model as DebitStatementImportModel ??
+                throw new ImportException($"Model (type: {model.GetType().Name}) is expected to be type of {typeof(DebitStatementImportModel).Name}");
+
+            var statement = (DebitStatement)statementFactory.Create(model, account);
+
+            parser.ReadStatement(statement, model.File.OpenReadStream(), account.Bank);
+
+            return statement;
+        }
+        catch (Exception ex) when (ex is not ImportException)
+        {
+            ParseFailed(ex, account.Id);
+
+            throw new ImportException(Messages.CannotParseUploadedStatementFile, ex);
+        }
+    }
 }

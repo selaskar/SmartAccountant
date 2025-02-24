@@ -1,6 +1,6 @@
-﻿namespace SmartAccountant.Models;
+﻿namespace SmartAccountant.Models.Request;
 
-public record class CreditCardStatement : Statement<CreditCardTransaction>
+public record UploadCreditCardStatementRequest : AbstractUploadStatementRequest
 {
     public decimal TotalDueAmount { get; init; }
 

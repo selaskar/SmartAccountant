@@ -11,5 +11,12 @@ public interface IImportService
     /// <exception cref="ValidationException"/>
     /// <exception cref="OperationCanceledException" />
     /// <exception cref="ArgumentNullException"/>
-    Task<Statement> ImportStatement(ImportStatementModel request, CancellationToken cancellationToken);
+    Task<Statement> ImportDebitStatement(DebitStatementImportModel request, CancellationToken cancellationToken);
+    
+    /*
+    /// <exception cref="ImportException"/>
+    /// <exception cref="ValidationException"/>
+    /// <exception cref="OperationCanceledException" />
+    /// <exception cref="ArgumentNullException"/>
+    Task<Statement> ImportCreditCardStatement(CreditCardStatementImportModel request, CancellationToken cancellationToken);*/
 }

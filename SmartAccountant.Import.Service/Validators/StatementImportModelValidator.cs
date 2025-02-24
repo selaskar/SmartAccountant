@@ -5,9 +5,10 @@ using SmartAccountant.Import.Service.Resources;
 
 namespace SmartAccountant.Import.Service.Validators;
 
-internal sealed class ImportStatementModelValidator : AbstractValidator<ImportStatementModel>
+internal abstract class StatementImportModelValidator<T> : AbstractValidator<T>
+    where T : AbstractStatementImportModel
 {
-    public ImportStatementModelValidator()
+    public StatementImportModelValidator()
     {
         ClassLevelCascadeMode = CascadeMode.Stop;
 
@@ -25,5 +26,22 @@ internal sealed class ImportStatementModelValidator : AbstractValidator<ImportSt
         RuleFor(x => x.PeriodEnd.Date).ExclusiveBetween(ApplicationDefinitions.EpochStart.ToDateTime(TimeOnly.MinValue), ApplicationDefinitions.EpochEnd.ToDateTime(TimeOnly.MinValue));
 
         RuleFor(x => x).Must(x => x.PeriodStart < x.PeriodEnd).WithMessage(Messages.PeriodStartNotEarlierThanPeriodEnd);
+    }
+}
+
+internal sealed class DebitStatementImportModelValidator : StatementImportModelValidator<DebitStatementImportModel>
+{
+    public DebitStatementImportModelValidator()
+        : base()
+    {
+    }
+}
+
+internal sealed class CreditCardStatementImportModelValidator : StatementImportModelValidator<CreditCardStatementImportModel>
+{
+    public CreditCardStatementImportModelValidator()
+        : base()
+    {
+        RuleFor(x => x.DueDate.Date).ExclusiveBetween(ApplicationDefinitions.EpochStart.ToDateTime(TimeOnly.MinValue), ApplicationDefinitions.EpochEnd.ToDateTime(TimeOnly.MinValue));
     }
 }

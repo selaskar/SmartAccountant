@@ -11,7 +11,7 @@ No need to handle them in controllers.
 
 
 ### Test projects
-* Add the following build property to all test projects.
+* Add the following build property to all test projects:
 
 ```
 <TestProject>true</TestProject>

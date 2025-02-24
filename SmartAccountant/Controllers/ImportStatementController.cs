@@ -20,20 +20,21 @@ namespace SmartAccountant.Controllers;
 [ProducesResponseType(StatusCodes.Status499ClientClosedRequest)]
 public sealed partial class ImportStatementController(IImportService importService, IMapper mapper) : ControllerBase
 {
-    [EndpointSummary("Allows importing external statement reports to an account.")]
-    [HttpPost("[action]")]
+    [EndpointSummary("Allows importing external statement reports to a debit account.")]
+    [HttpPost("debit")]
     [Consumes(MediaTypeNames.Multipart.FormData)]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType<BadRequestObjectResult>(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<UploadStatementResponse>> Upload([FromForm] UploadStatementRequest request, CancellationToken cancellationToken)
+    public async Task<ActionResult<UploadStatementResponse>> UploadDebit(
+        [FromForm] UploadDebitStatementRequest request, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        ImportStatementModel requestModel = mapper.Map<ImportStatementModel>(request);
+        var requestModel = mapper.Map<DebitStatementImportModel>(request);
 
         try
         {
-            Statement statement = await importService.ImportStatement(requestModel, cancellationToken);
+            Statement statement = await importService.ImportDebitStatement(requestModel, cancellationToken);
 
             UploadStatementResponse response = mapper.Map<UploadStatementResponse>(statement) with
             {
@@ -47,4 +48,35 @@ public sealed partial class ImportStatementController(IImportService importServi
             return BadRequest(ex.GetAllMessages());
         }
     }
+
+    /*
+    [EndpointSummary("Allows importing external statement reports for a credit card.")]
+    [HttpPost("CreditCard")]
+    [Consumes(MediaTypeNames.Multipart.FormData)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType<BadRequestObjectResult>(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<UploadStatementResponse>> UploadCreditCard(
+        [FromForm] UploadCreditCardStatementRequest request, CancellationToken cancellationToken)
+    {
+        // TODO: move to common method
+        ArgumentNullException.ThrowIfNull(request);
+
+        var requestModel = mapper.Map<CreditCardStatementImportModel>(request);
+
+        try
+        {
+            Statement statement = await importService.ImportCreditCardStatement(requestModel, cancellationToken);
+
+            UploadStatementResponse response = mapper.Map<UploadStatementResponse>(statement) with
+            {
+                RequestId = request.RequestId
+            };
+
+            return Ok(response);
+        }
+        catch (ImportException ex)
+        {
+            return BadRequest(ex.GetAllMessages());
+        }
+    }*/
 }

@@ -17,12 +17,11 @@ namespace SmartAccountant.Import.Service.Tests.ImportServiceTests;
 public class ImportStatementTests
 {
     private Mock<ILogger<ImportService>> loggerMock = null!;
-    private Mock<IValidator<ImportStatementModel>> validatorMock = null!;
+    private Mock<IValidator<DebitStatementImportModel>> validatorMock = null!;
     private Mock<IFileTypeValidator> fileTypeValidator = null!;
     private Mock<IAuthorizationService> authorizationServiceMock = null!;
     private Mock<IAccountRepository> accountRepositoryMock = null!;
     private Mock<IStatementFactory> statementFactoryMock = null!;
-    private Mock<ISpreadsheetParser> parserMock = null!;
     private Mock<IStorageService> storageServiceMock = null!;
     private Mock<IStatementRepository> statementRepositoryMock = null!;
 
@@ -32,12 +31,11 @@ public class ImportStatementTests
     public void Initialize()
     {
         loggerMock = new Mock<ILogger<ImportService>>();
-        validatorMock = new Mock<IValidator<ImportStatementModel>>();
+        validatorMock = new Mock<IValidator<DebitStatementImportModel>>();
         fileTypeValidator = new Mock<IFileTypeValidator>();
         authorizationServiceMock = new Mock<IAuthorizationService>();
         accountRepositoryMock = new Mock<IAccountRepository>();
         statementFactoryMock = new Mock<IStatementFactory>();
-        parserMock = new Mock<ISpreadsheetParser>();
         storageServiceMock = new Mock<IStorageService>();
         statementRepositoryMock = new Mock<IStatementRepository>();
 
@@ -48,7 +46,6 @@ public class ImportStatementTests
             authorizationServiceMock.Object,
             accountRepositoryMock.Object,
             statementFactoryMock.Object,
-            parserMock.Object,
             storageServiceMock.Object,
             statementRepositoryMock.Object);
     }
@@ -57,7 +54,7 @@ public class ImportStatementTests
     public async Task ThrowValidationExceptionForInvalidModel()
     {
         // Arrange
-        ImportStatementModel model = new()
+        DebitStatementImportModel model = new()
         {
             File = null!,
         };
@@ -72,7 +69,7 @@ public class ImportStatementTests
     public async Task ThrowImportExceptionForInvalidFileType()
     {
         // Arrange
-        var request = new ImportStatementModel()
+        var request = new DebitStatementImportModel()
         {
             File = null!
         };
@@ -91,7 +88,7 @@ public class ImportStatementTests
     public async Task ThrowImportExceptionForUnauthenticatedUser()
     {
         // Arrange
-        var request = new ImportStatementModel()
+        var request = new DebitStatementImportModel()
         {
             File = null!
         };
@@ -114,7 +111,7 @@ public class ImportStatementTests
         // Arrange
         var accountId = Guid.Parse("91DF13C1-7261-400B-9413-D7DA42B392D0");
 
-        var request = new ImportStatementModel()
+        var request = new DebitStatementImportModel()
         {
             AccountId = accountId,
             File = null!
@@ -140,7 +137,7 @@ public class ImportStatementTests
         // Arrange
         var accountId = Guid.Parse("91DF13C1-7261-400B-9413-D7DA42B392D0");
 
-        var request = new ImportStatementModel()
+        var request = new DebitStatementImportModel()
         {
             AccountId = accountId,
             File = null!
@@ -169,7 +166,7 @@ public class ImportStatementTests
         // Arrange
         var accountId = Guid.Parse("91DF13C1-7261-400B-9413-D7DA42B392D0");
 
-        var request = new ImportStatementModel()
+        var request = new DebitStatementImportModel()
         {
             AccountId = accountId,
             File = null!
@@ -194,7 +191,7 @@ public class ImportStatementTests
         // Arrange
         var accountId = Guid.Parse("91DF13C1-7261-400B-9413-D7DA42B392D0");
 
-        var request = new ImportStatementModel()
+        var request = new DebitStatementImportModel()
         {
             AccountId = accountId,
             File = null!
@@ -228,7 +225,7 @@ public class ImportStatementTests
         // Arrange
         var accountId = Guid.Parse("91DF13C1-7261-400B-9413-D7DA42B392D0");
 
-        var request = new ImportStatementModel()
+        var request = new DebitStatementImportModel()
         {
             AccountId = accountId,
             File = new ImportFile()
@@ -259,7 +256,7 @@ public class ImportStatementTests
 
         SetupStatementFactory(request, account, debitStatement);
 
-        SetupParser(debitStatement).Throws<InvalidOperationException>();
+        //SetupParser(debitStatement).Throws<InvalidOperationException>();
 
         // Act, Assert
         var result = await Assert.ThrowsExceptionAsync<ImportException>(() => sut.ImportStatement(request, CancellationToken.None));
@@ -275,7 +272,7 @@ public class ImportStatementTests
         // Arrange
         var accountId = Guid.Parse("91DF13C1-7261-400B-9413-D7DA42B392D0");
 
-        var request = new ImportStatementModel()
+        var request = new DebitStatementImportModel()
         {
             AccountId = accountId,
             File = new ImportFile()
@@ -306,7 +303,7 @@ public class ImportStatementTests
 
         SetupStatementFactory(request, account, debitStatement);
 
-        SetupParser(debitStatement);
+        //SetupParser(debitStatement);
 
         SetupStorageService().Throws(new StorageException("test"));
 
@@ -324,7 +321,7 @@ public class ImportStatementTests
         // Arrange
         var accountId = Guid.Parse("91DF13C1-7261-400B-9413-D7DA42B392D0");
 
-        var request = new ImportStatementModel()
+        var request = new DebitStatementImportModel()
         {
             AccountId = accountId,
             File = new ImportFile()
@@ -355,7 +352,7 @@ public class ImportStatementTests
 
         SetupStatementFactory(request, account, debitStatement);
 
-        SetupParser(debitStatement);
+        //SetupParser(debitStatement);
 
         SetupStorageService();
 
@@ -377,7 +374,7 @@ public class ImportStatementTests
         // Arrange
         var accountId = Guid.Parse("91DF13C1-7261-400B-9413-D7DA42B392D0");
 
-        var request = new ImportStatementModel()
+        var request = new DebitStatementImportModel()
         {
             AccountId = accountId,
             File = new ImportFile()
@@ -408,8 +405,6 @@ public class ImportStatementTests
 
         SetupStatementFactory(request, account, debitStatement);
 
-        SetupParser(debitStatement);
-
         SetupStorageService();
 
         SetupStatementRepository(debitStatement);
@@ -430,8 +425,8 @@ public class ImportStatementTests
     private void SetupLogger(LogLevel logLevel, bool enabled)
         => loggerMock.Setup(l => l.IsEnabled(logLevel)).Returns(enabled);
 
-    private ISetup<IValidator<ImportStatementModel>, ValidationResult> SetupValidator()
-        => validatorMock.Setup(v => v.Validate(It.IsAny<ValidationContext<ImportStatementModel>>()));
+    private ISetup<IValidator<DebitStatementImportModel>, ValidationResult> SetupValidator()
+        => validatorMock.Setup(v => v.Validate(It.IsAny<ValidationContext<DebitStatementImportModel>>()));
 
     private void SetupFileTypeValidator(bool result)
         => fileTypeValidator.Setup(f => f.IsValidFile(It.IsAny<ImportFile>(), It.IsAny<CancellationToken>()))
@@ -444,11 +439,8 @@ public class ImportStatementTests
         => accountRepositoryMock.Setup(a => a.GetAccountsOfUser(account.Id))
             .Returns(AsyncEnumerable.ToAsyncEnumerable([account]));
 
-    private void SetupStatementFactory(ImportStatementModel request, Account account, Statement statement)
+    private void SetupStatementFactory(DebitStatementImportModel request, Account account, Statement statement)
         => statementFactoryMock.Setup(s => s.Create(request, account)).Returns(statement);
-
-    private ISetup<ISpreadsheetParser> SetupParser(DebitStatement statement)
-        => parserMock.Setup(p => p.ReadStatement(statement, It.IsAny<Stream>()));
 
     private ISetup<IStorageService, Task> SetupStorageService()
         => storageServiceMock.Setup(s => s.WriteToFile(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<Stream>(), It.IsAny<CancellationToken>()));

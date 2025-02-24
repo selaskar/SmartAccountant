@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace SmartAccountant.Repositories.Core.Migrations
 {
     /// <inheritdoc />
-    public partial class StatementDocument : Migration
+    internal partial class StatementDocument : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

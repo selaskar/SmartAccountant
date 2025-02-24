@@ -7,6 +7,12 @@ internal sealed class CoreDbContext(DbContextOptions<CoreDbContext> options) : D
 {
     public DbSet<Account> Accounts { get; set; }
 
+    public DbSet<CreditCardLimit> CreditCardLimits { get; set; }
+
+    public DbSet<CreditCard> CreditCards { get; set; }
+
+    public DbSet<CreditCardStatement> CreditCardStatements { get; set; }
+
     public DbSet<DebitStatement> DebitStatements { get; set; }
 
     public DbSet<DebitTransaction> DebitTransactions { get; set; }

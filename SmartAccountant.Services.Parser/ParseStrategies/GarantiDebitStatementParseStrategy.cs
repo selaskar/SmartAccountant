@@ -7,6 +7,7 @@ using SmartAccountant.Services.Parser.Abstract;
 using SmartAccountant.Services.Parser.Extensions;
 using SmartAccountant.Services.Parser.Helpers;
 using SmartAccountant.Services.Parser.Resources;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace SmartAccountant.Services.Parser.ParseStrategies;
 
@@ -24,7 +25,7 @@ internal sealed class GarantiDebitStatementParseStrategy : IStatementParseStrate
     /// <inheritdoc/>
     public void ParseStatement(Statement<DebitTransaction> statement, Worksheet worksheet, SharedStringTable stringTable)
     {
-        DebitStatement debitStatement = statement as DebitStatement
+        var debitStatement = statement as DebitStatement
             ?? throw new ArgumentException($"Statement expected to be type of {typeof(DebitStatement).Name}.");
 
         try
@@ -84,7 +85,7 @@ internal sealed class GarantiDebitStatementParseStrategy : IStatementParseStrate
         };
     }
 
-    private static string FormatMessage(CompositeFormat format, params object[] parameters)=>
+    private static string FormatMessage(CompositeFormat format, params object[] parameters) =>
         string.Format(CultureInfo.InvariantCulture, format, parameters);
 
 
@@ -102,5 +103,40 @@ internal sealed class GarantiDebitStatementParseStrategy : IStatementParseStrate
 
         if (initialBalance + totalAmount != closingBalance)
             throw new ParserException(Messages.TransactionAmountAndBalanceNotMatch);
+    }
+}
+
+internal sealed class GarantiCreditCardStatementParseStrategy : IStatementParseStrategy<CreditCardTransaction>
+{
+    public void ParseStatement(Statement<CreditCardTransaction> statement, Worksheet worksheet, SharedStringTable stringTable)
+    {
+        var creditCardStatement = statement as CreditCardStatement
+            ?? throw new ArgumentException($"Statement expected to be type of {typeof(CreditCardStatement).Name}.");
+
+        if (stringTable.InnerText.Contains("Açık Provizyon"))
+        {
+            short rowCount = 0;
+            foreach (Row row in worksheet.Descendants<Row>())
+            {
+                CreditCardTransaction transaction = ParseTransaction(creditCardStatement, rowCount++, row, stringTable);
+                statement.Transactions.Add(transaction);
+            }
+        }
+    }
+
+    private static CreditCardTransaction ParseTransaction(CreditCardStatement statement, short order, Row row, SharedStringTable stringTable)
+    {
+        DateTime date = DateTime.UtcNow;
+        MonetaryValue amount = new MonetaryValue(0, Currency.TRY);//TODO: currency parse
+
+        return new CreditCardTransaction()
+        {
+            Id = Guid.NewGuid(),
+            StatementId = statement.Id,
+            Timestamp = new DateTimeOffset(date, TimeSpan.Zero),
+            Amount = amount,
+            ReferenceNumber = row.GetCell(4).GetCellValue(stringTable),
+            Note = row.GetCell(1).GetCellValue(stringTable),
+        };
     }
 }

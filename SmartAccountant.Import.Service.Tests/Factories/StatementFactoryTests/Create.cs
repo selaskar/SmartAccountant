@@ -1,4 +1,6 @@
 ﻿using Moq;
+using Moq.Language.Flow;
+using SmartAccountant.Abstractions.Interfaces;
 using SmartAccountant.Abstractions.Models.Request;
 using SmartAccountant.Import.Service.Factories;
 using SmartAccountant.Models;
@@ -8,10 +10,19 @@ namespace SmartAccountant.Import.Service.Tests.Factories.StatementFactoryTests;
 [TestClass]
 public class Create
 {
+    private Mock<ISpreadsheetParser> parserMock = null!;
+    
     private StatementFactory sut = null!;
 
     [TestInitialize]
-    public void Initialize() => sut = new();
+    public void Initialize()
+    {
+        parserMock = new Mock<ISpreadsheetParser>();
+
+        //SetupParser(debitStatement);
+
+        sut = new(parserMock.Object);
+    }
 
     [TestMethod]
     public void ThrowNotImplementedExceptionForUnsupportedBalanceType()
@@ -35,7 +46,7 @@ public class Create
             Currency = Currency.USD,
         };
 
-        ImportStatementModel model = new()
+        DebitStatementImportModel model = new()
         {
             RequestId = Guid.NewGuid(),
             AccountId = account.Id,
@@ -51,4 +62,7 @@ public class Create
         Assert.IsNotNull(result);
         Assert.IsInstanceOfType<DebitStatement>(result);
     }
+
+    private ISetup<ISpreadsheetParser> SetupParser(DebitStatement statement)
+        => parserMock.Setup(p => p.ReadStatement(statement, It.IsAny<Stream>(), It.IsAny<Bank>()));
 }

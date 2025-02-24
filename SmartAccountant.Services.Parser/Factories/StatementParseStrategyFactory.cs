@@ -14,7 +14,12 @@ internal class StatementParseStrategyFactory : IStatementParseStrategyFactory
             Type t when t == typeof(DebitTransaction) => bank switch
             {
                 Bank.GarantiBBVA => Cast<TTransaction, DebitTransaction>(new GarantiDebitStatementParseStrategy()),
-                _ => throw new NotImplementedException($"Bank ({bank}) is not implemented yet."),
+                _ => throw new NotImplementedException($"Transaction type ({typeof(TTransaction).Name}) is not implemented for the bank ({bank})."),
+            },
+            Type t when t == typeof(CreditCardTransaction) => bank switch
+            {
+                Bank.GarantiBBVA => Cast<TTransaction, CreditCardTransaction>(new GarantiCreditCardStatementParseStrategy()),
+                _ => throw new NotImplementedException($"Transaction type ({typeof(TTransaction).Name}) is not implemented for the bank ({bank})."),
             },
             _ => throw new NotImplementedException($"Transaction type ({typeof(TTransaction).Name}) is not implemented yet."),
         };
