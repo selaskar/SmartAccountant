@@ -1,14 +1,14 @@
 ﻿namespace SmartAccountant.Abstractions.Models.Request;
 
-public class ImportStatementModel
+public abstract class AbstractStatementImportModel
 {
-    //TODO: Use this as a log/scope property within ImportService.
     public Guid RequestId { get; init; }
 
     public Guid AccountId { get; init; }
 
     public required ImportFile File { get; init; }
 
+    //TODO: use new Period type.
     public DateTimeOffset PeriodStart { get; init; }
 
     public DateTimeOffset PeriodEnd { get; init; }

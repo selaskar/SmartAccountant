@@ -1,6 +1,6 @@
-﻿namespace SmartAccountant.Models;
+﻿namespace SmartAccountant.Abstractions.Models.Request;
 
-public record class CreditCardStatement : Statement<CreditCardTransaction>
+public class CreditCardStatementImportModel : AbstractStatementImportModel
 {
     /// <summary>
     /// Outstanding debt from previous periods.

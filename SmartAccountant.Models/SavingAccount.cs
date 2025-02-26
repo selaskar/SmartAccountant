@@ -1,6 +1,6 @@
 ﻿namespace SmartAccountant.Models;
 
-public class SavingAccount : Account
+public record class SavingAccount : Account
 {
     public override BalanceType NormalBalance => BalanceType.Debit;
 

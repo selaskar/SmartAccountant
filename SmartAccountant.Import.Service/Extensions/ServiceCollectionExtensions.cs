@@ -15,13 +15,17 @@ public static class ServiceCollectionExtensions
 {
     public static IServiceCollection ConfigureImport(this IServiceCollection services)
     {
-        services.AddSingleton<IValidator<ImportStatementModel>, ImportStatementModelValidator>();
+        services.AddSingleton<IValidator<DebitStatementImportModel>, DebitStatementImportModelValidator>();
+
+        services.AddSingleton<IValidator<CreditCardStatementImportModel>, CreditCardStatementImportModelValidator>();
 
         services.AddSingleton<IFileTypeValidator, FileTypeValidator>();
 
         services.AddSingleton<IStatementFactory, StatementFactory>();
 
-        services.AddScoped<IImportService, ImportService>();
+        services.AddKeyedScoped<IImportService, DebitImportService>(nameof(ImportableStatementTypes.Debit));
+
+        services.AddKeyedScoped<IImportService, CreditCardImportService>(nameof(ImportableStatementTypes.CreditCard));
 
         return services;
     }

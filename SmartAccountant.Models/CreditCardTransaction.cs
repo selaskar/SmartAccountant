@@ -1,6 +1,5 @@
 ﻿namespace SmartAccountant.Models;
 
-public class CreditCardTransaction : Transaction
+public record class CreditCardTransaction : Transaction
 {
-
 }

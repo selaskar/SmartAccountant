@@ -1,6 +1,6 @@
 ﻿namespace SmartAccountant.Models;
 
-public class StatementDocument : BaseModel
+public record class StatementDocument : BaseModel
 {
     public Guid DocumentId { get; init; }
 

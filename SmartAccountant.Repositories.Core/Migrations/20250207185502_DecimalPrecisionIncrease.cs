@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace SmartAccountant.Repositories.Core.Migrations
 {
     /// <inheritdoc />
-    public partial class DecimalPrecisionIncrease : Migration
+    internal partial class DecimalPrecisionIncrease : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

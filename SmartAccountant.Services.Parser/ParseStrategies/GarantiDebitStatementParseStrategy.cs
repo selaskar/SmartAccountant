@@ -1,30 +1,24 @@
-﻿using System.Globalization;
-using System.Text;
+﻿using System.Text;
 using DocumentFormat.OpenXml.Spreadsheet;
 using SmartAccountant.Abstractions.Exceptions;
 using SmartAccountant.Models;
 using SmartAccountant.Services.Parser.Abstract;
 using SmartAccountant.Services.Parser.Extensions;
-using SmartAccountant.Services.Parser.Helpers;
 using SmartAccountant.Services.Parser.Resources;
 
 namespace SmartAccountant.Services.Parser.ParseStrategies;
 
-internal sealed class GarantiDebitStatementParseStrategy : IStatementParseStrategy<DebitTransaction>
+internal sealed class GarantiDebitStatementParseStrategy : AbstractGarantiStatementParseStrategy, IStatementParseStrategy<DebitTransaction>
 {
     /// Non-empty rows
     internal const int HeaderRowCount = 11;
 
-    private static readonly CompositeFormat InsufficientRowNumber = CompositeFormat.Parse(Messages.InsufficientRowNumber);
-    private static readonly CompositeFormat TransactionDateColumnMissing = CompositeFormat.Parse(Messages.TransactionDateColumnMissing);
-    private static readonly CompositeFormat UnexpectedDateFormat = CompositeFormat.Parse(Messages.UnexpectedDateFormat);
-    private static readonly CompositeFormat UnexpectedAmountFormat = CompositeFormat.Parse(Messages.UnexpectedAmountFormat);
     private static readonly CompositeFormat UnexpectedRemainingAmountFormat = CompositeFormat.Parse(Messages.UnexpectedRemainingAmountFormat);
 
     /// <inheritdoc/>
     public void ParseStatement(Statement<DebitTransaction> statement, Worksheet worksheet, SharedStringTable stringTable)
     {
-        DebitStatement debitStatement = statement as DebitStatement
+        var debitStatement = statement as DebitStatement
             ?? throw new ArgumentException($"Statement expected to be type of {typeof(DebitStatement).Name}.");
 
         try
@@ -51,41 +45,28 @@ internal sealed class GarantiDebitStatementParseStrategy : IStatementParseStrate
     {
         // Expected row format: Date (0), Description (1), Amount (2), Remaining Balance (3), Reference Number (4)
 
-        if (row.ChildElements.Count < 5)
-            throw new ParserException(FormatMessage(InsufficientRowNumber, row.ChildElements.Count));
+        VerifyColumnCount(row, 5);
 
-        string dateString = row.GetCell(0).GetCellValue(stringTable);
+        DateTimeOffset date = ParseDate(row, column: 0, stringTable, order);
 
-        if (string.IsNullOrWhiteSpace(dateString))
-            throw new ParserException(FormatMessage(TransactionDateColumnMissing, order + 1));
-
-        if (!DateTime.TryParseExact(dateString, "dd/MM/yyyy", CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal, out var date))
-            throw new ParserException(FormatMessage(UnexpectedDateFormat, dateString, order + 1));
-
-        if (!row.GetCell(2).TryGetDecimalValue(out decimal? amountValue))
+        if (!ParseMoney(row, column: 2, statement.Currency, out MonetaryValue? amount))
             throw new ParserException(FormatMessage(UnexpectedAmountFormat, order + 1));
 
-        if (!row.GetCell(3).TryGetDecimalValue(out decimal? remainingBalanceValue))
+        if (!ParseMoney(row, column: 3, statement.Currency, out MonetaryValue? remainingBalance))
             throw new ParserException(FormatMessage(UnexpectedRemainingAmountFormat, order + 1));
-
-        MonetaryValue amount = new(amountValue.Value.Round(), statement.Currency);
-        MonetaryValue remainingBalance = new(remainingBalanceValue.Value.Round(), statement.Currency);
 
         return new DebitTransaction
         {
             Id = Guid.NewGuid(),
             StatementId = statement.Id,
-            Timestamp = new DateTimeOffset(date, TimeSpan.Zero),
-            Amount = amount,
+            Timestamp = date,
+            Amount = amount.Value,
             ReferenceNumber = row.GetCell(4).GetCellValue(stringTable),
             Note = row.GetCell(1).GetCellValue(stringTable),
-            RemainingBalance = remainingBalance,
+            RemainingBalance = remainingBalance.Value,
             Order = order
         };
     }
-
-    private static string FormatMessage(CompositeFormat format, params object[] parameters)=>
-        string.Format(CultureInfo.InvariantCulture, format, parameters);
 
 
     /// <exception cref="ParserException"/>

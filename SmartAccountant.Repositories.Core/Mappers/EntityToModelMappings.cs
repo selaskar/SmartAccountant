@@ -16,6 +16,13 @@ internal sealed class EntityToModelMappings : Profile
             .ForMember(x => x.Currency, opt => opt.MapFrom(e => e.Currency))
             .ForMember(x => x.AccountNumber, opt => opt.MapFrom(e => e.AccountNumber));
 
+        CreateMap<Entities.CreditCard, Models.CreditCard>()
+            .ConstructUsing(cc => new Models.CreditCard(Enumerable.Empty<Models.CreditCardLimit>()) //TODO: custom converter?
+            {
+                CardNumber = cc.CardNumber,
+            })
+            .IncludeBase<Entities.Account, Models.Account>();
+
         CreateMap<Models.Statement, Entities.Statement>()
             .ForMember(x => x.Id, opt => opt.MapFrom(e => e.Id))
             .ForMember(x => x.AccountId, opt => opt.MapFrom(e => e.AccountId))
@@ -31,6 +38,14 @@ internal sealed class EntityToModelMappings : Profile
         CreateMap<Models.DebitStatement, Entities.DebitStatement>()
             .IncludeBase<Models.Statement, Entities.Statement>()
             .ForMember(x => x.Currency, opt => opt.MapFrom(e => e.Currency));
+
+        CreateMap<Models.CreditCardStatement, Entities.CreditCardStatement>()
+            .IncludeBase<Models.Statement, Entities.Statement>()
+            .ForMember(x => x.RolloverAmount, opt => opt.MapFrom(e => e.RolloverAmount))
+            .ForMember(x => x.TotalDueAmount, opt => opt.MapFrom(e => e.TotalDueAmount))
+            .ForMember(x => x.MinimumDueAmount, opt => opt.MapFrom(e => e.MinimumDueAmount))
+            .ForMember(x => x.TotalFees, opt => opt.MapFrom(e => e.TotalFees))
+            .ForMember(x => x.DueDate, opt => opt.MapFrom(e => e.DueDate));
 
         CreateMap<Models.StatementDocument, Entities.StatementDocument>()
             .ForSourceMember(x => x.Id, x => x.DoNotValidate())
@@ -54,5 +69,8 @@ internal sealed class EntityToModelMappings : Profile
             .ForMember(x => x.RemainingAmount, opt => opt.MapFrom(e => e.RemainingBalance.Amount))
             .ForMember(x => x.RemainingAmountCurrency, opt => opt.MapFrom(e => e.RemainingBalance.Currency))
             .ForMember(x => x.Order, opt => opt.MapFrom(e => e.Order));
+
+        CreateMap<Models.CreditCardTransaction, Entities.CreditCardTransaction>()
+            .IncludeBase<Models.Transaction, Entities.Transaction>();
     }
 }

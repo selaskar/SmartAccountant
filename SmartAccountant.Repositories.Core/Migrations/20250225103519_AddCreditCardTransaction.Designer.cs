@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SmartAccountant.Repositories.Core.DataContexts;
 
@@ -11,9 +12,11 @@ using SmartAccountant.Repositories.Core.DataContexts;
 namespace SmartAccountant.Repositories.Core.Migrations
 {
     [DbContext(typeof(CoreDbContext))]
-    partial class CoreDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250225103519_AddCreditCardTransaction")]
+    partial class AddCreditCardTransaction
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -186,9 +189,6 @@ namespace SmartAccountant.Repositories.Core.Migrations
                         .HasColumnType("datetimeoffset");
 
                     b.Property<decimal?>("MinimumDueAmount")
-                        .HasColumnType("decimal(19, 4)");
-
-                    b.Property<decimal?>("RolloverAmount")
                         .HasColumnType("decimal(19, 4)");
 
                     b.Property<decimal>("TotalDueAmount")

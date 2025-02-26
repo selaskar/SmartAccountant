@@ -5,9 +5,10 @@ using SmartAccountant.Import.Service.Resources;
 
 namespace SmartAccountant.Import.Service.Validators;
 
-internal sealed class ImportStatementModelValidator : AbstractValidator<ImportStatementModel>
+internal abstract class StatementImportModelValidator<T> : AbstractValidator<T>
+    where T : AbstractStatementImportModel
 {
-    public ImportStatementModelValidator()
+    public StatementImportModelValidator()
     {
         ClassLevelCascadeMode = CascadeMode.Stop;
 

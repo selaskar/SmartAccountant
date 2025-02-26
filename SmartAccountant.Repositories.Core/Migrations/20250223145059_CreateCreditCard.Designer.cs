@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SmartAccountant.Repositories.Core.DataContexts;
 
@@ -11,9 +12,11 @@ using SmartAccountant.Repositories.Core.DataContexts;
 namespace SmartAccountant.Repositories.Core.Migrations
 {
     [DbContext(typeof(CoreDbContext))]
-    partial class CoreDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250223145059_CreateCreditCard")]
+    partial class CreateCreditCard
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -188,9 +191,6 @@ namespace SmartAccountant.Repositories.Core.Migrations
                     b.Property<decimal?>("MinimumDueAmount")
                         .HasColumnType("decimal(19, 4)");
 
-                    b.Property<decimal?>("RolloverAmount")
-                        .HasColumnType("decimal(19, 4)");
-
                     b.Property<decimal>("TotalDueAmount")
                         .HasColumnType("decimal(19, 4)");
 
@@ -208,13 +208,6 @@ namespace SmartAccountant.Repositories.Core.Migrations
                         .HasColumnType("smallint");
 
                     b.ToTable("DebitStatements");
-                });
-
-            modelBuilder.Entity("SmartAccountant.Repositories.Core.Entities.CreditCardTransaction", b =>
-                {
-                    b.HasBaseType("SmartAccountant.Repositories.Core.Entities.Transaction");
-
-                    b.ToTable("CreditCardTransactions");
                 });
 
             modelBuilder.Entity("SmartAccountant.Repositories.Core.Entities.DebitTransaction", b =>
@@ -309,15 +302,6 @@ namespace SmartAccountant.Repositories.Core.Migrations
                     b.HasOne("SmartAccountant.Repositories.Core.Entities.Statement", null)
                         .WithOne()
                         .HasForeignKey("SmartAccountant.Repositories.Core.Entities.DebitStatement", "Id")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("SmartAccountant.Repositories.Core.Entities.CreditCardTransaction", b =>
-                {
-                    b.HasOne("SmartAccountant.Repositories.Core.Entities.Transaction", null)
-                        .WithOne()
-                        .HasForeignKey("SmartAccountant.Repositories.Core.Entities.CreditCardTransaction", "Id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
