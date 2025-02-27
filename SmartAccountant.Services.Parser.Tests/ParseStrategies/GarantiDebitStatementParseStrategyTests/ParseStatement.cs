@@ -180,7 +180,7 @@ public class ParseStatement
         Assert.AreEqual(100.00m, transaction.Amount.Amount);
         Assert.AreEqual(900.00m, transaction.RemainingBalance.Amount);
         Assert.AreEqual("Ref123", transaction.ReferenceNumber);
-        Assert.AreEqual("Description", transaction.Note);
+        Assert.AreEqual("Description", transaction.Description);
     }
 
     [TestMethod]

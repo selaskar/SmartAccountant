@@ -128,7 +128,11 @@ namespace SmartAccountant.Repositories.Core.Migrations
                     b.Property<short>("AmountCurrency")
                         .HasColumnType("smallint");
 
-                    b.Property<string>("Note")
+                    b.Property<string>("Description")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("PersonalNote")
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
