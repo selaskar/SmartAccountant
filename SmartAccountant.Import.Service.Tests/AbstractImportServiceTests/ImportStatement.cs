@@ -433,8 +433,8 @@ public class ImportStatement
         => accountRepositoryMock.Setup(a => a.GetAccountsOfUser(account.Id))
             .Returns(AsyncEnumerable.ToAsyncEnumerable([account]));
 
-    private void SetupStatementFactory(TestStatementImportModel request, Account account, Statement statement)
-        => statementFactoryMock.Setup(s => s.Create(request, account)).Returns(statement);
+    private void SetupStatementFactory(TestStatementImportModel model, Account account, Statement statement)
+        => statementFactoryMock.Setup(s => s.Create(model, account)).Returns(statement);
 
     private ISetup<ISpreadsheetParser> SetupParser(TestStatement statement, Bank? bank)
         => parserMock.Setup(p => p.ReadStatement(statement, It.IsAny<Stream>(), bank ?? It.IsAny<Bank>()));
@@ -446,7 +446,7 @@ public class ImportStatement
         => statementRepositoryMock.Setup(s => s.Insert(statement, It.IsAny<CancellationToken>()));
 
 
-    private class TestImportService(
+    private sealed class TestImportService(
         ILogger<AbstractImportService> logger,
         IFileTypeValidator fileTypeValidator,
         IAuthorizationService authorizationService,
@@ -471,9 +471,9 @@ public class ImportStatement
         }
     }
 
-    private class TestStatementImportModel : AbstractStatementImportModel { }
+    private sealed class TestStatementImportModel : AbstractStatementImportModel { }
 
-    private record class TestStatement : Statement<TestTransaction> { }
+    private sealed record class TestStatement : Statement<TestTransaction> { }
 
-    private record class TestTransaction : Transaction { }
+    private sealed record class TestTransaction : Transaction { }
 }

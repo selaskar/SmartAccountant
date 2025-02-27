@@ -175,7 +175,7 @@ public class ParseStatement
         // Assert
         Assert.AreEqual(1, statement.Transactions.Count);
 
-        var transaction = statement.Transactions.First();
+        DebitTransaction transaction = statement.Transactions.First();
         Assert.AreEqual(new DateTimeOffset(new DateTime(2025, 2, 13), TimeSpan.Zero), transaction.Timestamp);
         Assert.AreEqual(100.00m, transaction.Amount.Amount);
         Assert.AreEqual(900.00m, transaction.RemainingBalance.Amount);

@@ -11,6 +11,7 @@ internal sealed class GarantiCreditCardStatementParseStrategy : AbstractGarantiS
 {
     /// Non-empty rows
     internal const int HeaderRowCount = 3;
+    internal const int FooterRowCount = 1;
 
     public void ParseStatement(Statement<CreditCardTransaction> statement, Worksheet worksheet, SharedStringTable stringTable)
     {
@@ -20,7 +21,7 @@ internal sealed class GarantiCreditCardStatementParseStrategy : AbstractGarantiS
         try
         {
             Row[] rows = [.. worksheet.Descendants<Row>()];
-            int transactionCount = rows.Length - HeaderRowCount - 1; //Last row is sum.
+            int transactionCount = rows.Length - HeaderRowCount - FooterRowCount;
             short rowCount = 0;
             foreach (Row row in rows.Skip(HeaderRowCount).Take(transactionCount))
             {
@@ -55,7 +56,7 @@ internal sealed class GarantiCreditCardStatementParseStrategy : AbstractGarantiS
             Id = Guid.NewGuid(),
             StatementId = statement.Id,
             Timestamp = date,
-            Amount = amount.Value * -1, // Normal balance is credit
+            Amount = amount.Value * -1, //Since the normal balance is credit
             ReferenceNumber = null,
             Description = row.GetCell(1).GetCellValue(stringTable),
         };
@@ -64,7 +65,7 @@ internal sealed class GarantiCreditCardStatementParseStrategy : AbstractGarantiS
     /// <exception cref="ParserException"/>
     private static void CrossCheck(CreditCardStatement statement)
     {
-        decimal expectedSum = statement.TotalDueAmount - statement.RolloverAmount ?? 0;
+        decimal expectedSum = statement.TotalDueAmount - (statement.RolloverAmount ?? 0);
 
         decimal totalTransactions = !statement.Transactions.Any() ? 0
             : statement.Transactions.Sum(t => t.Amount.Amount);
