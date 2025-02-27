@@ -19,7 +19,7 @@ internal abstract class StatementImportModelValidator<T> : AbstractValidator<T>
         RuleFor(x => x.File).NotNull().SetValidator(new ImportFileValidator());
 
         RuleFor(x => x.File.Length).GreaterThan(0).WithMessage(Messages.UploadedStatementFileEmpty)
-            .LessThanOrEqualTo(ImportService.MaxFileSize).WithMessage(Messages.UploadedStatementFileTooBig);
+            .LessThanOrEqualTo(AbstractImportService.MaxFileSize).WithMessage(Messages.UploadedStatementFileTooBig);
 
         RuleFor(x => x.PeriodStart.Date).ExclusiveBetween(ApplicationDefinitions.EpochStart.ToDateTime(TimeOnly.MinValue), ApplicationDefinitions.EpochEnd.ToDateTime(TimeOnly.MinValue));
 

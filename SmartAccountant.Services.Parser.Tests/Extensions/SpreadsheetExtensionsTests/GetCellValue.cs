@@ -66,7 +66,7 @@ public class GetCellValue
         };
 
         // Act, Assert
-        Assert.ThrowsException<ArgumentNullException>(() => cell.GetCellValue(null));
+        Assert.ThrowsExactly<ArgumentNullException>(() => cell.GetCellValue(null));
     }
 
     [TestMethod]

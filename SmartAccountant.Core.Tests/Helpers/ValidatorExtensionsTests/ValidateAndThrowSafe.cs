@@ -13,7 +13,7 @@ public sealed class ValidateAndThrowSafe
         var validator = new InlineValidator<object>();
 
         // Act, Assert
-        Assert.ThrowsException<ArgumentNullException>(() => ValidatorExtensions.ValidateAndThrowSafe(validator, null!));
+        Assert.ThrowsExactly<ArgumentNullException>(() => ValidatorExtensions.ValidateAndThrowSafe(validator, null!));
     }
 
     [TestMethod]
@@ -24,7 +24,7 @@ public sealed class ValidateAndThrowSafe
         validator.RuleFor(x => x).Equal(true);
 
         // Act, Assert
-        Assert.ThrowsException<ValidationException>(() => ValidatorExtensions.ValidateAndThrowSafe(validator, false));
+        Assert.ThrowsExactly<ValidationException>(() => ValidatorExtensions.ValidateAndThrowSafe(validator, false));
     }
 
     [TestMethod]

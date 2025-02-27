@@ -22,7 +22,7 @@ public class ParseStatement
         var mockStatement = new Mock<Statement<DebitTransaction>>();
 
         // Act, Assert
-        Assert.ThrowsException<ArgumentException>(() => sut.ParseStatement(mockStatement.Object, null!, null!));
+        Assert.ThrowsExactly<ArgumentException>(() => sut.ParseStatement(mockStatement.Object, null!, null!));
     }
 
     [TestMethod]
@@ -74,7 +74,7 @@ public class ParseStatement
         Worksheet worksheet = new(rows);
 
         // Act, Assert
-        Assert.ThrowsException<ParserException>(() => sut.ParseStatement(statement, worksheet, null!));
+        Assert.ThrowsExactly<ParserException>(() => sut.ParseStatement(statement, worksheet, null!));
     }
 
     [TestMethod]
@@ -101,7 +101,7 @@ public class ParseStatement
         Worksheet worksheet = new(rows);
 
         // Act, Assert
-        Assert.ThrowsException<ParserException>(() => sut.ParseStatement(statement, worksheet, null!));
+        Assert.ThrowsExactly<ParserException>(() => sut.ParseStatement(statement, worksheet, null!));
     }
 
     [TestMethod]
@@ -125,7 +125,7 @@ public class ParseStatement
         Worksheet worksheet = new(rows);
 
         // Act, Assert
-        Assert.ThrowsException<ParserException>(() => sut.ParseStatement(statement, worksheet, null!));
+        Assert.ThrowsExactly<ParserException>(() => sut.ParseStatement(statement, worksheet, null!));
     }
 
     [TestMethod]
@@ -149,7 +149,7 @@ public class ParseStatement
         Worksheet worksheet = new(rows);
 
         // Act, Assert
-        Assert.ThrowsException<ParserException>(() => sut.ParseStatement(statement, worksheet, null!));
+        Assert.ThrowsExactly<ParserException>(() => sut.ParseStatement(statement, worksheet, null!));
     }
 
     [TestMethod]
@@ -208,7 +208,7 @@ public class ParseStatement
         Worksheet worksheet = new(rows);
 
         // Act, Assert
-        Assert.ThrowsException<ParserException>(() => sut.ParseStatement(statement, worksheet, null!));
+        Assert.ThrowsExactly<ParserException>(() => sut.ParseStatement(statement, worksheet, null!));
     }
 
     [TestMethod]

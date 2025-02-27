@@ -12,25 +12,25 @@ using SmartAccountant.Repositories.Core.Abstract;
 namespace SmartAccountant.Import.Service;
 
 internal sealed class DebitImportService(
-    ILogger<ImportService> logger,
-    IValidator<DebitStatementImportModel> validator,
+    ILogger<AbstractImportService> logger,
     IFileTypeValidator fileTypeValidator,
     IAuthorizationService authorizationService,
     IAccountRepository accountRepository,
-    IStatementFactory statementFactory,
-    ISpreadsheetParser parser,
     IStorageService storageService,
-    IStatementRepository statementRepository) :
-        ImportService(logger, fileTypeValidator, authorizationService, accountRepository, storageService, statementRepository)
+    IStatementRepository statementRepository,
+    IValidator<DebitStatementImportModel> validator,
+    IStatementFactory statementFactory,
+    ISpreadsheetParser parser)
+    : AbstractImportService(logger, fileTypeValidator, authorizationService, accountRepository, storageService, statementRepository)
 {
     /// <inheritdoc/>
-    protected override void Validate(AbstractStatementImportModel model)
+    protected internal override void Validate(AbstractStatementImportModel model)
     {
         validator.ValidateAndThrowSafe((DebitStatementImportModel)model);
     }
 
     /// <inheritdoc/>
-    protected override Statement Parse(AbstractStatementImportModel model, Account account)
+    protected internal override Statement Parse(AbstractStatementImportModel model, Account account)
     {
         try
         {

@@ -11,8 +11,8 @@ using SmartAccountant.Repositories.Core.Abstract;
 
 namespace SmartAccountant.Import.Service;
 
-internal abstract partial class ImportService(
-    ILogger<ImportService> logger,
+internal abstract partial class AbstractImportService(
+    ILogger<AbstractImportService> logger,
     IFileTypeValidator fileTypeValidator,
     IAuthorizationService authorizationService,
     IAccountRepository accountRepository,
@@ -51,10 +51,10 @@ internal abstract partial class ImportService(
 
 
     /// <exception cref="ValidationException"/>
-    protected abstract void Validate(AbstractStatementImportModel model);
+    protected internal abstract void Validate(AbstractStatementImportModel model);
 
     /// <exception cref="ImportException"/>
-    protected abstract Statement Parse(AbstractStatementImportModel model, Account account);
+    protected internal abstract Statement Parse(AbstractStatementImportModel model, Account account);
 
 
     /// <exception cref="ImportException" />
