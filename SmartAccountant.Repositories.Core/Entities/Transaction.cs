@@ -23,5 +23,8 @@ internal abstract class Transaction
     public Currency AmountCurrency { get; set; }
 
     [StringLength(500)]
-    public string? Note { get; set; }
+    public string? Description { get; set; }
+    
+    [StringLength(500)]
+    public string? PersonalNote { get; set; }
 }

@@ -62,8 +62,9 @@ internal sealed class EntityToModelMappings : Profile
             .ForMember(x => x.Timestamp, opt => opt.MapFrom(e => e.Timestamp))
             .ForMember(x => x.Amount, opt => opt.MapFrom(e => e.Amount.Amount))
             .ForMember(x => x.AmountCurrency, opt => opt.MapFrom(e => e.Amount.Currency))
-            .ForMember(x => x.Note, opt => opt.MapFrom(e => e.Note));
-
+            .ForMember(x => x.Description, opt => opt.MapFrom(e => e.Description))
+            .ForMember(x => x.PersonalNote, opt => opt.MapFrom(e => e.PersonalNote));
+        
         CreateMap<Models.DebitTransaction, Entities.DebitTransaction>()
             .IncludeBase<Models.Transaction, Entities.Transaction>()
             .ForMember(x => x.RemainingAmount, opt => opt.MapFrom(e => e.RemainingBalance.Amount))

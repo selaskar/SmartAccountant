@@ -10,7 +10,9 @@ public abstract record class Transaction : BaseModel
 
     public MonetaryValue Amount { get; init; }
 
-    public string? Note { get; init; }
+    public string? Description { get; init; }
+
+    public string? PersonalNote { get; init; }
 }
 
 //TODO: category and sub-categories? Flags?

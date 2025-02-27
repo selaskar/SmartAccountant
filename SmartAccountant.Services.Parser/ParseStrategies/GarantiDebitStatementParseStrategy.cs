@@ -62,7 +62,7 @@ internal sealed class GarantiDebitStatementParseStrategy : AbstractGarantiStatem
             Timestamp = date,
             Amount = amount.Value,
             ReferenceNumber = row.GetCell(4).GetCellValue(stringTable),
-            Note = row.GetCell(1).GetCellValue(stringTable),
+            Description = row.GetCell(1).GetCellValue(stringTable),
             RemainingBalance = remainingBalance.Value,
             Order = order
         };

@@ -57,7 +57,7 @@ internal sealed class GarantiCreditCardStatementParseStrategy : AbstractGarantiS
             Timestamp = date,
             Amount = amount.Value * -1, // Normal balance is credit
             ReferenceNumber = null,
-            Note = row.GetCell(1).GetCellValue(stringTable),
+            Description = row.GetCell(1).GetCellValue(stringTable),
         };
     }
 
