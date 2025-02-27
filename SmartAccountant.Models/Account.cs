@@ -3,7 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace SmartAccountant.Models;
 
-public abstract class Account : BaseModel
+public abstract record class Account : BaseModel
 {
     public Guid HolderId { get; init; }
 

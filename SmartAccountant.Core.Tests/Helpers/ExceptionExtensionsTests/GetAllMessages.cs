@@ -10,7 +10,7 @@ public class GetAllMessages
     public void ThrowArgumentNullExceptionForNullException()
     {
         // Act, Assert
-        Assert.ThrowsException<ArgumentNullException>(() => ExceptionExtensions.GetAllMessages(null!));
+        Assert.ThrowsExactly<ArgumentNullException>(() => ExceptionExtensions.GetAllMessages(null!));
     }
 
     [TestMethod]

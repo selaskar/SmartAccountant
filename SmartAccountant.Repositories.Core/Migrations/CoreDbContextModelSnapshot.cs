@@ -17,7 +17,7 @@ namespace SmartAccountant.Repositories.Core.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.1")
+                .HasAnnotation("ProductVersion", "9.0.2")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -45,6 +45,31 @@ namespace SmartAccountant.Repositories.Core.Migrations
                     b.ToTable("Accounts");
 
                     b.UseTptMappingStrategy();
+                });
+
+            modelBuilder.Entity("SmartAccountant.Repositories.Core.Entities.CreditCardLimit", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("decimal(19, 4)");
+
+                    b.Property<Guid>("CardId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("ValidSince")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<DateTimeOffset?>("ValidUntil")
+                        .HasColumnType("datetimeoffset");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CardId");
+
+                    b.ToTable("CreditCardLimits");
                 });
 
             modelBuilder.Entity("SmartAccountant.Repositories.Core.Entities.Statement", b =>
@@ -103,7 +128,11 @@ namespace SmartAccountant.Repositories.Core.Migrations
                     b.Property<short>("AmountCurrency")
                         .HasColumnType("smallint");
 
-                    b.Property<string>("Note")
+                    b.Property<string>("Description")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("PersonalNote")
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
@@ -126,6 +155,18 @@ namespace SmartAccountant.Repositories.Core.Migrations
                     b.UseTptMappingStrategy();
                 });
 
+            modelBuilder.Entity("SmartAccountant.Repositories.Core.Entities.CreditCard", b =>
+                {
+                    b.HasBaseType("SmartAccountant.Repositories.Core.Entities.Account");
+
+                    b.Property<string>("CardNumber")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.ToTable("CreditCards");
+                });
+
             modelBuilder.Entity("SmartAccountant.Repositories.Core.Entities.SavingAccount", b =>
                 {
                     b.HasBaseType("SmartAccountant.Repositories.Core.Entities.Account");
@@ -141,6 +182,28 @@ namespace SmartAccountant.Repositories.Core.Migrations
                     b.ToTable("SavingAccounts");
                 });
 
+            modelBuilder.Entity("SmartAccountant.Repositories.Core.Entities.CreditCardStatement", b =>
+                {
+                    b.HasBaseType("SmartAccountant.Repositories.Core.Entities.Statement");
+
+                    b.Property<DateTimeOffset>("DueDate")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<decimal?>("MinimumDueAmount")
+                        .HasColumnType("decimal(19, 4)");
+
+                    b.Property<decimal?>("RolloverAmount")
+                        .HasColumnType("decimal(19, 4)");
+
+                    b.Property<decimal>("TotalDueAmount")
+                        .HasColumnType("decimal(19, 4)");
+
+                    b.Property<decimal?>("TotalFees")
+                        .HasColumnType("decimal(19, 4)");
+
+                    b.ToTable("CreditCardStatements");
+                });
+
             modelBuilder.Entity("SmartAccountant.Repositories.Core.Entities.DebitStatement", b =>
                 {
                     b.HasBaseType("SmartAccountant.Repositories.Core.Entities.Statement");
@@ -149,6 +212,13 @@ namespace SmartAccountant.Repositories.Core.Migrations
                         .HasColumnType("smallint");
 
                     b.ToTable("DebitStatements");
+                });
+
+            modelBuilder.Entity("SmartAccountant.Repositories.Core.Entities.CreditCardTransaction", b =>
+                {
+                    b.HasBaseType("SmartAccountant.Repositories.Core.Entities.Transaction");
+
+                    b.ToTable("CreditCardTransactions");
                 });
 
             modelBuilder.Entity("SmartAccountant.Repositories.Core.Entities.DebitTransaction", b =>
@@ -167,6 +237,17 @@ namespace SmartAccountant.Repositories.Core.Migrations
                     b.ToTable("DebitTransactions");
                 });
 
+            modelBuilder.Entity("SmartAccountant.Repositories.Core.Entities.CreditCardLimit", b =>
+                {
+                    b.HasOne("SmartAccountant.Repositories.Core.Entities.CreditCard", "Card")
+                        .WithMany("Limits")
+                        .HasForeignKey("CardId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Card");
+                });
+
             modelBuilder.Entity("SmartAccountant.Repositories.Core.Entities.Statement", b =>
                 {
                     b.HasOne("SmartAccountant.Repositories.Core.Entities.Account", "Account")
@@ -181,7 +262,7 @@ namespace SmartAccountant.Repositories.Core.Migrations
             modelBuilder.Entity("SmartAccountant.Repositories.Core.Entities.StatementDocument", b =>
                 {
                     b.HasOne("SmartAccountant.Repositories.Core.Entities.Statement", "Statement")
-                        .WithMany()
+                        .WithMany("Documents")
                         .HasForeignKey("StatementId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -200,6 +281,15 @@ namespace SmartAccountant.Repositories.Core.Migrations
                     b.Navigation("Statement");
                 });
 
+            modelBuilder.Entity("SmartAccountant.Repositories.Core.Entities.CreditCard", b =>
+                {
+                    b.HasOne("SmartAccountant.Repositories.Core.Entities.Account", null)
+                        .WithOne()
+                        .HasForeignKey("SmartAccountant.Repositories.Core.Entities.CreditCard", "Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("SmartAccountant.Repositories.Core.Entities.SavingAccount", b =>
                 {
                     b.HasOne("SmartAccountant.Repositories.Core.Entities.Account", null)
@@ -209,11 +299,29 @@ namespace SmartAccountant.Repositories.Core.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("SmartAccountant.Repositories.Core.Entities.CreditCardStatement", b =>
+                {
+                    b.HasOne("SmartAccountant.Repositories.Core.Entities.Statement", null)
+                        .WithOne()
+                        .HasForeignKey("SmartAccountant.Repositories.Core.Entities.CreditCardStatement", "Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("SmartAccountant.Repositories.Core.Entities.DebitStatement", b =>
                 {
                     b.HasOne("SmartAccountant.Repositories.Core.Entities.Statement", null)
                         .WithOne()
                         .HasForeignKey("SmartAccountant.Repositories.Core.Entities.DebitStatement", "Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("SmartAccountant.Repositories.Core.Entities.CreditCardTransaction", b =>
+                {
+                    b.HasOne("SmartAccountant.Repositories.Core.Entities.Transaction", null)
+                        .WithOne()
+                        .HasForeignKey("SmartAccountant.Repositories.Core.Entities.CreditCardTransaction", "Id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
@@ -229,7 +337,14 @@ namespace SmartAccountant.Repositories.Core.Migrations
 
             modelBuilder.Entity("SmartAccountant.Repositories.Core.Entities.Statement", b =>
                 {
+                    b.Navigation("Documents");
+
                     b.Navigation("Transactions");
+                });
+
+            modelBuilder.Entity("SmartAccountant.Repositories.Core.Entities.CreditCard", b =>
+                {
+                    b.Navigation("Limits");
                 });
 #pragma warning restore 612, 618
         }

@@ -5,9 +5,10 @@ using SmartAccountant.Import.Service.Resources;
 
 namespace SmartAccountant.Import.Service.Validators;
 
-internal sealed class ImportStatementModelValidator : AbstractValidator<ImportStatementModel>
+internal abstract class StatementImportModelValidator<T> : AbstractValidator<T>
+    where T : AbstractStatementImportModel
 {
-    public ImportStatementModelValidator()
+    public StatementImportModelValidator()
     {
         ClassLevelCascadeMode = CascadeMode.Stop;
 
@@ -18,7 +19,7 @@ internal sealed class ImportStatementModelValidator : AbstractValidator<ImportSt
         RuleFor(x => x.File).NotNull().SetValidator(new ImportFileValidator());
 
         RuleFor(x => x.File.Length).GreaterThan(0).WithMessage(Messages.UploadedStatementFileEmpty)
-            .LessThanOrEqualTo(ImportService.MaxFileSize).WithMessage(Messages.UploadedStatementFileTooBig);
+            .LessThanOrEqualTo(AbstractImportService.MaxFileSize).WithMessage(Messages.UploadedStatementFileTooBig);
 
         RuleFor(x => x.PeriodStart.Date).ExclusiveBetween(ApplicationDefinitions.EpochStart.ToDateTime(TimeOnly.MinValue), ApplicationDefinitions.EpochEnd.ToDateTime(TimeOnly.MinValue));
 

@@ -17,14 +17,15 @@ public class Create
     public void ThrowNotImplementedExceptionForUnsupportedTransactionType()
     {
         // Act, Assert
-        Assert.ThrowsException<NotImplementedException>(() => sut.Create<Transaction>(Bank.GarantiBBVA));
+        Assert.ThrowsExactly<NotImplementedException>(() => sut.Create<Transaction>(Bank.GarantiBBVA));
     }
 
     [TestMethod]
     public void ThrowNotImplementedExceptionForUnsupportedBank()
     {
         // Act, Assert
-        Assert.ThrowsException<NotImplementedException>(() => sut.Create<DebitTransaction>(Bank.Unknown));
+        Assert.ThrowsExactly<NotImplementedException>(() => sut.Create<DebitTransaction>(Bank.Unknown));
+        Assert.ThrowsExactly<NotImplementedException>(() => sut.Create<CreditCardTransaction>(Bank.Unknown));
     }
 
     [TestMethod]
@@ -36,5 +37,16 @@ public class Create
         // Assert
         Assert.IsNotNull(parseStrategy);
         Assert.IsInstanceOfType<GarantiDebitStatementParseStrategy>(parseStrategy);
+    }
+
+    [TestMethod]
+    public void CreateParseStrategyForGarantiCreditCardTransaction()
+    {
+        // Act
+        IStatementParseStrategy<CreditCardTransaction>? parseStrategy = sut.Create<CreditCardTransaction>(Bank.GarantiBBVA);
+
+        // Assert
+        Assert.IsNotNull(parseStrategy);
+        Assert.IsInstanceOfType<GarantiCreditCardStatementParseStrategy>(parseStrategy);
     }
 }

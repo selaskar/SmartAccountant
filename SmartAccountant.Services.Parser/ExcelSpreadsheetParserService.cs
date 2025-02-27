@@ -11,12 +11,9 @@ namespace SmartAccountant.Services.Parser;
 internal class ExcelSpreadsheetParserService(IStatementParseStrategyFactory factory) : ISpreadsheetParser
 {
     /// <inheritdoc />
-    public void ReadStatement<TTransaction>(Statement<TTransaction> statement, Stream stream)
+    public void ReadStatement<TTransaction>(Statement<TTransaction> statement, Stream stream, Bank bank)
          where TTransaction : Transaction
     {
-        ArgumentNullException.ThrowIfNull(statement);
-        ArgumentNullException.ThrowIfNull(statement.Account);
-
         try
         {
             using var document = SpreadsheetDocument.Open(stream, false);
@@ -29,7 +26,7 @@ internal class ExcelSpreadsheetParserService(IStatementParseStrategyFactory fact
 
             SharedStringTable sharedStringTable = document.WorkbookPart.GetPartsOfType<SharedStringTablePart>().First().SharedStringTable;
 
-            IStatementParseStrategy<TTransaction> statementParseStrategy = factory.Create<TTransaction>(statement.Account.Bank);
+            IStatementParseStrategy<TTransaction> statementParseStrategy = factory.Create<TTransaction>(bank);
             statementParseStrategy.ParseStatement(statement, worksheet, sharedStringTable);
         }
         catch (Exception ex) when (ex is not ParserException)

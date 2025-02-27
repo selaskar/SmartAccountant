@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace SmartAccountant.Repositories.Core.Migrations
 {
     /// <inheritdoc />
-    public partial class DebitTransactionOrder : Migration
+    internal partial class DebitTransactionOrder : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

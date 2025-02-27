@@ -20,7 +20,7 @@ public class GetCell
         row.Append(cell);
 
         // Act, Assert
-        Assert.ThrowsException<ArgumentOutOfRangeException>(() => row.GetCell(1));
+        Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => row.GetCell(1));
     }
 
     [TestMethod]

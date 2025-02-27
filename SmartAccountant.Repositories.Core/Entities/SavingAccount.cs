@@ -5,9 +5,9 @@ namespace SmartAccountant.Repositories.Core.Entities;
 
 internal sealed class SavingAccount : Account
 {
-    public Currency Currency { get; set; }
-
     public override BalanceType NormalBalance => BalanceType.Debit;
+
+    public Currency Currency { get; set; }
 
     [Required]
     [StringLength(100, MinimumLength = 5)]

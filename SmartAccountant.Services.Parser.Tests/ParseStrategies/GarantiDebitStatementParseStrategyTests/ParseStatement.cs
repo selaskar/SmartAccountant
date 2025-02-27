@@ -22,7 +22,7 @@ public class ParseStatement
         var mockStatement = new Mock<Statement<DebitTransaction>>();
 
         // Act, Assert
-        Assert.ThrowsException<ArgumentException>(() => sut.ParseStatement(mockStatement.Object, null!, null!));
+        Assert.ThrowsExactly<ArgumentException>(() => sut.ParseStatement(mockStatement.Object, null!, null!));
     }
 
     [TestMethod]
@@ -74,7 +74,7 @@ public class ParseStatement
         Worksheet worksheet = new(rows);
 
         // Act, Assert
-        Assert.ThrowsException<ParserException>(() => sut.ParseStatement(statement, worksheet, null!));
+        Assert.ThrowsExactly<ParserException>(() => sut.ParseStatement(statement, worksheet, null!));
     }
 
     [TestMethod]
@@ -101,7 +101,7 @@ public class ParseStatement
         Worksheet worksheet = new(rows);
 
         // Act, Assert
-        Assert.ThrowsException<ParserException>(() => sut.ParseStatement(statement, worksheet, null!));
+        Assert.ThrowsExactly<ParserException>(() => sut.ParseStatement(statement, worksheet, null!));
     }
 
     [TestMethod]
@@ -125,7 +125,7 @@ public class ParseStatement
         Worksheet worksheet = new(rows);
 
         // Act, Assert
-        Assert.ThrowsException<ParserException>(() => sut.ParseStatement(statement, worksheet, null!));
+        Assert.ThrowsExactly<ParserException>(() => sut.ParseStatement(statement, worksheet, null!));
     }
 
     [TestMethod]
@@ -149,7 +149,7 @@ public class ParseStatement
         Worksheet worksheet = new(rows);
 
         // Act, Assert
-        Assert.ThrowsException<ParserException>(() => sut.ParseStatement(statement, worksheet, null!));
+        Assert.ThrowsExactly<ParserException>(() => sut.ParseStatement(statement, worksheet, null!));
     }
 
     [TestMethod]
@@ -175,12 +175,12 @@ public class ParseStatement
         // Assert
         Assert.AreEqual(1, statement.Transactions.Count);
 
-        var transaction = statement.Transactions.First();
+        DebitTransaction transaction = statement.Transactions.First();
         Assert.AreEqual(new DateTimeOffset(new DateTime(2025, 2, 13), TimeSpan.Zero), transaction.Timestamp);
         Assert.AreEqual(100.00m, transaction.Amount.Amount);
         Assert.AreEqual(900.00m, transaction.RemainingBalance.Amount);
         Assert.AreEqual("Ref123", transaction.ReferenceNumber);
-        Assert.AreEqual("Description", transaction.Note);
+        Assert.AreEqual("Description", transaction.Description);
     }
 
     [TestMethod]
@@ -208,7 +208,7 @@ public class ParseStatement
         Worksheet worksheet = new(rows);
 
         // Act, Assert
-        Assert.ThrowsException<ParserException>(() => sut.ParseStatement(statement, worksheet, null!));
+        Assert.ThrowsExactly<ParserException>(() => sut.ParseStatement(statement, worksheet, null!));
     }
 
     [TestMethod]

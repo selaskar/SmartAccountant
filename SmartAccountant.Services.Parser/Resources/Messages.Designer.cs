@@ -63,9 +63,9 @@ namespace SmartAccountant.Services.Parser.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Unrecognized file format. Column count ({0}) was expected to be at least 5..
         /// </summary>
-        internal static string InsufficientRowNumber {
+        internal static string InsufficientColumnCount {
             get {
-                return ResourceManager.GetString("InsufficientRowNumber", resourceCulture);
+                return ResourceManager.GetString("InsufficientColumnCount", resourceCulture);
             }
         }
         
@@ -75,6 +75,15 @@ namespace SmartAccountant.Services.Parser.Resources {
         internal static string TransactionAmountAndBalanceNotMatch {
             get {
                 return ResourceManager.GetString("TransactionAmountAndBalanceNotMatch", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Total amount of transactions and the due amount do not match..
+        /// </summary>
+        internal static string TransactionAmountAndDueAmountNotMatch {
+            get {
+                return ResourceManager.GetString("TransactionAmountAndDueAmountNotMatch", resourceCulture);
             }
         }
         

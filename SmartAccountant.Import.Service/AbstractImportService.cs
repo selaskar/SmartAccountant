@@ -4,7 +4,6 @@ using Microsoft.Extensions.Logging;
 using SmartAccountant.Abstractions.Exceptions;
 using SmartAccountant.Abstractions.Interfaces;
 using SmartAccountant.Abstractions.Models.Request;
-using SmartAccountant.Core.Helpers;
 using SmartAccountant.Import.Service.Abstract;
 using SmartAccountant.Import.Service.Resources;
 using SmartAccountant.Models;
@@ -12,14 +11,11 @@ using SmartAccountant.Repositories.Core.Abstract;
 
 namespace SmartAccountant.Import.Service;
 
-internal sealed partial class ImportService(
-    ILogger<ImportService> logger,
-    IValidator<ImportStatementModel> validator,
+internal abstract partial class AbstractImportService(
+    ILogger<AbstractImportService> logger,
     IFileTypeValidator fileTypeValidator,
     IAuthorizationService authorizationService,
     IAccountRepository accountRepository,
-    IStatementFactory statementFactory,
-    ISpreadsheetParser parser,
     IStorageService storageService,
     IStatementRepository statementRepository)
     : IImportService
@@ -30,10 +26,11 @@ internal sealed partial class ImportService(
     private const string UploadsContainerName = "uploads";
     private const string AccountsFolderName = "accounts";
 
+
     /// <inheritdoc/>
-    public async Task<Statement> ImportStatement(ImportStatementModel request, CancellationToken cancellationToken)
+    public async Task<Statement> ImportStatement(AbstractStatementImportModel request, CancellationToken cancellationToken)
     {
-        validator.ValidateAndThrowSafe(request);
+        Validate(request);
 
         if (!await fileTypeValidator.IsValidFile(request.File, cancellationToken))
             throw new ImportException(Messages.UploadedStatementFileTypeNotSupported);
@@ -52,6 +49,14 @@ internal sealed partial class ImportService(
         return statement;
     }
 
+
+    /// <exception cref="ValidationException"/>
+    protected internal abstract void Validate(AbstractStatementImportModel model);
+
+    /// <exception cref="ImportException"/>
+    protected internal abstract Statement Parse(AbstractStatementImportModel model, Account account);
+
+
     /// <exception cref="ImportException" />
     /// <exception cref="OperationCanceledException" />
     private Account ValidateAccountHolder(Guid userId, Guid accountId, CancellationToken cancellationToken)
@@ -68,25 +73,6 @@ internal sealed partial class ImportService(
             AccountHolderVerificationFailed(ex, accountId);
 
             throw new ImportException(Messages.CannotValidateAccountHolder, ex);
-        }
-    }
-
-    /// <exception cref="ImportException"/>
-    private Statement Parse(ImportStatementModel request, Account account)
-    {
-        try
-        {
-            Statement statement = statementFactory.Create(request, account);
-
-            parser.ReadStatement((Statement<DebitTransaction>)statement, request.File.OpenReadStream());
-            
-            return statement;
-        }
-        catch (Exception ex)
-        {
-            ParseFailed(ex, account.Id);
-
-            throw new ImportException(Messages.CannotParseUploadedStatementFile, ex);
         }
     }
 
@@ -142,20 +128,20 @@ internal sealed partial class ImportService(
     }
 
     [LoggerMessage(Level = LogLevel.Error, Message = "An error occurred while verifying the holder of account ({AccountId}).")]
-    private partial void AccountHolderVerificationFailed(Exception ex, Guid accountId);
+    protected partial void AccountHolderVerificationFailed(Exception ex, Guid accountId);
 
     [LoggerMessage(Level = LogLevel.Error, Message = "Parsing of statement document failed for account ({AccountId}).")]
-    private partial void ParseFailed(Exception ex, Guid accountId);
+    protected partial void ParseFailed(Exception ex, Guid accountId);
 
     [LoggerMessage(Level = LogLevel.Trace, Message = "Starting to save the uploaded document.")]
-    private partial void UploadStarting();
+    protected partial void UploadStarting();
 
     [LoggerMessage(Level = LogLevel.Trace, Message = "Statement document successfully uploaded.")]
-    private partial void UploadSucceeded();
+    protected partial void UploadSucceeded();
 
     [LoggerMessage(Level = LogLevel.Error, Message = "An error occurred while saving the uploaded document for account ({AccountId}).")]
-    private partial void UploadFailed(Exception ex, Guid accountId);
+    protected partial void UploadFailed(Exception ex, Guid accountId);
 
     [LoggerMessage(Level = LogLevel.Error, Message = "Persisting of uploaded statement failed for account ({AccountId}).")]
-    private partial void PersistFailed(Exception ex, Guid accountId);
+    protected partial void PersistFailed(Exception ex, Guid accountId);
 }

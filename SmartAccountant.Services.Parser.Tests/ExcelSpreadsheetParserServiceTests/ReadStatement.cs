@@ -24,34 +24,10 @@ public class ReadStatement
     }
 
     [TestMethod]
-    public void ThrowArgumentNullExceptionForMissingStatementOrAccount()
-    {
-        // Arrange
-        var statement = new DebitStatement()
-        {
-            Account = null
-        };
-
-        var stream = new MemoryStream();
-
-        // Act, Assert
-        Assert.ThrowsException<ArgumentNullException>(() => sut.ReadStatement<Transaction>(null!, stream));
-
-        Assert.ThrowsException<ArgumentNullException>(() => sut.ReadStatement(statement, stream));
-    }
-
-    [TestMethod]
     public void ThrowParserExceptionForMissingSpreadsheetParts()
     {
         // Arrange
-        var statement = new DebitStatement
-        {
-            Account = new SavingAccount()
-            {
-                Bank = Bank.Unknown,
-                AccountNumber = "0"
-            }
-        };
+        var statement = new DebitStatement();
 
         using var stream = new MemoryStream();
 
@@ -87,7 +63,7 @@ public class ReadStatement
 
         void AssertParserException()
         {
-            var exception = Assert.ThrowsException<ParserException>(() => sut.ReadStatement(statement, stream));
+            var exception = Assert.Throws<ParserException>(() => sut.ReadStatement(statement, stream, Bank.Unknown));
             Assert.AreEqual(Messages.UploadedDocumentMissingSheet, exception.Message);
         }
     }
@@ -96,21 +72,14 @@ public class ReadStatement
     public void ThrowParserExceptionForUnexpectedError()
     {
         // Arrange
-        var statement = new DebitStatement
-        {
-            Account = new SavingAccount()
-            {
-                Bank = Bank.Unknown,
-                AccountNumber = "0"
-            }
-        };
+        var statement = new DebitStatement();
 
         using MemoryStream stream = GetValidSpreadsheet();
 
         mockFactory.Setup(x => x.Create<Transaction>(It.IsAny<Bank>())).Throws(() => new InvalidOperationException("test"));
 
         // Act, Assert
-        var exception = Assert.ThrowsException<ParserException>(() => sut.ReadStatement(statement, stream));
+        var exception = Assert.ThrowsExactly<ParserException>(() => sut.ReadStatement(statement, stream, Bank.Unknown));
 
         Assert.IsNotNull(exception.InnerException);
         Assert.IsInstanceOfType<InvalidOperationException>(exception.InnerException);
@@ -121,14 +90,7 @@ public class ReadStatement
     public void CallParseStatementForValidInput()
     {
         // Arrange
-        var statement = new DebitStatement
-        {
-            Account = new SavingAccount()
-            {
-                Bank = Bank.GarantiBBVA,
-                AccountNumber = "0"
-            }
-        };
+        var statement = new DebitStatement();
 
         using MemoryStream stream = GetValidSpreadsheet();
 
@@ -136,7 +98,7 @@ public class ReadStatement
         mockFactory.Setup(f => f.Create<DebitTransaction>(Bank.GarantiBBVA)).Returns(mockStrategy.Object);
 
         // Act
-        sut.ReadStatement(statement, stream);
+        sut.ReadStatement(statement, stream, Bank.GarantiBBVA);
 
         // Assert
         mockStrategy.Verify(s => s.ParseStatement(statement, It.IsAny<Worksheet>(), It.IsAny<SharedStringTable>()), Times.Once);
