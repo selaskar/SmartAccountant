@@ -22,8 +22,6 @@ public class DebitStatementImportModelValidatorTests
         {
             RequestId = Guid.Empty,
             AccountId = Guid.NewGuid(),
-            PeriodStart = new DateTimeOffset(2025, 02, 01, 0, 0, 0, TimeSpan.Zero),
-            PeriodEnd = new DateTimeOffset(2025, 02, 28, 0, 0, 0, TimeSpan.Zero),
             File = new ImportFile()
             {
                 FileName = "file.txt",
@@ -47,8 +45,6 @@ public class DebitStatementImportModelValidatorTests
         {
             RequestId = Guid.NewGuid(),
             AccountId = Guid.Empty,
-            PeriodStart = new DateTimeOffset(2025, 02, 01, 0, 0, 0, TimeSpan.Zero),
-            PeriodEnd = new DateTimeOffset(2025, 02, 28, 0, 0, 0, TimeSpan.Zero),
             File = new ImportFile()
             {
                 FileName = "file.txt",
@@ -72,8 +68,6 @@ public class DebitStatementImportModelValidatorTests
         {
             RequestId = Guid.NewGuid(),
             AccountId = Guid.NewGuid(),
-            PeriodStart = new DateTimeOffset(2025, 02, 01, 0, 0, 0, TimeSpan.Zero),
-            PeriodEnd = new DateTimeOffset(2025, 02, 28, 0, 0, 0, TimeSpan.Zero),
             File = new ImportFile()
             {
                 FileName = "missing extension",
@@ -97,8 +91,6 @@ public class DebitStatementImportModelValidatorTests
         {
             RequestId = Guid.NewGuid(),
             AccountId = Guid.NewGuid(),
-            PeriodStart = new DateTimeOffset(2025, 02, 01, 0, 0, 0, TimeSpan.Zero),
-            PeriodEnd = new DateTimeOffset(2025, 02, 28, 0, 0, 0, TimeSpan.Zero),
             File = null!
         };
 
@@ -117,8 +109,6 @@ public class DebitStatementImportModelValidatorTests
         {
             RequestId = Guid.NewGuid(),
             AccountId = Guid.NewGuid(),
-            PeriodStart = new DateTimeOffset(2025, 02, 01, 0, 0, 0, TimeSpan.Zero),
-            PeriodEnd = new DateTimeOffset(2025, 02, 28, 0, 0, 0, TimeSpan.Zero),
             File = new ImportFile()
             {
                 FileName = "file.txt",
@@ -145,8 +135,6 @@ public class DebitStatementImportModelValidatorTests
         {
             RequestId = Guid.NewGuid(),
             AccountId = Guid.NewGuid(),
-            PeriodStart = new DateTimeOffset(2025, 02, 01, 0, 0, 0, TimeSpan.Zero),
-            PeriodEnd = new DateTimeOffset(2025, 02, 28, 0, 0, 0, TimeSpan.Zero),
             File = new ImportFile()
             {
                 FileName = "file.txt",
@@ -175,8 +163,6 @@ public class DebitStatementImportModelValidatorTests
         {
             RequestId = Guid.NewGuid(),
             AccountId = Guid.NewGuid(),
-            PeriodStart = new DateTimeOffset(2025, 02, 01, 0, 0, 0, TimeSpan.Zero),
-            PeriodEnd = new DateTimeOffset(2025, 02, 28, 0, 0, 0, TimeSpan.Zero),
             File = new ImportFile()
             {
                 FileName = "file.txt",
@@ -190,91 +176,5 @@ public class DebitStatementImportModelValidatorTests
 
         // Assert
         result.ShouldNotHaveAnyValidationErrors();
-    }
-
-    [TestMethod]
-    public void ReturnsErrorForInvalidStartDate()
-    {
-        // Arrange
-        var mockStream = new Mock<Stream>();
-        mockStream.Setup(x => x.Length).Returns(1);
-
-        DebitStatementImportModel model = new()
-        {
-            RequestId = Guid.NewGuid(),
-            AccountId = Guid.NewGuid(),
-            PeriodStart = new DateTimeOffset(2000, 1, 1, 0, 0, 0, TimeSpan.Zero),
-            PeriodEnd = new DateTimeOffset(2025, 02, 28, 0, 0, 0, TimeSpan.Zero),
-            File = new ImportFile()
-            {
-                FileName = "file.txt",
-                ContentType = "text/plain",
-                OpenReadStream = () => mockStream.Object,
-            }
-        };
-
-        // Act
-        TestValidationResult<DebitStatementImportModel> result = sut.TestValidate(model);
-
-        // Assert
-        result.ShouldHaveValidationErrorFor(x => x.PeriodStart.Date).Only();
-    }
-
-    [TestMethod]
-    public void ReturnsErrorForInvalidEndDate()
-    {
-        // Arrange
-        var mockStream = new Mock<Stream>();
-        mockStream.Setup(x => x.Length).Returns(1);
-
-        DebitStatementImportModel model = new()
-        {
-            RequestId = Guid.NewGuid(),
-            AccountId = Guid.NewGuid(),
-            PeriodStart = new DateTimeOffset(2000, 01, 02, 0, 0, 0, TimeSpan.Zero),
-            PeriodEnd = new DateTimeOffset(2050, 01, 01, 0, 0, 0, TimeSpan.Zero),
-            File = new ImportFile()
-            {
-                FileName = "file.txt",
-                ContentType = "text/plain",
-                OpenReadStream = () => mockStream.Object,
-            }
-        };
-
-        // Act
-        TestValidationResult<DebitStatementImportModel> result = sut.TestValidate(model);
-
-        // Assert
-        result.ShouldHaveValidationErrorFor(x => x.PeriodEnd.Date).Only();
-    }
-
-    [TestMethod]
-    [DataRow("2025-02-25")]
-    [DataRow("2025-02-26")]
-    public void ReturnsErrorForEndDateNotLaterThanStartDate(string endDate)
-    {
-        // Arrange
-        var mockStream = new Mock<Stream>();
-        mockStream.Setup(x => x.Length).Returns(1);
-
-        DebitStatementImportModel model = new()
-        {
-            RequestId = Guid.NewGuid(),
-            AccountId = Guid.NewGuid(),
-            PeriodStart = new DateTimeOffset(2025, 02, 26, 0, 0, 0, TimeSpan.Zero),
-            PeriodEnd = new DateTimeOffset(DateTime.ParseExact(endDate, "yyyy-MM-dd", provider: null), TimeSpan.Zero),
-            File = new ImportFile()
-            {
-                FileName = "file.txt",
-                ContentType = "text/plain",
-                OpenReadStream = () => mockStream.Object,
-            }
-        };
-
-        // Act
-        TestValidationResult<DebitStatementImportModel> result = sut.TestValidate(model);
-
-        // Assert
-        result.ShouldHaveValidationErrorFor(x => x).Only();
     }
 }

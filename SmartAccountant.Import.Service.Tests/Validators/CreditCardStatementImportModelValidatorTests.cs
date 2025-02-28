@@ -27,8 +27,6 @@ public class CreditCardStatementImportModelValidatorTests
         {
             RequestId = Guid.NewGuid(),
             AccountId = Guid.NewGuid(),
-            PeriodStart = new DateTimeOffset(2025, 02, 01, 0, 0, 0, TimeSpan.Zero),
-            PeriodEnd = new DateTimeOffset(2025, 02, 28, 0, 0, 0, TimeSpan.Zero),
             File = new ImportFile()
             {
                 FileName = "file.txt",

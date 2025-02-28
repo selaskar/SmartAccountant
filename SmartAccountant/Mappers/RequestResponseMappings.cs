@@ -19,8 +19,6 @@ internal sealed class RequestResponseMappings : Profile
         CreateMap<AbstractUploadStatementRequest, AbstractStatementImportModel>()
             .ForMember(x => x.RequestId, opt => opt.MapFrom(e => e.RequestId))
             .ForMember(x => x.AccountId, opt => opt.MapFrom(e => e.AccountId))
-            .ForMember(x => x.PeriodStart, opt => opt.MapFrom(e => e.PeriodStart))
-            .ForMember(x => x.PeriodEnd, opt => opt.MapFrom(e => e.PeriodEnd))
             .ForMember(x => x.File, opt => opt.MapFrom(e => e.File));
 
         CreateMap<UploadDebitStatementRequest, DebitStatementImportModel>()
