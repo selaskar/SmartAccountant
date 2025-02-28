@@ -10,7 +10,7 @@ public record struct Period : IComparable<Period>
     public readonly bool Overlaps(DateTimeOffset date) => ValidFrom <= date && (ValidTo == null || ValidTo >= date);
 
     /// <remarks>Exclusive</remarks>
-    public readonly bool Overlaps(Period other) => other.ValidTo > ValidFrom && other.ValidFrom < ValidTo;
+    public readonly bool Overlaps(Period other) => (other.ValidTo == null || other.ValidTo > ValidFrom) && (ValidTo == null || other.ValidFrom < ValidTo);
 
     public readonly int CompareTo(Period other)
     {
