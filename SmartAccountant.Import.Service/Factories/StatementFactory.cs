@@ -25,8 +25,6 @@ internal class StatementFactory : IStatementFactory
                     Id = Guid.NewGuid(),
                     AccountId = model.AccountId,
                     Account = account,
-                    PeriodStart = model.PeriodStart,
-                    PeriodEnd = model.PeriodEnd,
                     Currency = savingAccount.Currency,
                 };
             case BalanceType.Credit:
@@ -42,8 +40,6 @@ internal class StatementFactory : IStatementFactory
                     Id = Guid.NewGuid(),
                     AccountId = model.AccountId,
                     Account = account,
-                    PeriodStart = model.PeriodStart,
-                    PeriodEnd = model.PeriodEnd,
                     RolloverAmount = creditCardStatementImportModel.RolloverAmount,
                     TotalDueAmount = creditCardStatementImportModel.TotalDueAmount,
                     MinimumDueAmount = creditCardStatementImportModel.MinimumDueAmount,

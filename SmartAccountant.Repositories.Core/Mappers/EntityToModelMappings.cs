@@ -27,8 +27,6 @@ internal sealed class EntityToModelMappings : Profile
             .ForMember(x => x.Id, opt => opt.MapFrom(e => e.Id))
             .ForMember(x => x.AccountId, opt => opt.MapFrom(e => e.AccountId))
             .ForMember(x => x.Account, opt => opt.Ignore())
-            .ForMember(x => x.PeriodStart, opt => opt.MapFrom(e => e.PeriodStart))
-            .ForMember(x => x.PeriodEnd, opt => opt.MapFrom(e => e.PeriodEnd))
             .ForMember(x => x.Documents, opt => opt.MapFrom(e => e.Documents));
 
         CreateMap<Models.Statement<Models.DebitTransaction>, Entities.Statement>()

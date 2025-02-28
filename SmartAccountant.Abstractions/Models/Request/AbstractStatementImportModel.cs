@@ -7,9 +7,4 @@ public abstract class AbstractStatementImportModel
     public Guid AccountId { get; init; }
 
     public required ImportFile File { get; init; }
-
-    //TODO: use new Period type.
-    public DateTimeOffset PeriodStart { get; init; }
-
-    public DateTimeOffset PeriodEnd { get; init; }
 }
