@@ -18,15 +18,16 @@ internal abstract class AbstractGarantiStatementParseStrategy
     protected static readonly CompositeFormat UnexpectedAmountFormat = CompositeFormat.Parse(Messages.UnexpectedAmountFormat);
 
     /// <exception cref="ParserException"/>
-    protected static void VerifyColumnCount(Row row, int expectedCount)
+    protected internal static void VerifyColumnCount(Row row, int expectedCount)
     {
         if (row.ChildElements.Count < expectedCount)
             throw new ParserException(FormatMessage(InsufficientColumnCount, row.ChildElements.Count));
     }
 
     /// <exception cref="ParserException"/>
+    /// <exception cref="ArgumentOutOfRangeException"/>
     /// <exception cref="ArgumentNullException"/>
-    protected static DateTimeOffset ParseDate(Row row, int column, SharedStringTable stringTable, short order)
+    protected internal static DateTimeOffset ParseDate(Row row, int column, SharedStringTable stringTable, short order)
     {
         string dateString = row.GetCell(column).GetCellValue(stringTable);
 
@@ -40,7 +41,7 @@ internal abstract class AbstractGarantiStatementParseStrategy
     }
 
     /// <exception cref="ArgumentOutOfRangeException"/>
-    protected static bool ParseMoney(Row row, int column, Currency currency, [NotNullWhen(true)] out MonetaryValue? value)
+    protected internal static bool ParseMoney(Row row, int column, Currency currency, [NotNullWhen(true)] out MonetaryValue? value)
     {
         if (!row.GetCell(column).TryGetDecimalValue(out decimal? amountValue))
         {
@@ -53,6 +54,18 @@ internal abstract class AbstractGarantiStatementParseStrategy
         return true;
     }
 
-    protected static string FormatMessage(CompositeFormat format, params object[] parameters) =>
+    /// <exception cref="ArgumentOutOfRangeException"/>
+    protected internal static bool ParseMoney(Row row, int column, Currency currency, decimal defaultIfEmpty, [NotNullWhen(true)] out MonetaryValue? value)
+    {
+        if (string.IsNullOrWhiteSpace(row.GetCell(column).InnerText))
+        {
+            value = new(defaultIfEmpty, currency);
+            return true;
+        }
+
+        return ParseMoney(row, column, currency, out value);
+    }
+
+    private protected static string FormatMessage(CompositeFormat format, params object[] parameters) =>
         string.Format(CultureInfo.InvariantCulture, format, parameters);
 }
