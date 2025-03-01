@@ -11,21 +11,67 @@ internal sealed class GarantiCreditCardStatementParseStrategy : AbstractGarantiS
 {
     /// Non-empty rows
     internal const int HeaderRowCount = 3;
+    internal const int OpenProvisionHeaderRowCount = 3;
     internal const int FooterRowCount = 1;
 
+    internal const string OpenProvisionLabel = "Açık Provizyon - TL";
+    internal const string OpenProvisionTotalAmountLabel = "Toplam Açık Provizyon:";
+    internal const string RegularTransactionsLabel = "Dönemiçi İşlemler - TL";
+
+    /// <inheritdoc/>
     public void ParseStatement(Statement<CreditCardTransaction> statement, Worksheet worksheet, SharedStringTable stringTable)
     {
         var creditCardStatement = statement as CreditCardStatement
             ?? throw new ArgumentException($"Statement expected to be type of {typeof(CreditCardStatement).Name}.");
 
+        Row[] rows = [.. worksheet.Descendants<Row>()];
+
+        Parse(creditCardStatement, rows, stringTable);
+
+        CrossCheck(creditCardStatement);
+    }
+
+    /// <exception cref="ParserException"/>
+    private static void Parse(CreditCardStatement statement, Row[] rows, SharedStringTable stringTable)
+    {
         try
         {
-            Row[] rows = [.. worksheet.Descendants<Row>()];
-            int transactionCount = rows.Length - HeaderRowCount - FooterRowCount;
-            short rowCount = 0;
-            foreach (Row row in rows.Skip(HeaderRowCount).Take(transactionCount))
+            if (stringTable.InnerText.Contains(OpenProvisionLabel, StringComparison.InvariantCultureIgnoreCase)
+                && stringTable.InnerText.Contains(RegularTransactionsLabel, StringComparison.InvariantCultureIgnoreCase))
             {
-                CreditCardTransaction transaction = ParseCreditCardTransaction(creditCardStatement, rowCount++, row, stringTable);
+                int openProvisionRowCount = rows.Skip(HeaderRowCount)
+                    .TakeWhile(r => !string.Equals(OpenProvisionTotalAmountLabel, r.GetCell(0).GetCellValue(stringTable), StringComparison.OrdinalIgnoreCase))
+                    .Count();
+
+                // Reading open provision transactions
+                ParseSpan(rows.AsSpan().Slice(OpenProvisionHeaderRowCount, openProvisionRowCount), statement, stringTable);
+
+                // Reading regular transactions
+                ParseSpan(rows.AsSpan()[(OpenProvisionHeaderRowCount + openProvisionRowCount + HeaderRowCount)..^FooterRowCount], statement, stringTable);
+            }
+            else
+            {
+                if (rows.Length <= HeaderRowCount + FooterRowCount)
+                    return;
+
+                ParseSpan(rows.AsSpan()[HeaderRowCount..^FooterRowCount], statement, stringTable);
+            }
+        }
+        catch (Exception ex) when (ex is not ParserException)
+        {
+            throw new ParserException(Messages.UnexpectedError, ex);
+        }
+    }
+
+    /// <exception cref="ParserException"/>
+    private static void ParseSpan(ReadOnlySpan<Row> rowsSpan, CreditCardStatement statement, SharedStringTable stringTable)
+    {
+        try
+        {
+            short rowNumber = 0;
+            foreach (Row row in rowsSpan)
+            {
+                CreditCardTransaction transaction = ParseCreditCardTransaction(statement, rowNumber++, row, stringTable);
                 statement.Transactions.Add(transaction);
             }
         }
@@ -33,23 +79,21 @@ internal sealed class GarantiCreditCardStatementParseStrategy : AbstractGarantiS
         {
             throw new ParserException(Messages.UnexpectedError, ex);
         }
-
-        CrossCheck(creditCardStatement);
     }
 
     /// <exception cref="ParserException"/>
     /// <exception cref="ArgumentOutOfRangeException"/>
     /// <exception cref="ArgumentNullException"/>
-    private static CreditCardTransaction ParseCreditCardTransaction(CreditCardStatement statement, short order, Row row, SharedStringTable stringTable)
+    private static CreditCardTransaction ParseCreditCardTransaction(CreditCardStatement statement, short rowNumber, Row row, SharedStringTable stringTable)
     {
         // Expected row format: Date (0), Description (1), Label (2), Bonus (3), Amount (4)
 
         VerifyColumnCount(row, 5);
 
-        DateTimeOffset date = ParseDate(row, column: 0, stringTable, order);
+        DateTimeOffset date = ParseDate(row, column: 0, stringTable, rowNumber);
 
-        if (!ParseMoney(row, column: 4, Currency.TRY, out MonetaryValue? amount))
-            throw new ParserException(FormatMessage(UnexpectedAmountFormat, order + 1));
+        if (!ParseMoney(row, column: 4, Currency.TRY, defaultIfEmpty: 0, out MonetaryValue? amount))
+            throw new ParserException(FormatMessage(UnexpectedAmountFormat, rowNumber + 1));
 
         return new CreditCardTransaction()
         {

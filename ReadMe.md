@@ -35,6 +35,7 @@ Also make those classes _internal_, please.
 ```
 
 * SDK version of test projects (MSTest.Sdk) needs to be manually updated rather than through individual NuGet package updates.
+See https://learn.microsoft.com/en-us/dotnet/core/testing/unit-testing-mstest-sdk#known-limitations.
 
 * Name test methods as that have 'should'/'must' in the beginning of the name.
 E.g., ThrowValidationExceptionForInvalidRequest().

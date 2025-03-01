@@ -23,10 +23,10 @@ internal sealed class GarantiDebitStatementParseStrategy : AbstractGarantiStatem
 
         try
         {
-            short rowCount = 0;
+            short rowNumber = 0;
             foreach (Row row in worksheet.Descendants<Row>().Skip(HeaderRowCount))
             {
-                DebitTransaction transaction = ParseDebitTransaction(debitStatement, rowCount++, row, stringTable);
+                DebitTransaction transaction = ParseDebitTransaction(debitStatement, rowNumber++, row, stringTable);
                 statement.Transactions.Add(transaction);
             }
         }
@@ -41,19 +41,19 @@ internal sealed class GarantiDebitStatementParseStrategy : AbstractGarantiStatem
     /// <exception cref="ParserException"/>
     /// <exception cref="ArgumentOutOfRangeException"/>
     /// <exception cref="ArgumentNullException"/>
-    private static DebitTransaction ParseDebitTransaction(DebitStatement statement, short order, Row row, SharedStringTable stringTable)
+    private static DebitTransaction ParseDebitTransaction(DebitStatement statement, short rowNumber, Row row, SharedStringTable stringTable)
     {
         // Expected row format: Date (0), Description (1), Amount (2), Remaining Balance (3), Reference Number (4)
 
         VerifyColumnCount(row, 5);
 
-        DateTimeOffset date = ParseDate(row, column: 0, stringTable, order);
+        DateTimeOffset date = ParseDate(row, column: 0, stringTable, rowNumber);
 
         if (!ParseMoney(row, column: 2, statement.Currency, out MonetaryValue? amount))
-            throw new ParserException(FormatMessage(UnexpectedAmountFormat, order + 1));
+            throw new ParserException(FormatMessage(UnexpectedAmountFormat, rowNumber + 1));
 
         if (!ParseMoney(row, column: 3, statement.Currency, out MonetaryValue? remainingBalance))
-            throw new ParserException(FormatMessage(UnexpectedRemainingAmountFormat, order + 1));
+            throw new ParserException(FormatMessage(UnexpectedRemainingAmountFormat, rowNumber + 1));
 
         return new DebitTransaction
         {
@@ -64,7 +64,7 @@ internal sealed class GarantiDebitStatementParseStrategy : AbstractGarantiStatem
             ReferenceNumber = row.GetCell(4).GetCellValue(stringTable),
             Description = row.GetCell(1).GetCellValue(stringTable),
             RemainingBalance = remainingBalance.Value,
-            Order = order
+            Order = rowNumber
         };
     }
 
