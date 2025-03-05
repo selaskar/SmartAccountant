@@ -19,6 +19,7 @@ public class Parse
     private Mock<IAuthorizationService> authorizationServiceMock = null!;
     private Mock<IAccountRepository> accountRepositoryMock = null!;
     private Mock<IStorageService> storageServiceMock = null!;
+    private Mock<ITransactionRepository> transactionRepositoryMock = null!;
     private Mock<IStatementRepository> statementRepositoryMock = null!;
     private Mock<IValidator<CreditCardStatementImportModel>> validatorMock = null!;
     private Mock<IStatementFactory> statementFactoryMock = null!;
@@ -34,6 +35,7 @@ public class Parse
         authorizationServiceMock = new Mock<IAuthorizationService>();
         accountRepositoryMock = new Mock<IAccountRepository>();
         storageServiceMock = new Mock<IStorageService>();
+        transactionRepositoryMock = new Mock<ITransactionRepository>();
         statementRepositoryMock = new Mock<IStatementRepository>();
         validatorMock = new Mock<IValidator<CreditCardStatementImportModel>>();
         statementFactoryMock = new Mock<IStatementFactory>();
@@ -45,6 +47,7 @@ public class Parse
             authorizationServiceMock.Object,
             accountRepositoryMock.Object,
             storageServiceMock.Object,
+            transactionRepositoryMock.Object,
             statementRepositoryMock.Object,
             validatorMock.Object,
             statementFactoryMock.Object,

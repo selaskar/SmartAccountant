@@ -58,13 +58,12 @@ internal sealed class GarantiDebitStatementParseStrategy : AbstractGarantiStatem
         return new DebitTransaction
         {
             Id = Guid.NewGuid(),
-            StatementId = statement.Id,
+            AccountId = statement.AccountId,
             Timestamp = date,
             Amount = amount.Value,
             ReferenceNumber = row.GetCell(4).GetCellValue(stringTable),
             Description = row.GetCell(1).GetCellValue(stringTable),
-            RemainingBalance = remainingBalance.Value,
-            Order = rowNumber
+            RemainingBalance = remainingBalance.Value
         };
     }
 

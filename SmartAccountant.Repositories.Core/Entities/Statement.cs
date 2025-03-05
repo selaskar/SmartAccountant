@@ -11,7 +11,5 @@ internal abstract class Statement
     [ForeignKey(nameof(AccountId))]
     public Account? Account { get; set; }
 
-    public virtual IList<Transaction> Transactions { get; set; } = [];
-
     public virtual IList<StatementDocument> Documents { get; set; } = [];
 }

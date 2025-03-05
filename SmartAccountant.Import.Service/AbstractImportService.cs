@@ -17,6 +17,7 @@ internal abstract partial class AbstractImportService(
     IAuthorizationService authorizationService,
     IAccountRepository accountRepository,
     IStorageService storageService,
+    ITransactionRepository transactionRepository,
     IStatementRepository statementRepository)
     : IImportService
 {
@@ -44,7 +45,13 @@ internal abstract partial class AbstractImportService(
 
         await SaveFile(statement, request.File, cancellationToken);
 
-        await PersistStatement(statement, cancellationToken);
+        Transaction[] existingTransactions = await transactionRepository.GetTransactionsOfAccount(account.Id, cancellationToken);
+
+        Transaction[] newTransactions = DetectExisting(statement, existingTransactions);
+
+        Transaction[] finalizedProvisions = DetectFinalized(statement, existingTransactions);
+
+        await PersistStatement(statement, newTransactions, finalizedProvisions, cancellationToken);
 
         return statement;
     }
@@ -55,6 +62,14 @@ internal abstract partial class AbstractImportService(
 
     /// <exception cref="ImportException"/>
     protected internal abstract Statement Parse(AbstractStatementImportModel model, Account account);
+
+    /// <returns>Unique transactions</returns>
+    /// <exception cref="ImportException"/>
+    protected internal abstract Transaction[] DetectExisting(Statement statement, Transaction[] existingTransactions);
+
+    /// <returns>Returns the transactions that previously existed as open provisions, but became finalized since then.</returns>
+    /// <exception cref="ImportException"/>
+    protected internal abstract Transaction[] DetectFinalized(Statement statement, Transaction[] existingTransactions);
 
 
     /// <exception cref="ImportException" />
@@ -113,11 +128,18 @@ internal abstract partial class AbstractImportService(
 
     /// <exception cref="ImportException"/>
     /// <exception cref="OperationCanceledException"/>
-    private async Task PersistStatement(Statement statement, CancellationToken cancellationToken)
+    private async Task PersistStatement(Statement statement, Transaction[] newTransactions, Transaction[] finalizedTransactions, CancellationToken cancellationToken)
     {
         try
         {
+            //Removing finalized transactions, as they no longer exist as open provisions.
+            //Since usually their description changes during finalization,
+            //it is safer to remove them rather than trying to update them.
+
+            //TODO: do as a single transaction. Unit of work.
             await statementRepository.Insert(statement, cancellationToken);
+            await transactionRepository.Insert(newTransactions, cancellationToken);
+            await transactionRepository.Delete(finalizedTransactions, cancellationToken);
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
