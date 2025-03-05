@@ -8,9 +8,10 @@ internal abstract class Transaction
 {
     public Guid Id { get; set; }
 
-    public Guid StatementId { get; set; }
+    public Guid AccountId { get; set; }
 
-    public virtual Statement? Statement { get; set; }
+    [ForeignKey(nameof(AccountId))]
+    public Account? Account { get; set; }
 
     [StringLength(100)]
     public string? ReferenceNumber { get; set; }
@@ -24,7 +25,7 @@ internal abstract class Transaction
 
     [StringLength(500)]
     public string? Description { get; set; }
-    
+
     [StringLength(500)]
     public string? PersonalNote { get; set; }
 }

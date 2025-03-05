@@ -2,7 +2,7 @@
 
 public abstract record class Transaction : BaseModel
 {
-    public required Guid StatementId { get; init; }
+    public required Guid AccountId { get; init; }
 
     public string? ReferenceNumber { get; init; }
 

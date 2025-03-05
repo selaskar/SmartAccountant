@@ -23,6 +23,7 @@ public class ImportStatement
     private Mock<IStorageService> storageServiceMock = null!;
     private Mock<IStatementRepository> statementRepositoryMock = null!;
     private Mock<IValidator<AbstractStatementImportModel>> validatorMock = null!;
+    private Mock<ITransactionRepository> transactionRepositoryMock = null!;
     private Mock<IStatementFactory> statementFactoryMock = null!;
     private Mock<ISpreadsheetParser> parserMock = null!;
 
@@ -38,6 +39,7 @@ public class ImportStatement
         storageServiceMock = new Mock<IStorageService>();
         statementRepositoryMock = new Mock<IStatementRepository>();
         validatorMock = new Mock<IValidator<AbstractStatementImportModel>>();
+        transactionRepositoryMock = new Mock<ITransactionRepository>();
         statementFactoryMock = new Mock<IStatementFactory>();
         parserMock = new Mock<ISpreadsheetParser>();
 
@@ -49,6 +51,7 @@ public class ImportStatement
             storageServiceMock.Object,
             statementRepositoryMock.Object,
             validatorMock.Object,
+            transactionRepositoryMock.Object,
             statementFactoryMock.Object,
             parserMock.Object);
     }
@@ -454,9 +457,10 @@ public class ImportStatement
         IStorageService storageService,
         IStatementRepository statementRepository,
         IValidator<AbstractStatementImportModel> validator,
+        ITransactionRepository transactionRepository,
         IStatementFactory statementFactory,
         ISpreadsheetParser parser)
-        : AbstractImportService(logger, fileTypeValidator, authorizationService, accountRepository, storageService, statementRepository)
+        : AbstractImportService(logger, fileTypeValidator, authorizationService, accountRepository, storageService, transactionRepository, statementRepository)
     {
         protected internal override void Validate(AbstractStatementImportModel model)
             => validator.Validate(model);
@@ -468,6 +472,18 @@ public class ImportStatement
             parser.ReadStatement(statement, model.File.OpenReadStream(), account.Bank);
 
             return statement;
+        }
+
+        protected internal override Transaction[] DetectExisting(Statement statement, Transaction[] existingTransactions)
+        {
+            //TODO:
+            throw new NotImplementedException();
+        }
+
+        protected internal override Transaction[] DetectFinalized(Statement statement, Transaction[] existingTransactions)
+        {
+            //TODO:
+            throw new NotImplementedException();
         }
     }
 

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SmartAccountant.Repositories.Core.DataContexts;
 
@@ -11,9 +12,11 @@ using SmartAccountant.Repositories.Core.DataContexts;
 namespace SmartAccountant.Repositories.Core.Migrations
 {
     [DbContext(typeof(CoreDbContext))]
-    partial class CoreDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250302160150_MoveTransactionsUnderAccount")]
+    partial class MoveTransactionsUnderAccount
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -142,7 +145,9 @@ namespace SmartAccountant.Repositories.Core.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("AccountId");
+                    b.HasIndex("AccountId", "ReferenceNumber")
+                        .IsUnique()
+                        .HasFilter("[ReferenceNumber] IS NOT NULL");
 
                     b.ToTable("Transactions");
 
@@ -211,9 +216,6 @@ namespace SmartAccountant.Repositories.Core.Migrations
             modelBuilder.Entity("SmartAccountant.Repositories.Core.Entities.CreditCardTransaction", b =>
                 {
                     b.HasBaseType("SmartAccountant.Repositories.Core.Entities.Transaction");
-
-                    b.Property<byte>("ProvisionState")
-                        .HasColumnType("tinyint");
 
                     b.ToTable("CreditCardTransactions");
                 });

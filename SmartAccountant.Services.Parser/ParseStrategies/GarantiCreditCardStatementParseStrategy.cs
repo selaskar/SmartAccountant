@@ -44,17 +44,23 @@ internal sealed class GarantiCreditCardStatementParseStrategy : AbstractGarantiS
                     .Count();
 
                 // Reading open provision transactions
-                ParseSpan(rows.AsSpan().Slice(OpenProvisionHeaderRowCount, openProvisionRowCount), statement, stringTable);
+                ParseSpan(rows.AsSpan().Slice(OpenProvisionHeaderRowCount, openProvisionRowCount),
+                    statement,
+                    ProvisionState.Open,
+                    stringTable);
 
                 // Reading regular transactions
-                ParseSpan(rows.AsSpan()[(OpenProvisionHeaderRowCount + openProvisionRowCount + HeaderRowCount)..^FooterRowCount], statement, stringTable);
+                ParseSpan(rows.AsSpan()[(OpenProvisionHeaderRowCount + openProvisionRowCount + HeaderRowCount)..^FooterRowCount],
+                    statement,
+                    ProvisionState.Finalized,
+                    stringTable);
             }
             else
             {
                 if (rows.Length <= HeaderRowCount + FooterRowCount)
                     return;
 
-                ParseSpan(rows.AsSpan()[HeaderRowCount..^FooterRowCount], statement, stringTable);
+                ParseSpan(rows.AsSpan()[HeaderRowCount..^FooterRowCount], statement, ProvisionState.Finalized, stringTable);
             }
         }
         catch (Exception ex) when (ex is not ParserException)
@@ -64,14 +70,18 @@ internal sealed class GarantiCreditCardStatementParseStrategy : AbstractGarantiS
     }
 
     /// <exception cref="ParserException"/>
-    private static void ParseSpan(ReadOnlySpan<Row> rowsSpan, CreditCardStatement statement, SharedStringTable stringTable)
+    private static void ParseSpan(
+        ReadOnlySpan<Row> rowsSpan,
+        CreditCardStatement statement,
+        ProvisionState provisionState,
+        SharedStringTable stringTable)
     {
         try
         {
             short rowNumber = 0;
             foreach (Row row in rowsSpan)
             {
-                CreditCardTransaction transaction = ParseCreditCardTransaction(statement, rowNumber++, row, stringTable);
+                CreditCardTransaction transaction = ParseCreditCardTransaction(statement, rowNumber++, provisionState, row, stringTable);
                 statement.Transactions.Add(transaction);
             }
         }
@@ -84,7 +94,12 @@ internal sealed class GarantiCreditCardStatementParseStrategy : AbstractGarantiS
     /// <exception cref="ParserException"/>
     /// <exception cref="ArgumentOutOfRangeException"/>
     /// <exception cref="ArgumentNullException"/>
-    private static CreditCardTransaction ParseCreditCardTransaction(CreditCardStatement statement, short rowNumber, Row row, SharedStringTable stringTable)
+    private static CreditCardTransaction ParseCreditCardTransaction(
+        CreditCardStatement statement,
+        short rowNumber,
+        ProvisionState provisionState,
+        Row row,
+        SharedStringTable stringTable)
     {
         // Expected row format: Date (0), Description (1), Label (2), Bonus (3), Amount (4)
 
@@ -98,11 +113,12 @@ internal sealed class GarantiCreditCardStatementParseStrategy : AbstractGarantiS
         return new CreditCardTransaction()
         {
             Id = Guid.NewGuid(),
-            StatementId = statement.Id,
+            AccountId = statement.AccountId,
             Timestamp = date,
             Amount = amount.Value * -1, //Since the normal balance is credit
             ReferenceNumber = null,
             Description = row.GetCell(1).GetCellValue(stringTable),
+            ProvisionState = provisionState
         };
     }
 

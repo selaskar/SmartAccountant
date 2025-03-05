@@ -8,3 +8,4 @@ uniqueidentifier
 smallint
 nvarchar
 datetimeoffset
+tinyint

@@ -14,7 +14,7 @@ internal sealed class StatementRepository(CoreDbContext dbContext, IMapper mappe
         {
             Entities.Statement entity = mapper.Map<Entities.Statement>(statement);
 
-            // Adds along statement documents and transactions.
+            // Adds along statement documents.
             dbContext.Statements.Add(entity);
             await dbContext.SaveChangesAsync(cancellationToken);
         }

@@ -19,4 +19,9 @@ internal abstract class Account
 
     [NotMapped]
     public abstract BalanceType NormalBalance { get; }
+
+
+    public virtual IList<Transaction> Transactions { get; set; } = [];
+
+    public virtual IList<Statement> Statements { get; set; } = [];
 }
