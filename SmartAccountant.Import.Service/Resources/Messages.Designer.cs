@@ -70,6 +70,15 @@ namespace SmartAccountant.Import.Service.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to An error occurred while checking the existing transactions of the account ({0})..
+        /// </summary>
+        internal static string CannotCheckExistingTransactions {
+            get {
+                return ResourceManager.GetString("CannotCheckExistingTransactions", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to An error occurred while parsing the uploaded statement document..
         /// </summary>
         internal static string CannotParseUploadedStatementFile {

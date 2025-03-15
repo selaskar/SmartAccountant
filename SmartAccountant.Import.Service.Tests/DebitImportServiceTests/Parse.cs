@@ -1,59 +1,15 @@
-﻿using FluentValidation;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using Moq;
 using SmartAccountant.Abstractions.Exceptions;
-using SmartAccountant.Abstractions.Interfaces;
 using SmartAccountant.Abstractions.Models.Request;
-using SmartAccountant.Import.Service.Abstract;
 using SmartAccountant.Import.Service.Resources;
 using SmartAccountant.Models;
-using SmartAccountant.Repositories.Core.Abstract;
 
 namespace SmartAccountant.Import.Service.Tests.DebitImportServiceTests;
 
 [TestClass]
-public class Parse
+public class Parse: Base
 {
-    private Mock<ILogger<DebitImportService>> loggerMock = null!;
-    private Mock<IFileTypeValidator> fileTypeValidator = null!;
-    private Mock<IAuthorizationService> authorizationServiceMock = null!;
-    private Mock<IAccountRepository> accountRepositoryMock = null!;
-    private Mock<IStorageService> storageServiceMock = null!;
-    private Mock<ITransactionRepository> transactionRepositoryMock = null!;
-    private Mock<IStatementRepository> statementRepositoryMock = null!;
-    private Mock<IValidator<DebitStatementImportModel>> validatorMock = null!;
-    private Mock<IStatementFactory> statementFactoryMock = null!;
-    private Mock<ISpreadsheetParser> parserMock = null!;
-
-    private DebitImportService sut = null!;
-
-    [TestInitialize]
-    public void Initialize()
-    {
-        loggerMock = new Mock<ILogger<DebitImportService>>();
-        fileTypeValidator = new Mock<IFileTypeValidator>();
-        authorizationServiceMock = new Mock<IAuthorizationService>();
-        accountRepositoryMock = new Mock<IAccountRepository>();
-        storageServiceMock = new Mock<IStorageService>();
-        transactionRepositoryMock = new Mock<ITransactionRepository>();
-        statementRepositoryMock = new Mock<IStatementRepository>();
-        validatorMock = new Mock<IValidator<DebitStatementImportModel>>();
-        statementFactoryMock = new Mock<IStatementFactory>();
-        parserMock = new Mock<ISpreadsheetParser>();
-
-        sut = new(
-            loggerMock.Object,
-            fileTypeValidator.Object,
-            authorizationServiceMock.Object,
-            accountRepositoryMock.Object,
-            storageServiceMock.Object,
-            transactionRepositoryMock.Object,
-            statementRepositoryMock.Object,
-            validatorMock.Object,
-            statementFactoryMock.Object,
-            parserMock.Object);
-    }
-
     [TestMethod]
     public void ThrowImportExceptionForWrongModelType()
     {
@@ -147,7 +103,6 @@ public class Parse
         Assert.AreEqual(Messages.CannotParseUploadedStatementFile, result.Message);
     }
 
-
     [TestMethod]
     public void Succeed()
     {
@@ -181,11 +136,4 @@ public class Parse
 
         Assert.AreEqual(statement, result);
     }
-
-
-    private void SetupLogger(LogLevel logLevel, bool enabled)
-        => loggerMock.Setup(l => l.IsEnabled(logLevel)).Returns(enabled);
-
-    private void SetupStatementFactory(DebitStatementImportModel request, Account account, Statement statement)
-        => statementFactoryMock.Setup(s => s.Create(request, account)).Returns(statement);
 }

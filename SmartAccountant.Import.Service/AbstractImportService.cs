@@ -1,4 +1,5 @@
 ﻿using System.Globalization;
+using System.Text;
 using FluentValidation;
 using Microsoft.Extensions.Logging;
 using SmartAccountant.Abstractions.Exceptions;
@@ -27,6 +28,8 @@ internal abstract partial class AbstractImportService(
     private const string UploadsContainerName = "uploads";
     private const string AccountsFolderName = "accounts";
 
+    private static readonly CompositeFormat CannotCheckExistingTransactions = CompositeFormat.Parse(Messages.CannotCheckExistingTransactions);
+
 
     /// <inheritdoc/>
     public async Task<Statement> ImportStatement(AbstractStatementImportModel request, CancellationToken cancellationToken)
@@ -45,13 +48,7 @@ internal abstract partial class AbstractImportService(
 
         await SaveFile(statement, request.File, cancellationToken);
 
-        Transaction[] existingTransactions = await transactionRepository.GetTransactionsOfAccount(account.Id, cancellationToken);
-
-        Transaction[] newTransactions = DetectExisting(statement, existingTransactions);
-
-        Transaction[] finalizedProvisions = DetectFinalized(statement, existingTransactions);
-
-        await PersistStatement(statement, newTransactions, finalizedProvisions, cancellationToken);
+        await Persist(account.Id, statement, cancellationToken);
 
         return statement;
     }
@@ -124,6 +121,28 @@ internal abstract partial class AbstractImportService(
 
             throw new ImportException(Messages.CannotSaveUploadedStatementFile, ex);
         }
+    }
+
+    /// <exception cref="ImportException"/>
+    /// <exception cref="OperationCanceledException"/>
+    private async Task Persist(Guid accountId, Statement statement, CancellationToken cancellationToken)
+    {
+        Transaction[] existingTransactions;
+        try
+        {
+            existingTransactions = await transactionRepository.GetTransactionsOfAccount(accountId, cancellationToken);
+        }
+        catch (RepositoryException ex)
+        {
+            string errorMessage = string.Format(CultureInfo.InvariantCulture, CannotCheckExistingTransactions, accountId);
+            throw new ImportException(errorMessage, ex);
+        }
+
+        Transaction[] newTransactions = DetectExisting(statement, existingTransactions);
+
+        Transaction[] finalizedProvisions = DetectFinalized(statement, existingTransactions);
+
+        await PersistStatement(statement, newTransactions, finalizedProvisions, cancellationToken);
     }
 
     /// <exception cref="ImportException"/>

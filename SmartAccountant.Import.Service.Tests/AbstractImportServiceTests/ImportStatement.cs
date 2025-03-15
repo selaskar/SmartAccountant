@@ -311,6 +311,57 @@ public class ImportStatement
     }
 
     [TestMethod]
+    public async Task ThrowImportExceptionForRepositoryExceptionInTransactionRepository()
+    {
+        // Arrange
+        var accountId = Guid.Parse("91DF13C1-7261-400B-9413-D7DA42B392D0");
+
+        var model = new TestStatementImportModel()
+        {
+            AccountId = accountId,
+            File = new ImportFile()
+            {
+                ContentType = "",
+                FileName = "test",
+                OpenReadStream = () => new MemoryStream()
+            }
+        };
+
+        var account = new SavingAccount()
+        {
+            Id = accountId,
+            AccountNumber = "0"
+        };
+
+        TestStatement testStatement = new();
+
+        SetupLogger(LogLevel.Error, true);
+
+        SetupValidator();
+
+        SetupFileTypeValidator(true);
+
+        SetupAuthorizationService(accountId);
+
+        SetupAccountRepository(account);
+
+        SetupStatementFactory(model, account, testStatement);
+
+        SetupParser(testStatement, bank: null);
+
+        SetupStorageService();
+
+        SetupTransactionRepository(accountId).Throws(new RepositoryException("test", null!));
+
+        // Act, Assert
+        var result = await Assert.ThrowsExactlyAsync<ImportException>(() => sut.ImportStatement(model, CancellationToken.None));
+
+        Assert.AreEqual(1, testStatement.Documents.Count);
+
+        Assert.Contains(accountId.ToString(), result.Message, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [TestMethod]
     public async Task ThrowImportExceptionForUnexpectedErrorInStatementRepository()
     {
         // Arrange
@@ -445,6 +496,9 @@ public class ImportStatement
     private ISetup<IStorageService, Task> SetupStorageService()
         => storageServiceMock.Setup(s => s.WriteToFile(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<Stream>(), It.IsAny<CancellationToken>()));
 
+    private ISetup<ITransactionRepository, Task<Transaction[]>> SetupTransactionRepository(Guid accountId)
+        => transactionRepositoryMock.Setup(s => s.GetTransactionsOfAccount(accountId, It.IsAny<CancellationToken>()));
+
     private ISetup<IStatementRepository, Task> SetupStatementRepository(TestStatement statement)
         => statementRepositoryMock.Setup(s => s.Insert(statement, It.IsAny<CancellationToken>()));
 
@@ -476,14 +530,12 @@ public class ImportStatement
 
         protected internal override Transaction[] DetectExisting(Statement statement, Transaction[] existingTransactions)
         {
-            //TODO:
-            throw new NotImplementedException();
+            return [];
         }
 
         protected internal override Transaction[] DetectFinalized(Statement statement, Transaction[] existingTransactions)
         {
-            //TODO:
-            throw new NotImplementedException();
+            return [];
         }
     }
 

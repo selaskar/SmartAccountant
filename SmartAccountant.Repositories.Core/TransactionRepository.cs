@@ -40,7 +40,7 @@ internal sealed class TransactionRepository(CoreDbContext dbContext, IMapper map
         }
         catch (Exception ex)
         {
-            throw new RepositoryException($"Failed to insert transactions.", ex);
+            throw new RepositoryException("Failed to insert transactions.", ex);
         }
     }
 
