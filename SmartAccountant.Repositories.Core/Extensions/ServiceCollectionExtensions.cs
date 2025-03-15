@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -24,10 +25,14 @@ public static class ServiceCollectionExtensions
         {
             CoreDatabaseOptions options = services.GetRequiredService<IOptions<CoreDatabaseOptions>>().Value;
 
-            builder.UseAzureSql(options.ConnectionString);
-        });
+            builder.UseAzureSql(options.ConnectionString,
+                builder => builder.ExecutionStrategy((a) => new NonRetryingExecutionStrategy(a)));
+        }, ServiceLifetime.Scoped);
 
         services.AddAutoMapper(typeof(EntityToModelMappings));
+
+        //Note that, in order unit of work to work correctly, db context and repositories must be registered as scoped.
+        services.AddScoped<IUnitOfWork, UnitOfWork>();
 
         services.AddScoped<IAccountRepository, AccountRepository>();
         services.AddScoped<IStatementRepository, StatementRepository>();

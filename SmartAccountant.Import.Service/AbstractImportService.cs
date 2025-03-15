@@ -18,6 +18,7 @@ internal abstract partial class AbstractImportService(
     IAuthorizationService authorizationService,
     IAccountRepository accountRepository,
     IStorageService storageService,
+    IUnitOfWork unitOfWork,
     ITransactionRepository transactionRepository,
     IStatementRepository statementRepository)
     : IImportService
@@ -155,14 +156,19 @@ internal abstract partial class AbstractImportService(
             //Since usually their description changes during finalization,
             //it is safer to remove them rather than trying to update them.
 
-            //TODO: do as a single transaction. Unit of work.
+            await unitOfWork.BeginTransactionAsync(cancellationToken);
+
             await statementRepository.Insert(statement, cancellationToken);
             await transactionRepository.Insert(newTransactions, cancellationToken);
             await transactionRepository.Delete(finalizedTransactions, cancellationToken);
+
+            await unitOfWork.CommitAsync(cancellationToken);
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
             PersistFailed(ex, statement.AccountId);
+
+            await unitOfWork.RollbackAsync(cancellationToken);
 
             throw new ImportException(Messages.CannotSaveImportedStatement, ex);
         }

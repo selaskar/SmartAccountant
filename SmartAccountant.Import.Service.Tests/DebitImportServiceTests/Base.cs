@@ -18,6 +18,7 @@ public abstract class Base
     private protected Mock<IAuthorizationService> authorizationServiceMock = null!;
     private protected Mock<IAccountRepository> accountRepositoryMock = null!;
     private protected Mock<IStorageService> storageServiceMock = null!;
+    private protected Mock<IUnitOfWork> unitOfWorkMock = null!;
     private protected Mock<ITransactionRepository> transactionRepositoryMock = null!;
     private protected Mock<IStatementRepository> statementRepositoryMock = null!;
     private protected Mock<IValidator<DebitStatementImportModel>> validatorMock = null!;
@@ -34,6 +35,7 @@ public abstract class Base
         authorizationServiceMock = new Mock<IAuthorizationService>();
         accountRepositoryMock = new Mock<IAccountRepository>();
         storageServiceMock = new Mock<IStorageService>();
+        unitOfWorkMock = new Mock<IUnitOfWork>();
         transactionRepositoryMock = new Mock<ITransactionRepository>();
         statementRepositoryMock = new Mock<IStatementRepository>();
         validatorMock = new Mock<IValidator<DebitStatementImportModel>>();
@@ -46,6 +48,7 @@ public abstract class Base
             authorizationServiceMock.Object,
             accountRepositoryMock.Object,
             storageServiceMock.Object,
+            unitOfWorkMock.Object,
             transactionRepositoryMock.Object,
             statementRepositoryMock.Object,
             validatorMock.Object,

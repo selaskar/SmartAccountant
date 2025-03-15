@@ -17,12 +17,13 @@ internal sealed class CreditCardImportService(
     IAuthorizationService authorizationService,
     IAccountRepository accountRepository,
     IStorageService storageService,
+    IUnitOfWork unitOfWork,
     ITransactionRepository transactionRepository,
     IStatementRepository statementRepository,
     IValidator<CreditCardStatementImportModel> validator,
     IStatementFactory statementFactory,
     ISpreadsheetParser parser)
-    : AbstractImportService(logger, fileTypeValidator, authorizationService, accountRepository, storageService, transactionRepository, statementRepository)
+    : AbstractImportService(logger, fileTypeValidator, authorizationService, accountRepository, storageService, unitOfWork, transactionRepository, statementRepository)
 {
     /// <inheritdoc/>
     protected internal override void Validate(AbstractStatementImportModel model)

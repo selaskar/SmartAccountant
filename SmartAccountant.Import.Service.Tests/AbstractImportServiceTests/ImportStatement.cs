@@ -21,6 +21,7 @@ public class ImportStatement
     private Mock<IAuthorizationService> authorizationServiceMock = null!;
     private Mock<IAccountRepository> accountRepositoryMock = null!;
     private Mock<IStorageService> storageServiceMock = null!;
+    private Mock<IUnitOfWork> unitOfWorkMock = null!;
     private Mock<IStatementRepository> statementRepositoryMock = null!;
     private Mock<IValidator<AbstractStatementImportModel>> validatorMock = null!;
     private Mock<ITransactionRepository> transactionRepositoryMock = null!;
@@ -37,6 +38,7 @@ public class ImportStatement
         authorizationServiceMock = new Mock<IAuthorizationService>();
         accountRepositoryMock = new Mock<IAccountRepository>();
         storageServiceMock = new Mock<IStorageService>();
+        unitOfWorkMock = new Mock<IUnitOfWork>();
         statementRepositoryMock = new Mock<IStatementRepository>();
         validatorMock = new Mock<IValidator<AbstractStatementImportModel>>();
         transactionRepositoryMock = new Mock<ITransactionRepository>();
@@ -49,6 +51,7 @@ public class ImportStatement
             authorizationServiceMock.Object,
             accountRepositoryMock.Object,
             storageServiceMock.Object,
+            unitOfWorkMock.Object,
             statementRepositoryMock.Object,
             validatorMock.Object,
             transactionRepositoryMock.Object,
@@ -311,57 +314,6 @@ public class ImportStatement
     }
 
     [TestMethod]
-    public async Task ThrowImportExceptionForRepositoryExceptionInTransactionRepository()
-    {
-        // Arrange
-        var accountId = Guid.Parse("91DF13C1-7261-400B-9413-D7DA42B392D0");
-
-        var model = new TestStatementImportModel()
-        {
-            AccountId = accountId,
-            File = new ImportFile()
-            {
-                ContentType = "",
-                FileName = "test",
-                OpenReadStream = () => new MemoryStream()
-            }
-        };
-
-        var account = new SavingAccount()
-        {
-            Id = accountId,
-            AccountNumber = "0"
-        };
-
-        TestStatement testStatement = new();
-
-        SetupLogger(LogLevel.Error, true);
-
-        SetupValidator();
-
-        SetupFileTypeValidator(true);
-
-        SetupAuthorizationService(accountId);
-
-        SetupAccountRepository(account);
-
-        SetupStatementFactory(model, account, testStatement);
-
-        SetupParser(testStatement, bank: null);
-
-        SetupStorageService();
-
-        SetupTransactionRepository(accountId).Throws(new RepositoryException("test", null!));
-
-        // Act, Assert
-        var result = await Assert.ThrowsExactlyAsync<ImportException>(() => sut.ImportStatement(model, CancellationToken.None));
-
-        Assert.AreEqual(1, testStatement.Documents.Count);
-
-        Assert.Contains(accountId.ToString(), result.Message, StringComparison.OrdinalIgnoreCase);
-    }
-
-    [TestMethod]
     public async Task ThrowImportExceptionForUnexpectedErrorInStatementRepository()
     {
         // Arrange
@@ -412,6 +364,61 @@ public class ImportStatement
         Assert.AreEqual(1, testStatement.Documents.Count);
 
         Assert.AreEqual(Messages.CannotSaveImportedStatement, result.Message);
+   
+        unitOfWorkMock.Verify(s => s.RollbackAsync(It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task ThrowImportExceptionForRepositoryExceptionInTransactionRepository()
+    {
+        // Arrange
+        var accountId = Guid.Parse("91DF13C1-7261-400B-9413-D7DA42B392D0");
+
+        var model = new TestStatementImportModel()
+        {
+            AccountId = accountId,
+            File = new ImportFile()
+            {
+                ContentType = "",
+                FileName = "test",
+                OpenReadStream = () => new MemoryStream()
+            }
+        };
+
+        var account = new SavingAccount()
+        {
+            Id = accountId,
+            AccountNumber = "0"
+        };
+
+        TestStatement testStatement = new();
+
+        SetupLogger(LogLevel.Error, true);
+
+        SetupValidator();
+
+        SetupFileTypeValidator(true);
+
+        SetupAuthorizationService(accountId);
+
+        SetupAccountRepository(account);
+
+        SetupStatementFactory(model, account, testStatement);
+
+        SetupParser(testStatement, bank: null);
+
+        SetupStorageService();
+
+        SetupStatementRepository(testStatement);
+       
+        SetupTransactionRepository(accountId).Throws(new RepositoryException("test", null!));
+
+        // Act, Assert
+        var result = await Assert.ThrowsExactlyAsync<ImportException>(() => sut.ImportStatement(model, CancellationToken.None));
+
+        Assert.AreEqual(1, testStatement.Documents.Count);
+
+        Assert.Contains(accountId.ToString(), result.Message, StringComparison.OrdinalIgnoreCase);
     }
 
     [TestMethod]
@@ -457,6 +464,8 @@ public class ImportStatement
 
         SetupStatementRepository(testStatement);
 
+        SetupTransactionRepository(accountId);
+
         // Act
         Statement result = await sut.ImportStatement(model, CancellationToken.None);
 
@@ -468,7 +477,10 @@ public class ImportStatement
         Assert.AreEqual(1, testStatement.Documents.Count);
 
         statementRepositoryMock.Verify(s => s.Insert(testStatement, It.IsAny<CancellationToken>()), Times.Once);
+
+        unitOfWorkMock.Verify(s => s.CommitAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
+
 
     private void SetupLogger(LogLevel logLevel, bool enabled)
         => loggerMock.Setup(l => l.IsEnabled(logLevel)).Returns(enabled);
@@ -509,12 +521,13 @@ public class ImportStatement
         IAuthorizationService authorizationService,
         IAccountRepository accountRepository,
         IStorageService storageService,
+        IUnitOfWork unitOfWork,
         IStatementRepository statementRepository,
         IValidator<AbstractStatementImportModel> validator,
         ITransactionRepository transactionRepository,
         IStatementFactory statementFactory,
         ISpreadsheetParser parser)
-        : AbstractImportService(logger, fileTypeValidator, authorizationService, accountRepository, storageService, transactionRepository, statementRepository)
+        : AbstractImportService(logger, fileTypeValidator, authorizationService, accountRepository, storageService, unitOfWork, transactionRepository, statementRepository)
     {
         protected internal override void Validate(AbstractStatementImportModel model)
             => validator.Validate(model);
