@@ -18,7 +18,7 @@ namespace SmartAccountant.Controllers;
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
 [ProducesResponseType(StatusCodes.Status403Forbidden)]
 [ProducesResponseType(StatusCodes.Status499ClientClosedRequest)]
-public sealed partial class ImportStatementController(IMapper mapper) : ControllerBase
+public sealed class ImportStatementController(IMapper mapper) : ControllerBase
 {
     [EndpointSummary("Allows importing external statement reports to a debit account.")]
     [HttpPost(nameof(ImportableStatementTypes.Debit))]

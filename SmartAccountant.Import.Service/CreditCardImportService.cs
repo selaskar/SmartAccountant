@@ -57,16 +57,7 @@ internal sealed class CreditCardImportService(
     {
         CreditCardStatement creditCardStatement = Cast(statement);
 
-        var groupedExisting = existingTransactions.GroupBy(x => new { x.Timestamp, x.Description, x.Amount })
-            .ToDictionary(x => x.Key, grp => grp.ToArray());
-
-        var groupedNew = creditCardStatement.Transactions.GroupBy(x => new { x.Timestamp, x.Description, x.Amount })
-            .ToDictionary(x => x.Key, grp => grp.ToList());
-
-        foreach (var key in groupedNew.Keys.Intersect(groupedExisting.Keys))
-            groupedNew[key].RemoveRange(0, groupedExisting[key].Length);
-
-        return [.. groupedNew.SelectMany(x => x.Value)];
+        return Except(news: creditCardStatement.Transactions, existing: existingTransactions.OfType<CreditCardTransaction>());
     }
 
     /// <inheritdoc/>
@@ -74,19 +65,13 @@ internal sealed class CreditCardImportService(
     {
         CreditCardStatement creditCardStatement = Cast(statement);
 
-        var groupedExisting = existingTransactions.OfType<CreditCardTransaction>()
-            .Where(x => x.ProvisionState == ProvisionState.Open)
-            .GroupBy(x => new { x.Timestamp, x.Description, x.Amount })
-            .ToDictionary(x => x.Key, grp => grp.ToList());
+        var newOpenProvision = creditCardStatement.Transactions.Where(x => x.ProvisionState == ProvisionState.Open);
 
-        var groupedNew = creditCardStatement.Transactions.GroupBy(x => new { x.Timestamp, x.Description, x.Amount })
-            .ToDictionary(x => x.Key, grp => grp.ToArray());
+        var existingOpenProvision = existingTransactions.OfType<CreditCardTransaction>()
+             .Where(x => x.ProvisionState == ProvisionState.Open);
 
-        foreach (var key in groupedExisting.Keys.Intersect(groupedNew.Keys))
-            groupedExisting[key].RemoveRange(0, groupedNew[key].Length);
-     
         //The transactions which no longer exist as open transactions in new statement.
-        return [.. groupedExisting.SelectMany(x => x.Value)];
+        return Except(news: existingOpenProvision, existing: newOpenProvision);
     }
 
     /// <exception cref="ImportException"/>
@@ -94,5 +79,19 @@ internal sealed class CreditCardImportService(
     {
         return statement as CreditCardStatement ??
             throw new ImportException($"Statement (type: {statement.GetType().Name}) is expected to be type of {typeof(CreditCardStatement).Name}");
+    }
+
+    private static Transaction[] Except(IEnumerable<CreditCardTransaction> news, IEnumerable<CreditCardTransaction> existing)
+    {
+        var groupedExisting = existing.GroupBy(x => new { x.Timestamp, x.Description, x.Amount, x.ProvisionState })
+            .ToDictionary(x => x.Key, grp => grp.ToArray());
+
+        var groupedNew = news.GroupBy(x => new { x.Timestamp, x.Description, x.Amount, x.ProvisionState })
+            .ToDictionary(x => x.Key, grp => grp.ToList());
+
+        foreach (var key in groupedNew.Keys.Intersect(groupedExisting.Keys))
+            groupedNew[key].RemoveRange(0, groupedExisting[key].Length);
+
+        return [.. groupedNew.SelectMany(x => x.Value)];
     }
 }
