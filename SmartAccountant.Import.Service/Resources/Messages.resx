@@ -147,4 +147,7 @@
   <data name="UploadedStatementFileTypeNotSupported" xml:space="preserve">
     <value>Only Microsoft Excel workbooks are accepted.</value>
   </data>
+  <data name="CannotCheckExistingTransactions" xml:space="preserve">
+    <value>An error occurred while checking the existing transactions of the account ({0}).</value>
+  </data>
 </root>
