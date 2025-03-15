@@ -15,6 +15,8 @@ public static class ServiceCollectionExtensions
     {
         services.AddAzureClients((clientBuilder) =>
         {
+            clientBuilder.ConfigureDefaults(options => options.Retry.NetworkTimeout = TimeSpan.FromSeconds(5));
+
             clientBuilder.UseCredential(credential);
 
             clientBuilder.AddBlobServiceClient(new Uri(storageOptions.ServiceAddress))

@@ -26,7 +26,7 @@ public static class ServiceCollectionExtensions
             CoreDatabaseOptions options = services.GetRequiredService<IOptions<CoreDatabaseOptions>>().Value;
 
             builder.UseAzureSql(options.ConnectionString,
-                builder => builder.ExecutionStrategy((a) => new NonRetryingExecutionStrategy(a)));
+                builder => builder.CommandTimeout(5).ExecutionStrategy((deps) => new NonRetryingExecutionStrategy(deps)));
         }, ServiceLifetime.Scoped);
 
         services.AddAutoMapper(typeof(EntityToModelMappings));

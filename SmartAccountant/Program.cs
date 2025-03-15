@@ -82,6 +82,8 @@ internal sealed class Program
             options.ConnectionString = builder.Configuration.GetValue<string>("AzureMonitor:ConnectionString");
 
             options.Credential = credential;
+
+            options.Retry.NetworkTimeout = TimeSpan.FromSeconds(5);
         });
     }
 
