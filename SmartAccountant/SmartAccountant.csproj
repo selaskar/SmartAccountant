@@ -33,6 +33,7 @@
     <ProjectReference Include="..\SmartAccountant.Import.Service\SmartAccountant.Import.Service.csproj" />
     <ProjectReference Include="..\SmartAccountant.Models\SmartAccountant.Models.csproj" />
     <ProjectReference Include="..\SmartAccountant.Services.Parser\SmartAccountant.Services.Parser.csproj" />
+    <ProjectReference Include="..\SmartAccountant.Services\SmartAccountant.Services.csproj" />
   </ItemGroup>
 
 </Project>

@@ -51,6 +51,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmartAccountant.Services.Pa
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmartAccountant.Models.Tests", "SmartAccountant.Models.Tests\SmartAccountant.Models.Tests.csproj", "{3D6D943F-9715-425B-A51A-74D2CB25D583}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmartAccountant.Services", "SmartAccountant.Services\SmartAccountant.Services.csproj", "{A2ECFC75-5F87-40E6-AD9B-4991A33E0C09}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -117,6 +119,10 @@ Global
 		{3D6D943F-9715-425B-A51A-74D2CB25D583}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3D6D943F-9715-425B-A51A-74D2CB25D583}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3D6D943F-9715-425B-A51A-74D2CB25D583}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A2ECFC75-5F87-40E6-AD9B-4991A33E0C09}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A2ECFC75-5F87-40E6-AD9B-4991A33E0C09}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A2ECFC75-5F87-40E6-AD9B-4991A33E0C09}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A2ECFC75-5F87-40E6-AD9B-4991A33E0C09}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

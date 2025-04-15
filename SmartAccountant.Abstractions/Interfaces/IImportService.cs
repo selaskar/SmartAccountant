@@ -8,9 +8,9 @@ namespace SmartAccountant.Abstractions.Interfaces;
 public interface IImportService
 {
     /// <exception cref="ImportException"/>
+    /// <exception cref="OperationCanceledException"/>
     /// <exception cref="ValidationException"/>
-    /// <exception cref="OperationCanceledException" />
-    /// <exception cref="ArgumentNullException"/>
+    /// <exception cref="AuthenticationException"/>
     Task<Statement> ImportStatement(AbstractStatementImportModel request, CancellationToken cancellationToken);
 }
 

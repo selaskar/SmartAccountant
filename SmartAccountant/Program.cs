@@ -1,3 +1,4 @@
+using System.IdentityModel.Tokens.Jwt;
 using Azure.Core;
 using Azure.Monitor.OpenTelemetry.AspNetCore;
 using FileStorage.Extensions;
@@ -5,11 +6,14 @@ using FileStorage.Options;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Identity.Web;
+using Microsoft.IdentityModel.JsonWebTokens;
+using SmartAccountant.Controllers;
 using SmartAccountant.Filters;
 using SmartAccountant.Identity.Extensions;
 using SmartAccountant.Import.Service.Extensions;
 using SmartAccountant.Mappers;
 using SmartAccountant.Repositories.Core.Extensions;
+using SmartAccountant.Services.Extensions;
 using SmartAccountant.Services.Parser.Extensions;
 
 namespace SmartAccountant;
@@ -25,7 +29,11 @@ internal sealed class Program
         //Runtime handles the exceptions thrown by the cancellation token that is passed to the action.
         //No need for custom exception filter.
         builder.Services
-            .AddControllers(options => options.Filters.Add<ValidationExceptionFilter>())
+            .AddControllers(options =>
+            {
+                options.Filters.Add<ValidationExceptionFilter>();
+                options.Filters.Add<AuthenticationExceptionFilter>();
+            })
             .AddJsonOptions(options => options.JsonSerializerOptions.AllowTrailingCommas = true);
 
         ConfigureDocumentation(builder);
@@ -44,18 +52,29 @@ internal sealed class Program
 
         builder.Services.AddAutoMapper(typeof(RequestResponseMappings));
 
+        builder.Services.ConfigureCoreServices();
+
         BuildAndRun(builder);
     }
 
     private static void ConfigureAuthentication(WebApplicationBuilder builder)
     {
+        // This is required to be instantiated before the OpenIdConnectOptions starts getting configured.
+        // By default, the claims mapping will map claim names in the old format to accommodate older SAML applications.
+        // For instance, 'http://schemas.microsoft.com/ws/2008/06/identity/claims/role' instead of 'roles' claim.
+        // This flag ensures that the ClaimsIdentity claims collection will be built from the claims in the token
+        JwtSecurityTokenHandler.DefaultMapInboundClaims = false;
+
+
         builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddMicrosoftIdentityWebApi(builder.Configuration.GetRequiredSection("AzureAd"));
 
         //Used when authorize attribute doesn't specify a policy
+        //Doesn't enforce a role, since it is not straightforward to automatically assign 
+        //application roles to new users during self-registration.
         AuthorizationPolicy defaultPolicy = new AuthorizationPolicyBuilder()
             .RequireScope(AppScopes.Statement.ToString())
-            .RequireRole(AppRoles.RegularUser.ToString(), AppRoles.Developer.ToString())
+            //.RequireRole(AppRoles.RegularUser.ToString(), AppRoles.Developer.ToString())
             .Build();
 
         //Used when a controller doesn't specify an authorize attribute.

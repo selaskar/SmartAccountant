@@ -149,14 +149,5 @@ namespace SmartAccountant.Import.Service.Resources {
                 return ResourceManager.GetString("UploadedStatementFileTypeNotSupported", resourceCulture);
             }
         }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to User is not authenticated..
-        /// </summary>
-        internal static string UserNotAuthenticated {
-            get {
-                return ResourceManager.GetString("UserNotAuthenticated", resourceCulture);
-            }
-        }
     }
 }

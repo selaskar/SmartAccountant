@@ -40,10 +40,9 @@ internal abstract partial class AbstractImportService(
         if (!await fileTypeValidator.IsValidFile(request.File, cancellationToken))
             throw new ImportException(Messages.UploadedStatementFileTypeNotSupported);
 
-        Guid? userId = authorizationService.UserId
-            ?? throw new ImportException(Messages.UserNotAuthenticated);
+        Guid userId = authorizationService.UserId;
 
-        Account account = ValidateAccountHolder(userId.Value, request.AccountId, cancellationToken);
+        Account account = ValidateAccountHolder(userId, request.AccountId, cancellationToken);
 
         Statement statement = Parse(request, account);
 

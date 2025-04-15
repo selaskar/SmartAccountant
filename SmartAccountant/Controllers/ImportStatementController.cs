@@ -1,5 +1,6 @@
 ﻿using System.Net.Mime;
 using AutoMapper;
+using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SmartAccountant.Abstractions.Exceptions;
@@ -14,7 +15,7 @@ namespace SmartAccountant.Controllers;
 
 [Authorize]
 [ApiController]
-[Route("[controller]")]
+[Route("api/[controller]")]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
 [ProducesResponseType(StatusCodes.Status403Forbidden)]
 [ProducesResponseType(StatusCodes.Status499ClientClosedRequest)]
@@ -33,7 +34,6 @@ public sealed class ImportStatementController(IMapper mapper) : ControllerBase
         return await ImportInternal<DebitStatementImportModel>(importService, request, cancellationToken);
     }
 
-
     [EndpointSummary("Allows importing external statement reports for a credit card.")]
     [HttpPost(nameof(ImportableStatementTypes.CreditCard))]
     [Consumes(MediaTypeNames.Multipart.FormData)]
@@ -47,6 +47,10 @@ public sealed class ImportStatementController(IMapper mapper) : ControllerBase
         return await ImportInternal<CreditCardStatementImportModel>(importService, request, cancellationToken);
     }
 
+    /// <exception cref="OperationCanceledException"/>
+    /// <exception cref="ValidationException"/>
+    /// <exception cref="AuthenticationException"/>
+    /// <exception cref="ArgumentNullException"/>
     private async Task<ActionResult<UploadStatementResponse>> ImportInternal<TModel>(
         IImportService importService,
         AbstractUploadStatementRequest request,

@@ -1,9 +1,11 @@
 ﻿using SmartAccountant.Abstractions.Exceptions;
+using SmartAccountant.Models;
 
 namespace SmartAccountant.Abstractions.Interfaces;
 
-public interface IAuthorizationService
+public interface IAccountService
 {
+    /// <exception cref="AccountException"/>
     /// <exception cref="AuthenticationException"/>
-    Guid UserId { get; }
+    IAsyncEnumerable<Account> GetAccountsOfUser();
 }

@@ -117,34 +117,7 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="AccountDoesNotBelongToUser" xml:space="preserve">
-    <value>Account does not belong to the authenticated user.</value>
-  </data>
-  <data name="CannotParseUploadedStatementFile" xml:space="preserve">
-    <value>An error occurred while parsing the uploaded statement document.</value>
-  </data>
-  <data name="CannotSaveImportedStatement" xml:space="preserve">
-    <value>An error occurred while persisting the imported statement.</value>
-  </data>
-  <data name="CannotSaveUploadedStatementFile" xml:space="preserve">
-    <value>An error occurred while saving the uploaded document.</value>
-  </data>
-  <data name="CannotValidateAccountHolder" xml:space="preserve">
-    <value>An error occurred while validating the account holder information.</value>
-  </data>
-  <data name="PeriodStartNotEarlierThanPeriodEnd" xml:space="preserve">
-    <value>Period start date should be earlier than end date.</value>
-  </data>
-  <data name="UploadedStatementFileEmpty" xml:space="preserve">
-    <value>Statement file shouldn't be empty.</value>
-  </data>
-  <data name="UploadedStatementFileTooBig" xml:space="preserve">
-    <value>Statement file size shouldn't exceed 1 MB.</value>
-  </data>
-  <data name="UploadedStatementFileTypeNotSupported" xml:space="preserve">
-    <value>Only Microsoft Excel workbooks are accepted.</value>
-  </data>
-  <data name="CannotCheckExistingTransactions" xml:space="preserve">
-    <value>An error occurred while checking the existing transactions of the account ({0}).</value>
+  <data name="CannotFetchAccountsOfUser" xml:space="preserve">
+    <value>An error occurred while fetching accounts of the user.</value>
   </data>
 </root>
