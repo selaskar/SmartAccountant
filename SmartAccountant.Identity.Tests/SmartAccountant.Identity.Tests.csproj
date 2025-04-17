@@ -14,7 +14,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\SmartAccountant.Models\SmartAccountant.Models.csproj" />
+    <PackageReference Include="Moq" Version="4.20.72" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\SmartAccountant.Identity\SmartAccountant.Identity.csproj" />
   </ItemGroup>
 
 </Project>

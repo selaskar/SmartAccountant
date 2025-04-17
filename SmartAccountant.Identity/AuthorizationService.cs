@@ -13,13 +13,12 @@ internal sealed class AuthorizationService(IHttpContextAccessor httpContextAcces
     {
         get
         {
-            IIdentity? identity = httpContextAccessor.HttpContext?.User.Identity;
+            IIdentity? identity = httpContextAccessor.HttpContext.User.Identity;
 
             if (identity?.IsAuthenticated != true)
                 throw new AuthenticationException(Messages.UserNotAuthenticated);
 
-
-            string? objectId = httpContextAccessor.HttpContext!.User.FindFirst("oid")?.Value;
+            string? objectId = httpContextAccessor.HttpContext.User.FindFirst("oid")?.Value;
 
             return objectId is not null ? Guid.Parse(objectId)
                 : throw new AuthenticationException(Messages.UserNotAuthenticated);

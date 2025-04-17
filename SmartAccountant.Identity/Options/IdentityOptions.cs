@@ -1,5 +1,8 @@
-﻿namespace SmartAccountant.Identity.Options;
+﻿using System.Diagnostics.CodeAnalysis;
 
+namespace SmartAccountant.Identity.Options;
+
+[ExcludeFromCodeCoverage]
 public record IdentityOptions
 {
     public const string Section = "Identity";

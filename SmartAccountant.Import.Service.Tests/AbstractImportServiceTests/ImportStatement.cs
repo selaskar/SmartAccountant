@@ -88,7 +88,7 @@ public class ImportStatement
     }
 
     [TestMethod]
-    public async Task ThrowImportExceptionForUnauthenticatedUser()
+    public async Task ThrowAuthenticationExceptionForUnauthenticatedUser()
     {
         // Arrange
         var model = new Mock<AbstractStatementImportModel>().Object;
@@ -97,12 +97,10 @@ public class ImportStatement
 
         SetupFileTypeValidator(true);
 
-        SetupAuthorizationService(null);
+        authorizationServiceMock.SetupGet(a => a.UserId).Throws(new AuthenticationException("test"));
 
         // Act, Assert
-        var result = await Assert.ThrowsExactlyAsync<ImportException>(() => sut.ImportStatement(model, CancellationToken.None));
-
-        Assert.AreEqual(Messages.UserNotAuthenticated, result.Message);
+        await Assert.ThrowsExactlyAsync<AuthenticationException>(() => sut.ImportStatement(model, CancellationToken.None));
     }
 
     [TestMethod]
@@ -364,7 +362,7 @@ public class ImportStatement
         Assert.AreEqual(1, testStatement.Documents.Count);
 
         Assert.AreEqual(Messages.CannotSaveImportedStatement, result.Message);
-   
+
         unitOfWorkMock.Verify(s => s.RollbackAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 
@@ -410,7 +408,7 @@ public class ImportStatement
         SetupStorageService();
 
         SetupStatementRepository(testStatement);
-       
+
         SetupTransactionRepository(accountId).Throws(new RepositoryException("test", null!));
 
         // Act, Assert
@@ -492,7 +490,7 @@ public class ImportStatement
         => fileTypeValidator.Setup(f => f.IsValidFile(It.IsAny<ImportFile>(), It.IsAny<CancellationToken>()))
             .Returns(Task.FromResult(result));
 
-    private void SetupAuthorizationService(Guid? userId)
+    private void SetupAuthorizationService(Guid userId)
         => authorizationServiceMock.SetupGet(a => a.UserId).Returns(userId);
 
     private void SetupAccountRepository(Account account)

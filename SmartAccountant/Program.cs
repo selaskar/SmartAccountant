@@ -6,8 +6,6 @@ using FileStorage.Options;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Identity.Web;
-using Microsoft.IdentityModel.JsonWebTokens;
-using SmartAccountant.Controllers;
 using SmartAccountant.Filters;
 using SmartAccountant.Identity.Extensions;
 using SmartAccountant.Import.Service.Extensions;
