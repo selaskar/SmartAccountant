@@ -14,16 +14,36 @@ internal sealed class TransactionRepository(CoreDbContext dbContext, IMapper map
         try
         {
             //TODO: take period as filter parameter.
-            var accounts = await dbContext.Transactions.AsNoTracking()
+            var transactions = await dbContext.Transactions.AsNoTracking()
                 .Where(x => x.AccountId == accountId)
                 .Select(x => mapper.Map<Models.Transaction>(x))
                 .ToArrayAsync(cancellationToken);
 
-            return accounts;
+            return transactions;
         }
         catch (Exception ex)
         {
             throw new RepositoryException($"Failed to fetch transactions of account ({accountId}).", ex);
+        }
+    }
+
+    /// <inheritdoc/>
+    public async Task<Models.Transaction[]> GetTransactionsOfUser(Guid holderId, DateTimeOffset since, DateTimeOffset until, CancellationToken cancellationToken)
+    {
+        try
+        {
+            //TODO: take period as filter parameter.
+            var transactions = await dbContext.Transactions.AsNoTracking()
+                .Where(x => x.Account!.HolderId == holderId
+                    && x.Timestamp >= since && x.Timestamp < until)
+                .Select(x => mapper.Map<Models.Transaction>(x))
+                .ToArrayAsync(cancellationToken);
+
+            return transactions;
+        }
+        catch (Exception ex)
+        {
+            throw new RepositoryException($"Failed to fetch transactions of user ({holderId}).", ex);
         }
     }
 

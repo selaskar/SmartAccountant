@@ -5,7 +5,7 @@ public record class CreditCardLimit : BaseModel, IComparable<CreditCardLimit>
 {
     public Guid CreditCardId { get; init; }
 
-    public decimal Amount { get; init; }
+    public MonetaryValue Amount { get; init; }
 
     public Period Period { get; init; }
 

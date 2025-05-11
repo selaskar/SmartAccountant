@@ -13,5 +13,5 @@ public record class CreditCardStatement : Statement<CreditCardTransaction>
 
     public decimal? TotalFees { get; init; }
 
-    public DateTimeOffset DueDate { get; set; }
+    public DateTimeOffset DueDate { get; init; }
 }

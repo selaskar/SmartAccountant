@@ -20,10 +20,11 @@ internal sealed class DebitImportService(
     IUnitOfWork unitOfWork,
     ITransactionRepository transactionRepository,
     IStatementRepository statementRepository,
+    IDateTimeService dateTimeService,
     IValidator<DebitStatementImportModel> validator,
     IStatementFactory statementFactory,
     ISpreadsheetParser parser)
-    : AbstractImportService(logger, fileTypeValidator, authorizationService, accountRepository, storageService, unitOfWork, transactionRepository, statementRepository)
+    : AbstractImportService(logger, fileTypeValidator, authorizationService, accountRepository, storageService, unitOfWork, transactionRepository, statementRepository, dateTimeService)
 {
     /// <inheritdoc/>
     protected internal override void Validate(AbstractStatementImportModel model)
@@ -42,6 +43,10 @@ internal sealed class DebitImportService(
             var statement = (DebitStatement)statementFactory.Create(model, account);
 
             parser.ReadStatement(statement, model.File.OpenReadStream(), account.Bank);
+
+            DebitTransaction? lastTransaction = statement.Transactions.LastOrDefault();
+
+            statement.RemainingBalance = lastTransaction?.RemainingBalance.Amount ?? 0;
 
             return statement;
         }
@@ -72,5 +77,22 @@ internal sealed class DebitImportService(
     {
         //Open provisions don't apply to debit accounts.
         return [];
+    }
+
+    /// <inheritdoc/>
+    protected internal override Balance CalculateRemaining(Statement statement)
+    {
+        var debitStatement = statement as DebitStatement ??
+            throw new ImportException($"Statement (type: {statement.GetType().Name}) is expected to be type of {typeof(DebitStatement).Name}");
+
+        var lastTrx = debitStatement.Transactions.LastOrDefault();
+
+        return new Balance()
+        {
+            Id = Guid.NewGuid(),
+            SavingAccountId = statement.AccountId,
+            Amount = new MonetaryValue(debitStatement.RemainingBalance, debitStatement.Currency),
+            AsOf = lastTrx.Timestamp,
+        };
     }
 }

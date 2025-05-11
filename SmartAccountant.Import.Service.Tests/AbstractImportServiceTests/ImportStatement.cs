@@ -26,6 +26,7 @@ public class ImportStatement
     private Mock<IValidator<AbstractStatementImportModel>> validatorMock = null!;
     private Mock<ITransactionRepository> transactionRepositoryMock = null!;
     private Mock<IStatementFactory> statementFactoryMock = null!;
+    private Mock<IDateTimeService> dateTimeServiceMock = null!;
     private Mock<ISpreadsheetParser> parserMock = null!;
 
     private AbstractImportService sut = null!;
@@ -43,6 +44,7 @@ public class ImportStatement
         validatorMock = new Mock<IValidator<AbstractStatementImportModel>>();
         transactionRepositoryMock = new Mock<ITransactionRepository>();
         statementFactoryMock = new Mock<IStatementFactory>();
+        dateTimeServiceMock = new Mock<IDateTimeService>();
         parserMock = new Mock<ISpreadsheetParser>();
 
         sut = new TestImportService(
@@ -56,6 +58,7 @@ public class ImportStatement
             validatorMock.Object,
             transactionRepositoryMock.Object,
             statementFactoryMock.Object,
+            dateTimeServiceMock.Object,
             parserMock.Object);
     }
 
@@ -524,8 +527,9 @@ public class ImportStatement
         IValidator<AbstractStatementImportModel> validator,
         ITransactionRepository transactionRepository,
         IStatementFactory statementFactory,
+        IDateTimeService dateTimeService,
         ISpreadsheetParser parser)
-        : AbstractImportService(logger, fileTypeValidator, authorizationService, accountRepository, storageService, unitOfWork, transactionRepository, statementRepository)
+        : AbstractImportService(logger, fileTypeValidator, authorizationService, accountRepository, storageService, unitOfWork, transactionRepository, statementRepository, dateTimeService)
     {
         protected internal override void Validate(AbstractStatementImportModel model)
             => validator.Validate(model);
@@ -547,6 +551,11 @@ public class ImportStatement
         protected internal override Transaction[] DetectFinalized(Statement statement, Transaction[] existingTransactions)
         {
             return [];
+        }
+
+        protected internal override Balance CalculateRemaining(Statement statement)
+        {
+            throw new NotImplementedException();
         }
     }
 

@@ -20,10 +20,11 @@ internal sealed class CreditCardImportService(
     IUnitOfWork unitOfWork,
     ITransactionRepository transactionRepository,
     IStatementRepository statementRepository,
+    IDateTimeService dateTimeService,
     IValidator<CreditCardStatementImportModel> validator,
     IStatementFactory statementFactory,
     ISpreadsheetParser parser)
-    : AbstractImportService(logger, fileTypeValidator, authorizationService, accountRepository, storageService, unitOfWork, transactionRepository, statementRepository)
+    : AbstractImportService(logger, fileTypeValidator, authorizationService, accountRepository, storageService, unitOfWork, transactionRepository, statementRepository, dateTimeService)
 {
     /// <inheritdoc/>
     protected internal override void Validate(AbstractStatementImportModel model)
@@ -75,6 +76,16 @@ internal sealed class CreditCardImportService(
         return Except(news: existingOpenProvision, existing: newOpenProvision);
     }
 
+    protected internal override Balance CalculateRemaining(Statement statement)
+    {
+        CreditCardStatement creditCardStatement = Cast(statement);
+
+        //(creditCardStatement.Account as CreditCard).GetLimit();
+        //creditCardStatement.TotalDueAmount
+
+        return null;
+    }
+
     /// <exception cref="ImportException"/>
     private static CreditCardStatement Cast(Statement statement)
     {
@@ -95,4 +106,5 @@ internal sealed class CreditCardImportService(
 
         return [.. groupedNew.SelectMany(x => x.Value)];
     }
+
 }

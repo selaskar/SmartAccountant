@@ -3,7 +3,7 @@ using SmartAccountant.Models;
 
 namespace SmartAccountant.Repositories.Core.Entities;
 
-internal sealed class SavingAccount : Account
+internal class SavingAccount : Account
 {
     public override BalanceType NormalBalance => BalanceType.Debit;
 
@@ -12,4 +12,6 @@ internal sealed class SavingAccount : Account
     [Required]
     [StringLength(100, MinimumLength = 5)]
     public required string AccountNumber { get; set; }
+
+    public virtual IList<Balance> Balances { get; set; } = [];
 }

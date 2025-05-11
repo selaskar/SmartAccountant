@@ -32,7 +32,10 @@ internal sealed class Program
                 options.Filters.Add<ValidationExceptionFilter>();
                 options.Filters.Add<AuthenticationExceptionFilter>();
             })
-            .AddJsonOptions(options => options.JsonSerializerOptions.AllowTrailingCommas = true);
+            .AddJsonOptions(options =>
+            {
+                options.JsonSerializerOptions.AllowTrailingCommas = true;
+            });
 
         ConfigureDocumentation(builder);
 

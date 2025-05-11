@@ -20,7 +20,8 @@ internal abstract partial class AbstractImportService(
     IStorageService storageService,
     IUnitOfWork unitOfWork,
     ITransactionRepository transactionRepository,
-    IStatementRepository statementRepository)
+    IStatementRepository statementRepository,
+    IDateTimeService dateTimeService)
     : IImportService
 {
     /// <remarks>In bytes</remarks>
@@ -68,6 +69,7 @@ internal abstract partial class AbstractImportService(
     /// <exception cref="ImportException"/>
     protected internal abstract Transaction[] DetectFinalized(Statement statement, Transaction[] existingTransactions);
 
+    protected internal abstract Balance CalculateRemaining(Statement statement);
 
     /// <exception cref="ImportException" />
     /// <exception cref="OperationCanceledException" />
@@ -88,7 +90,6 @@ internal abstract partial class AbstractImportService(
         }
     }
 
-    /// <remarks>Leaves the file stream in the beginning position.</remarks>
     /// <exception cref="ImportException"/>
     /// <exception cref="OperationCanceledException"/>
     private async Task SaveFile(Statement statement, ImportFile file, CancellationToken cancellationToken)
@@ -98,12 +99,10 @@ internal abstract partial class AbstractImportService(
             UploadStarting();
 
             var documentId = Guid.NewGuid();
-            string path = $"{AccountsFolderName}/{statement.AccountId:D}/{DateTimeOffset.UtcNow.ToString(@"yyyy/MM", CultureInfo.InvariantCulture)}/{documentId:D}";
+            string path = $"{AccountsFolderName}/{statement.AccountId:D}/{dateTimeService.UtcNow.ToString(@"yyyy/MM", CultureInfo.InvariantCulture)}/{documentId:D}";
 
             using Stream readStream = file.OpenReadStream();
             await storageService.WriteToFile(UploadsContainerName, path, readStream, cancellationToken);
-
-            readStream.Seek(0, SeekOrigin.Begin);
 
             UploadSucceeded();
 
@@ -142,12 +141,14 @@ internal abstract partial class AbstractImportService(
 
         Transaction[] finalizedProvisions = DetectFinalized(statement, existingTransactions);
 
-        await PersistStatement(statement, newTransactions, finalizedProvisions, cancellationToken);
+        Balance remainingBalance = CalculateRemaining(statement);
+
+        await PersistStatement(statement, newTransactions, finalizedProvisions, remainingBalance, cancellationToken);
     }
 
     /// <exception cref="ImportException"/>
     /// <exception cref="OperationCanceledException"/>
-    private async Task PersistStatement(Statement statement, Transaction[] newTransactions, Transaction[] finalizedTransactions, CancellationToken cancellationToken)
+    private async Task PersistStatement(Statement statement, Transaction[] newTransactions, Transaction[] finalizedTransactions, Balance balance, CancellationToken cancellationToken)
     {
         try
         {
@@ -160,6 +161,9 @@ internal abstract partial class AbstractImportService(
             await statementRepository.Insert(statement, cancellationToken);
             await transactionRepository.Insert(newTransactions, cancellationToken);
             await transactionRepository.Delete(finalizedTransactions, cancellationToken);
+
+            if (balance != null)
+                await accountRepository.SaveBalance(balance, cancellationToken);
 
             await unitOfWork.CommitAsync(cancellationToken);
         }

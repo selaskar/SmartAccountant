@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SmartAccountant.Repositories.Core.DataContexts;
 
@@ -11,9 +12,11 @@ using SmartAccountant.Repositories.Core.DataContexts;
 namespace SmartAccountant.Repositories.Core.Migrations
 {
     [DbContext(typeof(CoreDbContext))]
-    partial class CoreDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250421122440_PersonalNote")]
+    partial class PersonalNote
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -47,31 +50,6 @@ namespace SmartAccountant.Repositories.Core.Migrations
                     b.UseTptMappingStrategy();
                 });
 
-            modelBuilder.Entity("SmartAccountant.Repositories.Core.Entities.Balance", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<decimal>("Amount")
-                        .HasColumnType("decimal(19, 4)");
-
-                    b.Property<short>("AmountCurrency")
-                        .HasColumnType("smallint");
-
-                    b.Property<DateTimeOffset>("AsOf")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<Guid>("SavingAccountId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("SavingAccountId");
-
-                    b.ToTable("Balances");
-                });
-
             modelBuilder.Entity("SmartAccountant.Repositories.Core.Entities.CreditCardLimit", b =>
                 {
                     b.Property<Guid>("Id")
@@ -81,16 +59,13 @@ namespace SmartAccountant.Repositories.Core.Migrations
                     b.Property<decimal>("Amount")
                         .HasColumnType("decimal(19, 4)");
 
-                    b.Property<short>("AmountCurrency")
-                        .HasColumnType("smallint");
-
                     b.Property<Guid>("CardId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTimeOffset>("ValidSince")
                         .HasColumnType("datetimeoffset");
 
-                    b.Property<DateTimeOffset>("ValidUntil")
+                    b.Property<DateTimeOffset?>("ValidUntil")
                         .HasColumnType("datetimeoffset");
 
                     b.HasKey("Id");
@@ -259,17 +234,6 @@ namespace SmartAccountant.Repositories.Core.Migrations
                     b.ToTable("DebitTransactions");
                 });
 
-            modelBuilder.Entity("SmartAccountant.Repositories.Core.Entities.Balance", b =>
-                {
-                    b.HasOne("SmartAccountant.Repositories.Core.Entities.SavingAccount", "SavingAccount")
-                        .WithMany("Balances")
-                        .HasForeignKey("SavingAccountId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("SavingAccount");
-                });
-
             modelBuilder.Entity("SmartAccountant.Repositories.Core.Entities.CreditCardLimit", b =>
                 {
                     b.HasOne("SmartAccountant.Repositories.Core.Entities.CreditCard", "Card")
@@ -383,11 +347,6 @@ namespace SmartAccountant.Repositories.Core.Migrations
             modelBuilder.Entity("SmartAccountant.Repositories.Core.Entities.CreditCard", b =>
                 {
                     b.Navigation("Limits");
-                });
-
-            modelBuilder.Entity("SmartAccountant.Repositories.Core.Entities.SavingAccount", b =>
-                {
-                    b.Navigation("Balances");
                 });
 #pragma warning restore 612, 618
         }

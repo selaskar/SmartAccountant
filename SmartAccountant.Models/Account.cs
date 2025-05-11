@@ -1,8 +1,11 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
+using System.Text.Json.Serialization;
 
 namespace SmartAccountant.Models;
 
+[JsonDerivedType(typeof(SavingAccount), typeDiscriminator: "saving")]
+[JsonDerivedType(typeof(CreditCard), typeDiscriminator: "creditCard")]
 public abstract record class Account : BaseModel
 {
     public Guid HolderId { get; init; }
@@ -13,6 +16,8 @@ public abstract record class Account : BaseModel
     public string? FriendlyName { get; init; }
 
     public abstract BalanceType NormalBalance { get; }
+
+    public IList<Balance> Balances { get; private init; } = [];
 }
 
 [SuppressMessage("Design", "CA1028:Enum Storage should be Int32", Justification = "We map this enum to a database column.")]

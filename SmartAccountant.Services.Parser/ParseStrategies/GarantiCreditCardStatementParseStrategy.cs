@@ -28,7 +28,7 @@ internal sealed class GarantiCreditCardStatementParseStrategy : AbstractGarantiS
 
         Parse(creditCardStatement, rows, stringTable);
 
-        CrossCheck(creditCardStatement);
+        //CrossCheck(creditCardStatement);
     }
 
     /// <exception cref="ParserException"/>

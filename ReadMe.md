@@ -40,5 +40,13 @@ See https://learn.microsoft.com/en-us/dotnet/core/testing/unit-testing-mstest-sd
 * Name test methods as that have 'should'/'must' in the beginning of the name.
 E.g., ThrowValidationExceptionForInvalidRequest().
 
+## NuGet packages
+
+Use command below to add NuGet packages to a local store during development.
+
+```
+nuget add -Source "path\to\your\local\nuget\store" .\SmartAccountant.Models\bin\Debug\SmartAccountant.Models.1.0.0.nupkg
+```
+
 ## Build status
 [![Build Status](https://dev.azure.com/selaskar/StandardTeamProject/_apis/build/status%2FSmartAccountant.API?branchName=master)](https://dev.azure.com/selaskar/StandardTeamProject/_build/latest?definitionId=41&branchName=master)
