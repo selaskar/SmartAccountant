@@ -1,5 +1,10 @@
-﻿namespace SmartAccountant.Models;
+﻿using System.Text.Json.Serialization;
 
+namespace SmartAccountant.Models;
+
+[JsonDerivedType(typeof(DebitStatement), typeDiscriminator: "debit")]
+[JsonDerivedType(typeof(CreditCardStatement), typeDiscriminator: "creditCard")]
+[JsonDerivedType(typeof(SharedStatement), typeDiscriminator: "shared")]
 public abstract record class Statement : BaseModel
 {
     public Guid AccountId { get; init; }

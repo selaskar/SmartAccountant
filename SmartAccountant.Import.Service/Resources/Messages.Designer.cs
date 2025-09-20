@@ -79,6 +79,15 @@ namespace SmartAccountant.Import.Service.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Secondary account ID could not be determined for discovered card number ({0})..
+        /// </summary>
+        internal static string CannotDetermineSecondaryAccount {
+            get {
+                return ResourceManager.GetString("CannotDetermineSecondaryAccount", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to An error occurred while parsing the uploaded statement document..
         /// </summary>
         internal static string CannotParseUploadedStatementFile {
@@ -115,11 +124,47 @@ namespace SmartAccountant.Import.Service.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Neither of discovered card numbers ({0}, {1}) match primary card number ({2})..
+        /// </summary>
+        internal static string DiscoveredCardNumbersMismatch {
+            get {
+                return ResourceManager.GetString("DiscoveredCardNumbersMismatch", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Period start date should be earlier than end date..
         /// </summary>
         internal static string PeriodStartNotEarlierThanPeriodEnd {
             get {
                 return ResourceManager.GetString("PeriodStartNotEarlierThanPeriodEnd", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Primary card number was expected to be discovered by parser..
+        /// </summary>
+        internal static string PrimaryCardNumberNotDetermined {
+            get {
+                return ResourceManager.GetString("PrimaryCardNumberNotDetermined", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Secondary card number was expected to be discovered by parser..
+        /// </summary>
+        internal static string SecondaryCardNumberNotDetermined {
+            get {
+                return ResourceManager.GetString("SecondaryCardNumberNotDetermined", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Sum of rollover amount, total expenses, fees and debt payments must be equal to total due amount..
+        /// </summary>
+        internal static string TotalDueAmountMismatch {
+            get {
+                return ResourceManager.GetString("TotalDueAmountMismatch", resourceCulture);
             }
         }
         

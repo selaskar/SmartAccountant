@@ -117,7 +117,7 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="TransactionAmountAndBalanceNotMatch" xml:space="preserve">
+  <data name="TransactionAmountAndBalanceDontMatch" xml:space="preserve">
     <value>Total amount of transactions and the remaining balance do not match.</value>
   </data>
   <data name="TransactionDateColumnMissing" xml:space="preserve">
@@ -129,8 +129,8 @@
   <data name="UnexpectedDateFormat" xml:space="preserve">
     <value>Unrecognized date format. Could not parse transaction date '{0}' (item: {1}).</value>
   </data>
-  <data name="UnexpectedError" xml:space="preserve">
-    <value>An unexpected error occurred while parsing the spreadsheet.</value>
+  <data name="UnexpectedErrorParsingStatement" xml:space="preserve">
+    <value>An unexpected error occurred while parsing the statement.</value>
   </data>
   <data name="UnexpectedRemainingAmountFormat" xml:space="preserve">
     <value>Transaction (item: {0}) doesn't have a valid remaining amount value.</value>
@@ -141,7 +141,16 @@
   <data name="InsufficientColumnCount" xml:space="preserve">
     <value>Unrecognized file format. Column count ({0}) was expected to be at least 5.</value>
   </data>
-  <data name="TransactionAmountAndDueAmountNotMatch" xml:space="preserve">
+  <data name="TransactionAmountAndTotalExpensesDontMatch" xml:space="preserve">
     <value>Total amount of transactions and the due amount do not match.</value>
+  </data>
+  <data name="UnexpectedErrorParsingSpreadsheet" xml:space="preserve">
+    <value>An unexpected error occurred while parsing the spreadsheet.</value>
+  </data>
+  <data name="UnexpectedPartCount" xml:space="preserve">
+    <value>Statement was expected to be consist of 2 parts. Found: {0}.</value>
+  </data>
+  <data name="DeflectionTooLarge" xml:space="preserve">
+    <value>Calculated deflection amount ({0}) is larger than allowed absolute threshold ({1}).</value>
   </data>
 </root>

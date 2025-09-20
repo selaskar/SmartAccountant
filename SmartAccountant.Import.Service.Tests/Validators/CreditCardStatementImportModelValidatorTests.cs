@@ -20,7 +20,64 @@ public class CreditCardStatementImportModelValidatorTests
     public void ReturnsErrorForInvalidDueDate(string dueDate)
     {
         // Arrange
-        var mockStream = new Mock<Stream>();
+        CreditCardStatementImportModel model = GetBaseModel() with
+        {
+            DueDate = new DateTimeOffset(DateTime.ParseExact(dueDate, "yyyy-MM-dd", provider: null), TimeSpan.Zero),
+        };
+
+        // Act
+        TestValidationResult<CreditCardStatementImportModel> result = sut.TestValidate(model);
+
+        // Assert
+        result.ShouldHaveValidationErrorFor(x => x.DueDate.Date).Only();
+    }
+
+    [TestMethod]
+    public void ReturnsErrorForInconsistentDueAmount()
+    {
+        // Arrange
+        CreditCardStatementImportModel model = GetBaseModel() with
+        {
+            DueDate = new DateTimeOffset(new DateTime(2025, 09, 17), TimeSpan.Zero),
+            RolloverAmount = 100,
+            TotalExpenses = 1000,
+            TotalFees = 10,
+            TotalPayments = 1,
+            TotalDueAmount = 1111,
+        };
+
+        // Act
+        TestValidationResult<CreditCardStatementImportModel> result = sut.TestValidate(model);
+
+        // Assert
+        result.ShouldHaveValidationErrorFor(x => x).Only();
+    }
+
+    [TestMethod]
+    public void ReturnsNoErrorForInconsistentDueAmount()
+    {
+        // Arrange
+        CreditCardStatementImportModel model = GetBaseModel() with
+        {
+            DueDate = new DateTimeOffset(new DateTime(2025, 09, 17), TimeSpan.Zero),
+            RolloverAmount = 100,
+            TotalExpenses = 1000,
+            TotalFees = 10,
+            TotalPayments = 1,
+            TotalDueAmount = 1109,
+        };
+
+        // Act
+        TestValidationResult<CreditCardStatementImportModel> result = sut.TestValidate(model);
+
+        // Assert
+        result.ShouldNotHaveAnyValidationErrors();
+    }
+
+
+    private static CreditCardStatementImportModel GetBaseModel()
+    {
+        Mock<Stream> mockStream = new();
         mockStream.Setup(x => x.Length).Returns(1);
 
         CreditCardStatementImportModel model = new()
@@ -33,13 +90,8 @@ public class CreditCardStatementImportModelValidatorTests
                 ContentType = "text/plain",
                 OpenReadStream = () => mockStream.Object,
             },
-            DueDate = new DateTimeOffset(DateTime.ParseExact(dueDate, "yyyy-MM-dd", provider: null), TimeSpan.Zero),
         };
 
-        // Act
-        TestValidationResult<CreditCardStatementImportModel> result = sut.TestValidate(model);
-
-        // Assert
-        result.ShouldHaveValidationErrorFor(x => x.DueDate.Date).Only();
+        return model;
     }
 }

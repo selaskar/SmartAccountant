@@ -19,8 +19,8 @@ public class GetAccountsOfUser
     [TestInitialize]
     public void Initialize()
     {
-        accountRepositoryMock = new Mock<IAccountRepository>();
-        authorizationServiceMock = new Mock<IAuthorizationService>();
+        accountRepositoryMock = new();
+        authorizationServiceMock = new();
 
         sut = new AccountService(accountRepositoryMock.Object, authorizationServiceMock.Object);
     }

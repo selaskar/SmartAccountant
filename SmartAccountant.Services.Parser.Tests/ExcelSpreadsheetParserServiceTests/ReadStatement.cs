@@ -10,7 +10,7 @@ using SmartAccountant.Services.Parser.Resources;
 namespace SmartAccountant.Services.Parser.Tests.ExcelSpreadsheetParserServiceTests;
 
 [TestClass]
-public class ReadStatement
+public class ReadStatement : Base
 {
     private Mock<IStatementParseStrategyFactory> mockFactory = null!;
 
@@ -19,17 +19,18 @@ public class ReadStatement
     [TestInitialize]
     public void Initialize()
     {
-        mockFactory = new Mock<IStatementParseStrategyFactory>();
-        sut = new ExcelSpreadsheetParserService(mockFactory.Object);
+        mockFactory = new();
+
+        sut = new(mockFactory.Object, null!);
     }
 
     [TestMethod]
     public void ThrowParserExceptionForMissingSpreadsheetParts()
     {
         // Arrange
-        var statement = new DebitStatement();
+        DebitStatement statement = new();
 
-        using var stream = new MemoryStream();
+        using MemoryStream stream = new();
 
         //Checking for missing workbook part
         using var document = SpreadsheetDocument.Create(stream, SpreadsheetDocumentType.Workbook);
@@ -72,7 +73,7 @@ public class ReadStatement
     public void ThrowParserExceptionForUnexpectedError()
     {
         // Arrange
-        var statement = new DebitStatement();
+        DebitStatement statement = new();
 
         using MemoryStream stream = GetValidSpreadsheet();
 
@@ -90,11 +91,11 @@ public class ReadStatement
     public void CallParseStatementForValidInput()
     {
         // Arrange
-        var statement = new DebitStatement();
+        DebitStatement statement = new();
 
         using MemoryStream stream = GetValidSpreadsheet();
 
-        var mockStrategy = new Mock<IStatementParseStrategy<DebitTransaction>>();
+        Mock<IStatementParseStrategy<DebitTransaction>> mockStrategy = new();
         mockFactory.Setup(f => f.Create<DebitTransaction>(Bank.GarantiBBVA)).Returns(mockStrategy.Object);
 
         // Act
@@ -104,35 +105,29 @@ public class ReadStatement
         mockStrategy.Verify(s => s.ParseStatement(statement, It.IsAny<Worksheet>(), It.IsAny<SharedStringTable>()), Times.Once);
     }
 
-    private static MemoryStream GetValidSpreadsheet()
+    [TestMethod]
+    public void ReThrowParserExceptionForFailingCrossCheck()
     {
-        var stream = new MemoryStream();
+        // Arrange
+        DebitStatement statement = new();
 
-        using var document = SpreadsheetDocument.Create(stream, SpreadsheetDocumentType.Workbook);
+        using MemoryStream stream = GetValidSpreadsheet();
 
-        //work book
-        WorkbookPart workbookPart = document.AddWorkbookPart();
-        workbookPart.Workbook = new Workbook();
+        Mock<IStatementParseStrategy<DebitTransaction>> mockStrategy = MockStatementFactory();
 
-        //work sheet
-        var worksheetPart = workbookPart.AddNewPart<WorksheetPart>();
-        worksheetPart.Worksheet = new Worksheet(new SheetData());
-        workbookPart.Workbook.AppendChild(new Sheets(
-            new Sheet
-            {
-                Id = workbookPart.GetIdOfPart(worksheetPart),
-                SheetId = 1,
-                Name = "Sheet1"
-            }));
+        mockStrategy.Setup(x => x.CrossCheck(statement)).Throws(() => new ParserException("test"));
 
-        //string table
-        var sharedStringTablePart = workbookPart.AddNewPart<SharedStringTablePart>();
-        sharedStringTablePart.SharedStringTable = new SharedStringTable();
+        // Act, Assert
+        var result = Assert.ThrowsExactly<ParserException>(() => sut.ReadStatement(statement, stream, Bank.GarantiBBVA));
 
-        document.Save();
+        Assert.AreEqual("test", result.Message);
+    }
 
-        stream.Position = 0;
 
-        return stream;
+    private Mock<IStatementParseStrategy<DebitTransaction>> MockStatementFactory()
+    {
+        Mock<IStatementParseStrategy<DebitTransaction>> mockStrategy = new();
+        mockFactory.Setup(f => f.Create<DebitTransaction>(Bank.GarantiBBVA)).Returns(mockStrategy.Object);
+        return mockStrategy;
     }
 }

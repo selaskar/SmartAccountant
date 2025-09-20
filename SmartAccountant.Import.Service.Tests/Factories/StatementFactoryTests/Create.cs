@@ -15,28 +15,20 @@ public class Create
     public void Initialize() => sut = new();
 
     [TestMethod]
-    public void ThrowNotImplementedExceptionForUnsupportedBalanceType()
+    public void ThrowNotImplementedExceptionForImportModelType()
     {
         // Arrange
-        var mock = new Mock<Account>();
-        mock.SetupGet(x => x.NormalBalance).Returns((BalanceType)(-1));
+        Mock<AbstractStatementImportModel> mock = new();
 
         // Act, Assert
-        Assert.ThrowsExactly<NotImplementedException>(() => _ = sut.Create(null!, mock.Object));
+        Assert.ThrowsExactly<NotImplementedException>(() => _ = sut.Create(mock.Object, null!));
     }
 
     [TestMethod]
     public void ThrowImportExceptionForInvalidModelTypes()
     {
         // Arrange
-        SavingAccount account = new()
-        {
-            Id = Guid.NewGuid(),
-            AccountNumber = "0",
-            Currency = Currency.USD,
-        };
-
-        CreditCard account2 = new([])
+        CreditCard account = new()
         {
             CardNumber = "0",
         };
@@ -46,43 +38,12 @@ public class Create
             File = null!
         };
 
-        CreditCardStatementImportModel model2 = new()
-        {
-            File = null!
-        };
-
         // Act, Assert
-        Assert.ThrowsExactly<ImportException>(() => _ = sut.Create(model, account2));
-        Assert.ThrowsExactly<ImportException>(() => _ = sut.Create(model2, account));
+        Assert.ThrowsExactly<ImportException>(() => _ = sut.Create(model, account));
     }
 
     [TestMethod]
-    public void ThrowImportExceptionForInvalidAccountTypes()
-    {
-        // Arrange
-        var mockAccount1 = new Mock<Account>();
-        mockAccount1.SetupGet(x => x.NormalBalance).Returns(BalanceType.Debit);
-
-        var mockAccount2 = new Mock<Account>();
-        mockAccount2.SetupGet(x => x.NormalBalance).Returns(BalanceType.Credit);
-
-        DebitStatementImportModel model1 = new()
-        {
-            File = null!
-        };
-
-        CreditCardStatementImportModel model2 = new()
-        {
-            File = null!
-        };
-
-        // Act, Assert
-        Assert.ThrowsExactly<ImportException>(() => _ = sut.Create(model1, mockAccount1.Object));
-        Assert.ThrowsExactly<ImportException>(() => _ = sut.Create(model2, mockAccount2.Object));
-    }
-
-    [TestMethod]
-    public void CreateDebitStatementForDebitBalanceType()
+    public void CreateDebitStatementForDebitImportModel()
     {
         // Arrange
         SavingAccount account = new()
@@ -109,10 +70,41 @@ public class Create
     }
 
     [TestMethod]
-    public void CreateCreditCardStatementForCreditBalanceType()
+    public void CreateSharedStatementForMultipartImportType()
     {
         // Arrange
-        CreditCard account = new([])
+        CreditCard account = new()
+        {
+            Id = Guid.NewGuid(),
+            CardNumber = "0",
+        };
+
+        MultipartStatementImportModel model = new()
+        {
+            RequestId = Guid.NewGuid(),
+            AccountId = account.Id,
+            File = null!,
+            RolloverAmount = 0,
+            TotalDueAmount = 1000,
+            MinimumDueAmount = 300,
+            TotalFees = 0,
+            DueDate = new DateTimeOffset(2025, 03, 06, 0, 0, 0, TimeSpan.Zero),
+        };
+
+        // Act
+        Statement? result = sut.Create(model, account);
+
+        // Assert
+        Assert.IsNotNull(result);
+        Assert.IsInstanceOfType<SharedStatement>(result);
+        Assert.AreEqual(account.Id, result.AccountId);
+    }
+
+    [TestMethod]
+    public void CreateCreditCardStatementForCreditCardImportType()
+    {
+        // Arrange
+        CreditCard account = new()
         {
             Id = Guid.NewGuid(),
             CardNumber = "0",
@@ -123,10 +115,10 @@ public class Create
             RequestId = Guid.NewGuid(),
             AccountId = account.Id,
             File = null!,
-            RolloverAmount = null,
+            RolloverAmount = 0,
             TotalDueAmount = 1000,
             MinimumDueAmount = 300,
-            TotalFees = null,
+            TotalFees = 0,
             DueDate = new DateTimeOffset(2025, 03, 06, 0, 0, 0, TimeSpan.Zero),
         };
 

@@ -7,7 +7,8 @@ using SmartAccountant.Services.Parser.Resources;
 
 namespace SmartAccountant.Services.Parser.ParseStrategies;
 
-internal sealed class GarantiCreditCardStatementParseStrategy : AbstractGarantiStatementParseStrategy, IStatementParseStrategy<CreditCardTransaction>
+internal sealed partial class GarantiCreditCardStatementParseStrategy : AbstractGarantiCreditCardStatementParseStrategy,
+    IStatementParseStrategy<CreditCardTransaction>    
 {
     /// Non-empty rows
     internal const int HeaderRowCount = 3;
@@ -21,14 +22,25 @@ internal sealed class GarantiCreditCardStatementParseStrategy : AbstractGarantiS
     /// <inheritdoc/>
     public void ParseStatement(Statement<CreditCardTransaction> statement, Worksheet worksheet, SharedStringTable stringTable)
     {
-        var creditCardStatement = statement as CreditCardStatement
-            ?? throw new ArgumentException($"Statement expected to be type of {typeof(CreditCardStatement).Name}.");
+        var creditCardStatement = Cast<CreditCardStatement>(statement);
 
-        Row[] rows = [.. worksheet.Descendants<Row>()];
+        Row[] rows = worksheet.Descendants<Row>().ToArray();
 
         Parse(creditCardStatement, rows, stringTable);
+    }
 
-        CrossCheck(creditCardStatement);
+    /// <inheritdoc/>
+    public void CrossCheck(Statement<CreditCardTransaction> statement)
+    {
+        var creditCardStatement = Cast<CreditCardStatement>(statement);
+        
+        //TODO: will give wrong results when there are cancelled transactions.
+        decimal totalExpenses = creditCardStatement.Transactions.Select(t => t.Amount.Amount)
+            .Where(d => d > 0) //debt payments doesn't count toward total transactions.
+            .DefaultIfEmpty().Sum();
+
+        if (creditCardStatement.TotalExpenses != totalExpenses)
+            throw new ParserException(Messages.TransactionAmountAndTotalExpensesDontMatch);
     }
 
     /// <exception cref="ParserException"/>
@@ -45,13 +57,15 @@ internal sealed class GarantiCreditCardStatementParseStrategy : AbstractGarantiS
 
                 // Reading open provision transactions
                 ParseSpan(rows.AsSpan().Slice(OpenProvisionHeaderRowCount, openProvisionRowCount),
-                    statement,
+                    statement.AccountId,
+                    statement.Transactions,
                     ProvisionState.Open,
                     stringTable);
 
                 // Reading regular transactions
                 ParseSpan(rows.AsSpan()[(OpenProvisionHeaderRowCount + openProvisionRowCount + HeaderRowCount)..^FooterRowCount],
-                    statement,
+                    statement.AccountId,
+                    statement.Transactions,
                     ProvisionState.Finalized,
                     stringTable);
             }
@@ -60,77 +74,12 @@ internal sealed class GarantiCreditCardStatementParseStrategy : AbstractGarantiS
                 if (rows.Length <= HeaderRowCount + FooterRowCount)
                     return;
 
-                ParseSpan(rows.AsSpan()[HeaderRowCount..^FooterRowCount], statement, ProvisionState.Finalized, stringTable);
+                ParseSpan(rows.AsSpan()[HeaderRowCount..^FooterRowCount], statement.AccountId, statement.Transactions, ProvisionState.Finalized, stringTable);
             }
         }
         catch (Exception ex) when (ex is not ParserException)
         {
-            throw new ParserException(Messages.UnexpectedError, ex);
+            throw new ParserException(Messages.UnexpectedErrorParsingStatement, ex);
         }
-    }
-
-    /// <exception cref="ParserException"/>
-    private static void ParseSpan(
-        ReadOnlySpan<Row> rowsSpan,
-        CreditCardStatement statement,
-        ProvisionState provisionState,
-        SharedStringTable stringTable)
-    {
-        try
-        {
-            short rowNumber = 0;
-            foreach (Row row in rowsSpan)
-            {
-                CreditCardTransaction transaction = ParseCreditCardTransaction(statement, rowNumber++, provisionState, row, stringTable);
-                statement.Transactions.Add(transaction);
-            }
-        }
-        catch (Exception ex) when (ex is not ParserException)
-        {
-            throw new ParserException(Messages.UnexpectedError, ex);
-        }
-    }
-
-    /// <exception cref="ParserException"/>
-    /// <exception cref="ArgumentOutOfRangeException"/>
-    /// <exception cref="ArgumentNullException"/>
-    private static CreditCardTransaction ParseCreditCardTransaction(
-        CreditCardStatement statement,
-        short rowNumber,
-        ProvisionState provisionState,
-        Row row,
-        SharedStringTable stringTable)
-    {
-        // Expected row format: Date (0), Description (1), Label (2), Bonus (3), Amount (4)
-
-        VerifyColumnCount(row, 5);
-
-        DateTimeOffset date = ParseDate(row, column: 0, stringTable, rowNumber);
-
-        if (!ParseMoney(row, column: 4, Currency.TRY, defaultIfEmpty: 0, out MonetaryValue? amount))
-            throw new ParserException(FormatMessage(UnexpectedAmountFormat, rowNumber + 1));
-
-        return new CreditCardTransaction()
-        {
-            Id = Guid.NewGuid(),
-            AccountId = statement.AccountId,
-            Timestamp = date,
-            Amount = amount.Value * -1, //Since the normal balance is credit
-            ReferenceNumber = null,
-            Description = row.GetCell(1).GetCellValue(stringTable),
-            ProvisionState = provisionState
-        };
-    }
-
-    /// <exception cref="ParserException"/>
-    private static void CrossCheck(CreditCardStatement statement)
-    {
-        decimal expectedSum = statement.TotalDueAmount - (statement.RolloverAmount ?? 0);
-
-        decimal totalTransactions = !statement.Transactions.Any() ? 0
-            : statement.Transactions.Sum(t => t.Amount.Amount);
-
-        if (expectedSum != totalTransactions)
-            throw new ParserException(Messages.TransactionAmountAndDueAmountNotMatch);
     }
 }

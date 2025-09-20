@@ -1,4 +1,5 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 
 namespace SmartAccountant.Models;
 
@@ -15,5 +16,6 @@ public enum Currency : short
 {
     USD = 0,
     EUR = 1,
+    [Description("₺")]
     TRY = 2,
 }

@@ -47,6 +47,19 @@ public sealed class ImportStatementController(IMapper mapper) : ControllerBase
         return await ImportInternal<CreditCardStatementImportModel>(importService, request, cancellationToken);
     }
 
+    [EndpointSummary("Allows importing external statement reports which are consist of transactions from multiple dependent accounts.")]
+    [HttpPost(nameof(ImportableStatementTypes.Multipart))]
+    [Consumes(MediaTypeNames.Multipart.FormData)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType<BadRequestObjectResult>(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<UploadStatementResponse>> UploadMultipartCreditCard(
+        [FromKeyedServices(nameof(ImportableStatementTypes.Multipart))] IImportService importService,
+        [FromForm] UploadMultipartStatementRequest request,
+        CancellationToken cancellationToken)
+    {
+        return await ImportInternal<MultipartStatementImportModel>(importService, request, cancellationToken);
+    }
+
     /// <exception cref="OperationCanceledException"/>
     /// <exception cref="ValidationException"/>
     /// <exception cref="AuthenticationException"/>

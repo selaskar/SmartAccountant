@@ -128,7 +128,7 @@ public class DebitStatementImportModelValidatorTests
     public void ReturnsErrorForTooLongStream()
     {
         // Arrange
-        var mockStream = new Mock<Stream>();
+        Mock<Stream> mockStream = new();
         mockStream.Setup(x => x.Length).Returns(AbstractImportService.MaxFileSize + 1);
 
         DebitStatementImportModel model = new()
@@ -156,7 +156,7 @@ public class DebitStatementImportModelValidatorTests
     public void ReturnsNoErrorForStreamAtMaxLength()
     {
         // Arrange
-        var mockStream = new Mock<Stream>();
+        Mock<Stream> mockStream = new();
         mockStream.Setup(x => x.Length).Returns(AbstractImportService.MaxFileSize);
 
         DebitStatementImportModel model = new()

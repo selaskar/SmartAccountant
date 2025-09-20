@@ -20,10 +20,11 @@ internal sealed class CreditCardImportService(
     IUnitOfWork unitOfWork,
     ITransactionRepository transactionRepository,
     IStatementRepository statementRepository,
+    IDateTimeService dateTimeService,
     IValidator<CreditCardStatementImportModel> validator,
     IStatementFactory statementFactory,
-    ISpreadsheetParser parser)
-    : AbstractImportService(logger, fileTypeValidator, authorizationService, accountRepository, storageService, unitOfWork, transactionRepository, statementRepository)
+    IStatementParser parser)
+    : AbstractCreditCardImportService(logger, fileTypeValidator, authorizationService, accountRepository, storageService, unitOfWork, transactionRepository, statementRepository, dateTimeService)
 {
     /// <inheritdoc/>
     protected internal override void Validate(AbstractStatementImportModel model)
@@ -32,18 +33,15 @@ internal sealed class CreditCardImportService(
     }
 
     /// <inheritdoc/>
-    protected internal override Statement Parse(AbstractStatementImportModel model, Account account)
+    protected internal override Task<Statement> Parse(AbstractStatementImportModel model, Account account, CancellationToken _)
     {
         try
         {
-            var creditCardStatementImportModel = model as CreditCardStatementImportModel ??
-                throw new ImportException($"Model (type: {model.GetType().Name}) is expected to be type of {typeof(CreditCardStatementImportModel).Name}");
-
             var statement = (CreditCardStatement)statementFactory.Create(model, account);
 
             parser.ReadStatement(statement, model.File.OpenReadStream(), account.Bank);
 
-            return statement;
+            return Task.FromResult<Statement>(statement);
         }
         catch (Exception ex) when (ex is not ImportException)
         {
@@ -54,9 +52,9 @@ internal sealed class CreditCardImportService(
     }
 
     /// <inheritdoc/>
-    protected internal override Transaction[] DetectExisting(Statement statement, Transaction[] existingTransactions)
+    protected internal override Transaction[] DetectNew(Statement statement, Transaction[] existingTransactions)
     {
-        CreditCardStatement creditCardStatement = Cast(statement);
+        var creditCardStatement = Cast<CreditCardStatement>(statement);
 
         return Except(news: creditCardStatement.Transactions, existing: existingTransactions.OfType<CreditCardTransaction>());
     }
@@ -64,7 +62,7 @@ internal sealed class CreditCardImportService(
     /// <inheritdoc/>
     protected internal override Transaction[] DetectFinalized(Statement statement, Transaction[] existingTransactions)
     {
-        CreditCardStatement creditCardStatement = Cast(statement);
+        var creditCardStatement = Cast<CreditCardStatement>(statement);
 
         var newOpenProvision = creditCardStatement.Transactions.Where(x => x.ProvisionState == ProvisionState.Open);
 
@@ -75,24 +73,14 @@ internal sealed class CreditCardImportService(
         return Except(news: existingOpenProvision, existing: newOpenProvision);
     }
 
-    /// <exception cref="ImportException"/>
-    private static CreditCardStatement Cast(Statement statement)
+    /// <inheritdoc/>
+    protected internal override Balance CalculateRemaining(Statement statement)
     {
-        return statement as CreditCardStatement ??
-            throw new ImportException($"Statement (type: {statement.GetType().Name}) is expected to be type of {typeof(CreditCardStatement).Name}");
-    }
+        var creditCardStatement = Cast<CreditCardStatement>(statement);
 
-    private static Transaction[] Except(IEnumerable<CreditCardTransaction> news, IEnumerable<CreditCardTransaction> existing)
-    {
-        var groupedExisting = existing.GroupBy(x => new { x.Timestamp, x.Description, x.Amount, x.ProvisionState })
-            .ToDictionary(x => x.Key, grp => grp.ToArray());
+        //(creditCardStatement.Account as CreditCard).GetLimit();
+        //creditCardStatement.TotalDueAmount
 
-        var groupedNew = news.GroupBy(x => new { x.Timestamp, x.Description, x.Amount, x.ProvisionState })
-            .ToDictionary(x => x.Key, grp => grp.ToList());
-
-        foreach (var key in groupedNew.Keys.Intersect(groupedExisting.Keys))
-            groupedNew[key].RemoveRange(0, groupedExisting[key].Length);
-
-        return [.. groupedNew.SelectMany(x => x.Value)];
+        return null;
     }
 }

@@ -19,6 +19,8 @@ public static class ServiceCollectionExtensions
 
         services.AddSingleton<IValidator<CreditCardStatementImportModel>, CreditCardStatementImportModelValidator>();
 
+        services.AddSingleton<IValidator<MultipartStatementImportModel>, MultipartStatementImportModelValidator>();
+
         services.AddSingleton<IFileTypeValidator, FileTypeValidator>();
 
         services.AddSingleton<IStatementFactory, StatementFactory>();
@@ -26,6 +28,8 @@ public static class ServiceCollectionExtensions
         services.AddKeyedScoped<IImportService, DebitImportService>(nameof(ImportableStatementTypes.Debit));
 
         services.AddKeyedScoped<IImportService, CreditCardImportService>(nameof(ImportableStatementTypes.CreditCard));
+
+        services.AddKeyedScoped<IImportService, MultipartCreditCardImportService>(nameof(ImportableStatementTypes.Multipart));
 
         return services;
     }

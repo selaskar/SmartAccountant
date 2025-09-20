@@ -1,8 +1,12 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
+using System.Text.Json.Serialization;
 
 namespace SmartAccountant.Models;
 
+[JsonDerivedType(typeof(SavingAccount), typeDiscriminator: "saving")]
+[JsonDerivedType(typeof(CreditCard), typeDiscriminator: "creditCard")]
+[JsonDerivedType(typeof(VirtualCard), typeDiscriminator: "virtual")]
 public abstract record class Account : BaseModel
 {
     public Guid HolderId { get; init; }

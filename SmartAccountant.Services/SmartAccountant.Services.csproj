@@ -8,6 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\SmartAccountant.Core\SmartAccountant.Core.csproj" />
     <ProjectReference Include="..\SmartAccountant.Repositories.Core\SmartAccountant.Repositories.Core.csproj" />
   </ItemGroup>
 

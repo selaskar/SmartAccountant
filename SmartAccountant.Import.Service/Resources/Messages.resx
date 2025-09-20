@@ -147,4 +147,19 @@
   <data name="CannotCheckExistingTransactions" xml:space="preserve">
     <value>An error occurred while checking the existing transactions of the account ({0}).</value>
   </data>
+  <data name="TotalDueAmountMismatch" xml:space="preserve">
+    <value>Sum of rollover amount, total expenses, fees and debt payments must be equal to total due amount.</value>
+  </data>
+  <data name="SecondaryCardNumberNotDetermined" xml:space="preserve">
+    <value>Secondary card number was expected to be discovered by parser.</value>
+  </data>
+  <data name="PrimaryCardNumberNotDetermined" xml:space="preserve">
+    <value>Primary card number was expected to be discovered by parser.</value>
+  </data>
+  <data name="DiscoveredCardNumbersMismatch" xml:space="preserve">
+    <value>Neither of discovered card numbers ({0}, {1}) match primary card number ({2}).</value>
+  </data>
+  <data name="CannotDetermineSecondaryAccount" xml:space="preserve">
+    <value>Secondary account ID could not be determined for discovered card number ({0}).</value>
+  </data>
 </root>

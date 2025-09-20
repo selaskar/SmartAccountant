@@ -32,6 +32,9 @@ internal sealed class RequestResponseMappings : Profile
             .ForMember(x => x.TotalFees, opt => opt.MapFrom(e => e.TotalFees))
             .ForMember(x => x.DueDate, opt => opt.MapFrom(e => e.DueDate));
 
+        CreateMap<UploadMultipartStatementRequest, MultipartStatementImportModel>()
+            .IncludeBase<UploadCreditCardStatementRequest, CreditCardStatementImportModel>()
+            .ForMember(x => x.DependentAccountId, opt => opt.MapFrom(e => e.DependentAccountId));
 
         CreateMap<Statement, UploadStatementResponse>()
             .ForMember(x => x.StatementId, opt => opt.MapFrom(e => e.Id))

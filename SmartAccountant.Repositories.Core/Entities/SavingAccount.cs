@@ -12,4 +12,6 @@ internal sealed class SavingAccount : Account
     [Required]
     [StringLength(100, MinimumLength = 5)]
     public required string AccountNumber { get; set; }
+
+    public IList<Balance> Balances { get; set; } = [];
 }

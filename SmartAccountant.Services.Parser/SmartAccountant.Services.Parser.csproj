@@ -14,6 +14,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\SmartAccountant.Abstractions\SmartAccountant.Abstractions.csproj" />
+    <ProjectReference Include="..\SmartAccountant.Core\SmartAccountant.Core.csproj" />
     <ProjectReference Include="..\SmartAccountant.Models\SmartAccountant.Models.csproj" />
   </ItemGroup>
   

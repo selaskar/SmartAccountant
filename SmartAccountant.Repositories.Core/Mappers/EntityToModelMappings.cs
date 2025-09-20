@@ -17,11 +17,13 @@ internal sealed class EntityToModelMappings : Profile
             .ForMember(x => x.AccountNumber, opt => opt.MapFrom(e => e.AccountNumber));
 
         CreateMap<Entities.CreditCard, Models.CreditCard>()
-            .ConstructUsing(cc => new Models.CreditCard(Enumerable.Empty<Models.CreditCardLimit>()) //TODO: custom converter?
-            {
-                CardNumber = cc.CardNumber,
-            })
-            .IncludeBase<Entities.Account, Models.Account>();
+            .IncludeBase<Entities.Account, Models.Account>()
+            .ForMember(x => x.CardNumber, opt => opt.MapFrom(e => e.CardNumber))
+            .ForMember(x => x.Limits, opt => opt.MapFrom(e => e.Limits));
+
+        CreateMap<Entities.VirtualCard, Models.VirtualCard>()
+            .IncludeBase<Entities.Account, Models.Account>()
+            .ForMember(x => x.CardNumber, opt => opt.MapFrom(e => e.CardNumber));
 
         CreateMap<Models.Statement, Entities.Statement>()
             .ForMember(x => x.Id, opt => opt.MapFrom(e => e.Id))
@@ -54,7 +56,7 @@ internal sealed class EntityToModelMappings : Profile
 
         CreateMap<Models.Transaction, Entities.Transaction>()
             .ForMember(x => x.Id, opt => opt.MapFrom(e => e.Id))
-            .ForMember(x => x.AccountId, opt => opt.MapFrom(e => e.AccountId))
+            .ForMember(x => x.AccountId, opt => opt.MapFrom(e => e.AccountId!.Value))
             .ForMember(x => x.Account, opt => opt.Ignore())
             .ForMember(x => x.ReferenceNumber, opt => opt.MapFrom(e => e.ReferenceNumber))
             .ForMember(x => x.Timestamp, opt => opt.MapFrom(e => e.Timestamp))
@@ -86,5 +88,30 @@ internal sealed class EntityToModelMappings : Profile
             .IncludeBase<Models.Transaction, Entities.Transaction>()
             .ForMember(x => x.ProvisionState, opt => opt.MapFrom(e => e.ProvisionState))
             .ReverseMap();
+
+        CreateMap<Entities.Balance, Models.Balance>()
+            .ForMember(x => x.Id, opt => opt.MapFrom(e => e.Id))
+            .ForMember(x => x.SavingAccountId, opt => opt.MapFrom(e => e.SavingAccountId))
+            .ForMember(x => x.Account, opt => opt.MapFrom(e => e.SavingAccount))
+            .ForMember(x => x.Amount, opt => opt.MapFrom(e => new Models.MonetaryValue(e.Amount, e.AmountCurrency)))
+            .ForMember(x => x.AsOf, opt => opt.MapFrom(e => e.AsOf));
+
+        CreateMap<Models.Balance, Entities.Balance>()
+            .ForMember(x => x.Id, opt => opt.MapFrom(e => e.Id))
+            .ForMember(x => x.SavingAccountId, opt => opt.MapFrom(e => e.SavingAccountId))
+            .ForMember(x => x.SavingAccount, opt => opt.MapFrom(e => e.Account))
+            .ForMember(x => x.Amount, opt => opt.MapFrom(e => e.Amount.Amount))
+            .ForMember(x => x.AmountCurrency, opt => opt.MapFrom(e => e.Amount.Currency))
+            .ForMember(x => x.AsOf, opt => opt.MapFrom(e => e.AsOf));
+
+        CreateMap<Entities.CreditCardLimit, Models.CreditCardLimit>()
+            .ForMember(x => x.Id, opt => opt.MapFrom(e => e.Id))
+            .ForMember(x => x.CreditCardId, opt => opt.MapFrom(e => e.CardId))
+            .ForMember(x => x.Amount, opt => opt.MapFrom(e => new Models.MonetaryValue(e.Amount, e.AmountCurrency)))
+            .ForMember(x => x.Period, opt => opt.MapFrom(e => new Models.Period()
+            {
+                ValidFrom = e.ValidSince,
+                ValidTo = e.ValidUntil
+            }));
     }
 }

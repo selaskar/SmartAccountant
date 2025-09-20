@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
+using SmartAccountant.Models;
 
 namespace SmartAccountant.Repositories.Core.Entities;
 
@@ -13,8 +14,10 @@ internal sealed class CreditCardLimit
 
     public DateTimeOffset ValidSince { get; set; }
 
-    public DateTimeOffset? ValidUntil { get; set; }
+    public DateTimeOffset ValidUntil { get; set; } 
 
     [Column(TypeName = "decimal(19, 4)")]
     public decimal Amount { get; set; }
+
+    public Currency AmountCurrency { get; set; }
 }

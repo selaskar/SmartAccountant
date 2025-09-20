@@ -72,7 +72,6 @@ internal sealed class Program
         //application roles to new users during self-registration.
         AuthorizationPolicy defaultPolicy = new AuthorizationPolicyBuilder()
             .RequireScope(AppScopes.Statement.ToString())
-            //.RequireRole(AppRoles.RegularUser.ToString(), AppRoles.Developer.ToString())
             .Build();
 
         //Used when a controller doesn't specify an authorize attribute.

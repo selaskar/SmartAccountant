@@ -16,13 +16,13 @@ public class ParseStatement
     public void Initialize() => sut = new();
 
     [TestMethod]
-    public void ThrowArgumentExceptionForWrongStatement()
+    public void ThrowInvalidCastExceptionForWrongStatement()
     {
         // Arrange
-        var mockStatement = new Mock<Statement<DebitTransaction>>();
+        Mock<Statement<DebitTransaction>> mockStatement = new();
 
         // Act, Assert
-        Assert.ThrowsExactly<ArgumentException>(() => sut.ParseStatement(mockStatement.Object, null!, null!));
+        Assert.ThrowsExactly<InvalidCastException>(() => sut.ParseStatement(mockStatement.Object, null!, null!));
     }
 
     [TestMethod]
@@ -181,34 +181,6 @@ public class ParseStatement
         Assert.AreEqual(900.00m, transaction.RemainingBalance.Amount);
         Assert.AreEqual("Ref123", transaction.ReferenceNumber);
         Assert.AreEqual("Description", transaction.Description);
-    }
-
-    [TestMethod]
-    public void ThrowParserExceptionForInconsistentBalance()
-    {
-        // Arrange
-        DebitStatement statement = new();
-
-        List<Row> rows = GetHeaderRows();
-
-        rows.Add(new Row(
-            new Cell(new CellValue("13/02/2025")),
-            new Cell(new CellValue("Description")),
-            new Cell(new CellValue("100.00")),
-            new Cell(new CellValue("900.00")),
-            new Cell(new CellValue("Ref1"))));
-
-        rows.Add(new Row(
-            new Cell(new CellValue("13/02/2025")),
-            new Cell(new CellValue("Description")),
-            new Cell(new CellValue("-100.01")),
-            new Cell(new CellValue("900.00")),
-            new Cell(new CellValue("Ref2"))));
-
-        Worksheet worksheet = new(rows);
-
-        // Act, Assert
-        Assert.ThrowsExactly<ParserException>(() => sut.ParseStatement(statement, worksheet, null!));
     }
 
     [TestMethod]

@@ -1,6 +1,7 @@
 ﻿using System.Text;
 using DocumentFormat.OpenXml.Spreadsheet;
 using SmartAccountant.Abstractions.Exceptions;
+using SmartAccountant.Core.Helpers;
 using SmartAccountant.Models;
 using SmartAccountant.Services.Parser.Abstract;
 using SmartAccountant.Services.Parser.Extensions;
@@ -18,8 +19,7 @@ internal sealed class GarantiDebitStatementParseStrategy : AbstractGarantiStatem
     /// <inheritdoc/>
     public void ParseStatement(Statement<DebitTransaction> statement, Worksheet worksheet, SharedStringTable stringTable)
     {
-        var debitStatement = statement as DebitStatement
-            ?? throw new ArgumentException($"Statement expected to be type of {typeof(DebitStatement).Name}.");
+        var debitStatement = Cast<DebitStatement>(statement);
 
         try
         {
@@ -32,10 +32,24 @@ internal sealed class GarantiDebitStatementParseStrategy : AbstractGarantiStatem
         }
         catch (Exception ex) when (ex is not ParserException)
         {
-            throw new ParserException(Messages.UnexpectedError, ex);
+            throw new ParserException(Messages.UnexpectedErrorParsingStatement, ex);
         }
+    }
 
-        CrossCheck(debitStatement);
+    /// <inheritdoc/>
+    public void CrossCheck(Statement<DebitTransaction> statement)
+    {
+        if (statement.Transactions.Count == 0)
+            return;
+
+        decimal totalAmount = statement.Transactions.Skip(1).Sum(x => x.Amount.Amount);
+
+        decimal initialBalance = statement.Transactions.First().RemainingBalance.Amount;
+
+        decimal closingBalance = statement.Transactions.Last().RemainingBalance.Amount;
+
+        if (initialBalance + totalAmount != closingBalance)
+            throw new ParserException(Messages.TransactionAmountAndBalanceDontMatch);
     }
 
     /// <exception cref="ParserException"/>
@@ -50,10 +64,10 @@ internal sealed class GarantiDebitStatementParseStrategy : AbstractGarantiStatem
         DateTimeOffset date = ParseDate(row, column: 0, stringTable, rowNumber);
 
         if (!ParseMoney(row, column: 2, statement.Currency, out MonetaryValue? amount))
-            throw new ParserException(FormatMessage(UnexpectedAmountFormat, rowNumber + 1));
+            throw new ParserException(UnexpectedAmountFormat.FormatMessage(rowNumber + 1));
 
         if (!ParseMoney(row, column: 3, statement.Currency, out MonetaryValue? remainingBalance))
-            throw new ParserException(FormatMessage(UnexpectedRemainingAmountFormat, rowNumber + 1));
+            throw new ParserException(UnexpectedRemainingAmountFormat.FormatMessage(rowNumber + 1));
 
         return new DebitTransaction
         {
@@ -65,22 +79,5 @@ internal sealed class GarantiDebitStatementParseStrategy : AbstractGarantiStatem
             Description = row.GetCell(1).GetCellValue(stringTable),
             RemainingBalance = remainingBalance.Value
         };
-    }
-
-
-    /// <exception cref="ParserException"/>
-    private static void CrossCheck(DebitStatement statement)
-    {
-        if (statement.Transactions.Count == 0)
-            return;
-
-        decimal totalAmount = statement.Transactions.Skip(1).Sum(x => x.Amount.Amount);
-
-        decimal initialBalance = statement.Transactions.First().RemainingBalance.Amount;
-
-        decimal closingBalance = statement.Transactions.Last().RemainingBalance.Amount;
-
-        if (initialBalance + totalAmount != closingBalance)
-            throw new ParserException(Messages.TransactionAmountAndBalanceNotMatch);
     }
 }

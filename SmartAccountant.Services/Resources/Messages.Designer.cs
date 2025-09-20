@@ -61,11 +61,47 @@ namespace SmartAccountant.Services.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Account does not belong to user..
+        /// </summary>
+        internal static string AccountDoesNotBelongToUser {
+            get {
+                return ResourceManager.GetString("AccountDoesNotBelongToUser", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Account ({0}) not found.
+        /// </summary>
+        internal static string AccountNotFound {
+            get {
+                return ResourceManager.GetString("AccountNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to An error occurred while calculating the summary..
+        /// </summary>
+        internal static string CannotCalculateSummary {
+            get {
+                return ResourceManager.GetString("CannotCalculateSummary", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to An error occurred while fetching accounts of the user..
         /// </summary>
         internal static string CannotFetchAccountsOfUser {
             get {
                 return ResourceManager.GetString("CannotFetchAccountsOfUser", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to An error occurred while fetching transactions of the account..
+        /// </summary>
+        internal static string CannotFetchTransactionsOfAccount {
+            get {
+                return ResourceManager.GetString("CannotFetchTransactionsOfAccount", resourceCulture);
             }
         }
     }

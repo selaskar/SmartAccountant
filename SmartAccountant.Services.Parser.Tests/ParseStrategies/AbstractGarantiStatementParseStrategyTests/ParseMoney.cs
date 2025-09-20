@@ -1,4 +1,5 @@
-﻿using DocumentFormat.OpenXml.Spreadsheet;
+﻿using System.Globalization;
+using DocumentFormat.OpenXml.Spreadsheet;
 using SmartAccountant.Models;
 using SmartAccountant.Services.Parser.ParseStrategies;
 
@@ -68,31 +69,32 @@ public class ParseMoney
     public void ReThrowArgumentOutOfRangeException()
     {
         // Arrange
-        Cell cell = new(new CellValue(3.5))
-        {
-            DataType = CellValues.Number
-        };
+        Cell cell = new(new CellValue());
 
         Row row = new(cell);
 
         // Act, Assert
         Assert.ThrowsExactly<ArgumentOutOfRangeException>(() =>
-            AbstractGarantiStatementParseStrategy.ParseMoney(row, column: 1, Currency.USD, defaultIfEmpty: 3.5m, out _));
+            AbstractGarantiStatementParseStrategy.ParseMoney(row, column: 1, Currency.USD, defaultIfEmpty: 3.5m, stringTable: null!, CultureInfo.GetCultureInfo("tr-TR"), out _));
     }
 
     [TestMethod]
     public void ReReturnNullForNonNumericValue()
     {
         // Arrange
-        Cell cell = new(new CellValue("a"))
+        SharedStringTable sharedStringTable = new();
+
+        Cell cell = new(new CellValue(sharedStringTable.GetNextReference()))
         {
-            DataType = CellValues.InlineString
+            DataType = CellValues.SharedString
         };
+
+        sharedStringTable.AppendChild(new SharedStringItem(new Text("a")));
 
         Row row = new(cell);
 
         // Act
-        bool result = AbstractGarantiStatementParseStrategy.ParseMoney(row, column: 0, Currency.USD, defaultIfEmpty: 3.5m, out MonetaryValue? value);
+        bool result = AbstractGarantiStatementParseStrategy.ParseMoney(row, column: 0, Currency.USD, defaultIfEmpty: 3.5m, sharedStringTable, CultureInfo.GetCultureInfo("tr-TR"), out MonetaryValue? value);
 
         // Assert
         Assert.IsFalse(result);
@@ -106,6 +108,8 @@ public class ParseMoney
     public void ReturnDefaultValueForMissingText(string text)
     {
         // Arrange
+        SharedStringTable sharedStringTable = new();
+
         Cell cell = new(new CellValue(text))
         {
             DataType = CellValues.InlineString
@@ -114,7 +118,7 @@ public class ParseMoney
         Row row = new(cell);
 
         // Act
-        bool result = AbstractGarantiStatementParseStrategy.ParseMoney(row, column: 0, Currency.USD, defaultIfEmpty: 3.5m, out MonetaryValue? value);
+        bool result = AbstractGarantiStatementParseStrategy.ParseMoney(row, column: 0, Currency.USD, defaultIfEmpty: 3.5m, sharedStringTable, CultureInfo.GetCultureInfo("tr-TR"), out MonetaryValue? value);
 
         // Assert
         Assert.IsTrue(result);

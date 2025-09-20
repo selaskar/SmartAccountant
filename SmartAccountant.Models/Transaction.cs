@@ -1,8 +1,12 @@
-﻿namespace SmartAccountant.Models;
+﻿using System.Text.Json.Serialization;
 
+namespace SmartAccountant.Models;
+
+[JsonDerivedType(typeof(DebitTransaction), typeDiscriminator: "debit")]
+[JsonDerivedType(typeof(CreditCardTransaction), typeDiscriminator: "creditCard")]
 public abstract record class Transaction : BaseModel
 {
-    public required Guid AccountId { get; init; }
+    public Guid? AccountId { get; set; }
 
     public string? ReferenceNumber { get; init; }
 
@@ -12,7 +16,7 @@ public abstract record class Transaction : BaseModel
 
     public string? Description { get; init; }
 
-    public string? PersonalNote { get; init; }
+    public string? PersonalNote { get; set; }
 }
 
 //TODO: category and sub-categories? Flags?

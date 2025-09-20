@@ -5,7 +5,6 @@ namespace SmartAccountant.Import.Service.Helpers;
 
 internal class FileTypeValidator : IFileTypeValidator
 {
-
     private static readonly Dictionary<string, (string contentType, List<byte[]> signature)> fileSignature = new()
     {
         { ".XLS", ("application/vnd.ms-excel",

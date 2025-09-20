@@ -9,6 +9,11 @@ public static class ServiceCollectionExtensions
 {
     public static IServiceCollection ConfigureCoreServices(this IServiceCollection services)
     {
-        return services.AddScoped<IAccountService, AccountService>();
+        services.AddScoped<IAccountService, AccountService>();
+        services.AddScoped<IDateTimeService, DateTimeService>();
+        services.AddScoped<ISummaryService, SummaryService>();
+        services.AddScoped<ITransactionService, TransactionService>();
+
+        return services;
     }
 }

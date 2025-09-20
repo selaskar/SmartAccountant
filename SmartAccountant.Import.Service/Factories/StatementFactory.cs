@@ -5,18 +5,15 @@ using SmartAccountant.Models;
 
 namespace SmartAccountant.Import.Service.Factories;
 
+//This factory class isn't strictly necessary, as long as not called by a generic class.
 internal class StatementFactory : IStatementFactory
 {
     /// <inheritdoc/>
     public Statement Create(AbstractStatementImportModel model, Account account)
     {
-        switch (account.NormalBalance)
+        switch (model)
         {
-            case BalanceType.Debit:
-
-                if (model is not DebitStatementImportModel _)
-                    throw new ImportException($"Model (type: {model.GetType().Name}) is expected to be type of {typeof(DebitStatementImportModel).Name}");
-
+            case DebitStatementImportModel:
                 if (account is not SavingAccount savingAccount)
                     throw new ImportException($"Account (type:{account.GetType().Name}) is expected to be a {typeof(SavingAccount).Name}.");
 
@@ -27,27 +24,39 @@ internal class StatementFactory : IStatementFactory
                     Account = account,
                     Currency = savingAccount.Currency,
                 };
-            case BalanceType.Credit:
-
-                if (model is not CreditCardStatementImportModel creditCardStatementImportModel)
-                    throw new ImportException($"Model (type: {model.GetType().Name}) is expected to be type of {typeof(CreditCardStatementImportModel).Name}");
-
-                if (account is not CreditCard)
-                    throw new ImportException($"Account (type:{account.GetType().Name}) is expected to be a {typeof(CreditCard).Name}.");
-
+            case MultipartStatementImportModel multipartStatementImportModel:
+                return new SharedStatement()
+                {
+                    Id = Guid.NewGuid(),
+                    AccountId = account.Id,
+                    Account = account,
+                    RolloverAmount = multipartStatementImportModel.RolloverAmount,
+                    TotalPayments = multipartStatementImportModel.TotalPayments,
+                    TotalExpenses = multipartStatementImportModel.TotalExpenses,
+                    TotalFees = multipartStatementImportModel.TotalFees,
+                    TotalDueAmount = multipartStatementImportModel.TotalDueAmount,
+                    MinimumDueAmount = multipartStatementImportModel.MinimumDueAmount,
+                    DueDate = multipartStatementImportModel.DueDate,
+                    RemainingLimit = multipartStatementImportModel.RemainingLimit,
+                };
+            case CreditCardStatementImportModel creditCardStatementImportModel:
                 return new CreditCardStatement()
                 {
                     Id = Guid.NewGuid(),
                     AccountId = model.AccountId,
                     Account = account,
                     RolloverAmount = creditCardStatementImportModel.RolloverAmount,
+                    TotalPayments = creditCardStatementImportModel.TotalPayments,
+                    TotalExpenses = creditCardStatementImportModel.TotalExpenses,
+                    TotalFees = creditCardStatementImportModel.TotalFees,
                     TotalDueAmount = creditCardStatementImportModel.TotalDueAmount,
                     MinimumDueAmount = creditCardStatementImportModel.MinimumDueAmount,
-                    TotalFees = creditCardStatementImportModel.TotalFees,
                     DueDate = creditCardStatementImportModel.DueDate,
+                    RemainingLimit = creditCardStatementImportModel.RemainingLimit,
+
                 };
             default:
-                throw new NotImplementedException($"Balance type ({account.NormalBalance}) is not implemented yet.");
+                throw new NotImplementedException($"{model.GetType().Name} is not implemented yet.");
         }
     }
 }

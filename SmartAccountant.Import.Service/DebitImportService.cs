@@ -20,10 +20,11 @@ internal sealed class DebitImportService(
     IUnitOfWork unitOfWork,
     ITransactionRepository transactionRepository,
     IStatementRepository statementRepository,
+    IDateTimeService dateTimeService,
     IValidator<DebitStatementImportModel> validator,
     IStatementFactory statementFactory,
-    ISpreadsheetParser parser)
-    : AbstractImportService(logger, fileTypeValidator, authorizationService, accountRepository, storageService, unitOfWork, transactionRepository, statementRepository)
+    IStatementParser parser)
+    : AbstractImportService(logger, fileTypeValidator, authorizationService, accountRepository, storageService, unitOfWork, transactionRepository, statementRepository, dateTimeService)
 {
     /// <inheritdoc/>
     protected internal override void Validate(AbstractStatementImportModel model)
@@ -32,18 +33,19 @@ internal sealed class DebitImportService(
     }
 
     /// <inheritdoc/>
-    protected internal override Statement Parse(AbstractStatementImportModel model, Account account)
+    protected internal override Task<Statement> Parse(AbstractStatementImportModel model, Account account, CancellationToken _)
     {
         try
         {
-            var debitStatementImportModel = model as DebitStatementImportModel ??
-                throw new ImportException($"Model (type: {model.GetType().Name}) is expected to be type of {typeof(DebitStatementImportModel).Name}");
-
             var statement = (DebitStatement)statementFactory.Create(model, account);
 
             parser.ReadStatement(statement, model.File.OpenReadStream(), account.Bank);
 
-            return statement;
+            DebitTransaction? lastTransaction = statement.Transactions.LastOrDefault();
+
+            statement.RemainingBalance = lastTransaction?.RemainingBalance.Amount ?? 0;
+
+            return Task.FromResult<Statement>(statement);
         }
         catch (Exception ex) when (ex is not ImportException)
         {
@@ -54,10 +56,9 @@ internal sealed class DebitImportService(
     }
 
     /// <inheritdoc/>
-    protected internal override Transaction[] DetectExisting(Statement statement, Transaction[] existingTransactions)
+    protected internal override Transaction[] DetectNew(Statement statement, Transaction[] existingTransactions)
     {
-        var debitStatement = statement as DebitStatement ??
-            throw new ImportException($"Statement (type: {statement.GetType().Name}) is expected to be type of {typeof(DebitStatement).Name}");
+        var debitStatement = Cast<DebitStatement>(statement);
 
         //TODO: ref number nullable
         var existingIdentifiers = existingTransactions.OfType<DebitTransaction>().Select(x => new { x.ReferenceNumber, x.RemainingBalance });
@@ -72,5 +73,26 @@ internal sealed class DebitImportService(
     {
         //Open provisions don't apply to debit accounts.
         return [];
+    }
+
+    /// <inheritdoc/>
+    protected internal override Balance CalculateRemaining(Statement statement)
+    {
+        var debitStatement = Cast<DebitStatement>(statement);
+
+        var lastTrx = debitStatement.Transactions.LastOrDefault();
+
+        if (lastTrx == null)
+        {
+
+        }
+
+        return new Balance()
+        {
+            Id = Guid.NewGuid(),
+            SavingAccountId = statement.AccountId,
+            Amount = new MonetaryValue(debitStatement.RemainingBalance, debitStatement.Currency),
+            AsOf = lastTrx.Timestamp,
+        };
     }
 }

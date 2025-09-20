@@ -21,6 +21,7 @@ public abstract class Base
     private protected Mock<IUnitOfWork> unitOfWorkMock = null!;
     private protected Mock<ITransactionRepository> transactionRepositoryMock = null!;
     private protected Mock<IStatementRepository> statementRepositoryMock = null!;
+    private protected Mock<IDateTimeService> dateTimeServiceMock = null!;
     private protected Mock<IValidator<DebitStatementImportModel>> validatorMock = null!;
     private protected Mock<IStatementFactory> statementFactoryMock = null!;
     private protected Mock<ISpreadsheetParser> parserMock = null!;
@@ -30,17 +31,18 @@ public abstract class Base
     [TestInitialize]
     public void Initialize()
     {
-        loggerMock = new Mock<ILogger<DebitImportService>>();
-        fileTypeValidator = new Mock<IFileTypeValidator>();
-        authorizationServiceMock = new Mock<IAuthorizationService>();
-        accountRepositoryMock = new Mock<IAccountRepository>();
-        storageServiceMock = new Mock<IStorageService>();
-        unitOfWorkMock = new Mock<IUnitOfWork>();
-        transactionRepositoryMock = new Mock<ITransactionRepository>();
-        statementRepositoryMock = new Mock<IStatementRepository>();
-        validatorMock = new Mock<IValidator<DebitStatementImportModel>>();
-        statementFactoryMock = new Mock<IStatementFactory>();
-        parserMock = new Mock<ISpreadsheetParser>();
+        loggerMock = new();
+        fileTypeValidator = new();
+        authorizationServiceMock = new();
+        accountRepositoryMock = new();
+        storageServiceMock = new();
+        unitOfWorkMock = new();
+        transactionRepositoryMock = new();
+        statementRepositoryMock = new();
+        dateTimeServiceMock = new();
+        validatorMock = new();
+        statementFactoryMock = new();
+        parserMock = new();
 
         sut = new(
             loggerMock.Object,
@@ -51,6 +53,7 @@ public abstract class Base
             unitOfWorkMock.Object,
             transactionRepositoryMock.Object,
             statementRepositoryMock.Object,
+            dateTimeServiceMock.Object,
             validatorMock.Object,
             statementFactoryMock.Object,
             parserMock.Object);

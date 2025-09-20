@@ -19,5 +19,5 @@ internal sealed class CreditCardStatement : Statement
     [Column(TypeName = "decimal(19, 4)")]
     public decimal? TotalFees { get; init; }
 
-    public DateTimeOffset DueDate { get; set; }
+    public DateTimeOffset DueDate { get; init; }
 }

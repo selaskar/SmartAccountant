@@ -61,6 +61,15 @@ namespace SmartAccountant.Services.Parser.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Calculated deflection amount ({0}) is larger than allowed absolute threshold ({1})..
+        /// </summary>
+        internal static string DeflectionTooLarge {
+            get {
+                return ResourceManager.GetString("DeflectionTooLarge", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Unrecognized file format. Column count ({0}) was expected to be at least 5..
         /// </summary>
         internal static string InsufficientColumnCount {
@@ -72,18 +81,18 @@ namespace SmartAccountant.Services.Parser.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Total amount of transactions and the remaining balance do not match..
         /// </summary>
-        internal static string TransactionAmountAndBalanceNotMatch {
+        internal static string TransactionAmountAndBalanceDontMatch {
             get {
-                return ResourceManager.GetString("TransactionAmountAndBalanceNotMatch", resourceCulture);
+                return ResourceManager.GetString("TransactionAmountAndBalanceDontMatch", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Total amount of transactions and the due amount do not match..
         /// </summary>
-        internal static string TransactionAmountAndDueAmountNotMatch {
+        internal static string TransactionAmountAndTotalExpensesDontMatch {
             get {
-                return ResourceManager.GetString("TransactionAmountAndDueAmountNotMatch", resourceCulture);
+                return ResourceManager.GetString("TransactionAmountAndTotalExpensesDontMatch", resourceCulture);
             }
         }
         
@@ -117,9 +126,27 @@ namespace SmartAccountant.Services.Parser.Resources {
         /// <summary>
         ///   Looks up a localized string similar to An unexpected error occurred while parsing the spreadsheet..
         /// </summary>
-        internal static string UnexpectedError {
+        internal static string UnexpectedErrorParsingSpreadsheet {
             get {
-                return ResourceManager.GetString("UnexpectedError", resourceCulture);
+                return ResourceManager.GetString("UnexpectedErrorParsingSpreadsheet", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to An unexpected error occurred while parsing the statement..
+        /// </summary>
+        internal static string UnexpectedErrorParsingStatement {
+            get {
+                return ResourceManager.GetString("UnexpectedErrorParsingStatement", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Statement was expected to be consist of 2 parts. Found: {0}..
+        /// </summary>
+        internal static string UnexpectedPartCount {
+            get {
+                return ResourceManager.GetString("UnexpectedPartCount", resourceCulture);
             }
         }
         

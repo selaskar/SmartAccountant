@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using SmartAccountant.Abstractions.Exceptions;
 using SmartAccountant.Abstractions.Interfaces;
 using SmartAccountant.Abstractions.Models.Request;
+using SmartAccountant.Core.Helpers;
 using SmartAccountant.Import.Service.Abstract;
 using SmartAccountant.Import.Service.Resources;
 using SmartAccountant.Models;
@@ -20,7 +21,8 @@ internal abstract partial class AbstractImportService(
     IStorageService storageService,
     IUnitOfWork unitOfWork,
     ITransactionRepository transactionRepository,
-    IStatementRepository statementRepository)
+    IStatementRepository statementRepository,
+    IDateTimeService dateTimeService)
     : IImportService
 {
     /// <remarks>In bytes</remarks>
@@ -29,26 +31,32 @@ internal abstract partial class AbstractImportService(
     private const string UploadsContainerName = "uploads";
     private const string AccountsFolderName = "accounts";
 
-    private static readonly CompositeFormat CannotCheckExistingTransactions = CompositeFormat.Parse(Messages.CannotCheckExistingTransactions);
+    private protected static readonly CompositeFormat CannotCheckExistingTransactions = CompositeFormat.Parse(Messages.CannotCheckExistingTransactions);
 
+    private protected IAccountRepository AccountRepository { get; } = accountRepository;
+    private protected ITransactionRepository TransactionRepository { get; } = transactionRepository;
 
     /// <inheritdoc/>
-    public async Task<Statement> ImportStatement(AbstractStatementImportModel request, CancellationToken cancellationToken)
+    public async Task<Statement> ImportStatement(AbstractStatementImportModel model, CancellationToken cancellationToken)
     {
-        Validate(request);
+        Validate(model);
 
-        if (!await fileTypeValidator.IsValidFile(request.File, cancellationToken))
+        if (!await fileTypeValidator.IsValidFile(model.File, cancellationToken))
             throw new ImportException(Messages.UploadedStatementFileTypeNotSupported);
 
         Guid userId = authorizationService.UserId;
 
-        Account account = ValidateAccountHolder(userId, request.AccountId, cancellationToken);
+        Account account = ValidateAccountHolder(userId, model.AccountId, cancellationToken);
 
-        Statement statement = Parse(request, account);
+        Statement statement = await Parse(model, account, cancellationToken);
 
-        await SaveFile(statement, request.File, cancellationToken);
+        await SaveFile(statement, model.File, cancellationToken);
 
-        await Persist(account.Id, statement, cancellationToken);
+        (Transaction[] newTransactions, Transaction[] finalizedProvisions) = await Collide(statement, cancellationToken);
+
+        await PersistStatement(statement, newTransactions, finalizedProvisions, balance: null, cancellationToken);
+
+        //Balance remainingBalance = CalculateRemaining(statement);
 
         return statement;
     }
@@ -58,16 +66,34 @@ internal abstract partial class AbstractImportService(
     protected internal abstract void Validate(AbstractStatementImportModel model);
 
     /// <exception cref="ImportException"/>
-    protected internal abstract Statement Parse(AbstractStatementImportModel model, Account account);
+    /// <exception cref="OperationCanceledException"/>
+    protected internal abstract Task<Statement> Parse(AbstractStatementImportModel model, Account account, CancellationToken cancellationToken);
+
+    /// <exception cref="ImportException"/>
+    /// <exception cref="OperationCanceledException"/>
+    protected internal virtual async Task<Transaction[]> FetchExistingTransactions(Statement statement, CancellationToken cancellationToken)
+    {
+        try
+        {
+            Transaction[] existingTransactions = await TransactionRepository.GetTransactionsOfAccount(statement.AccountId, cancellationToken);
+            return existingTransactions;
+        }
+        catch (RepositoryException ex)
+        {
+            throw new ImportException(CannotCheckExistingTransactions.FormatMessage(statement.AccountId), ex);
+        }
+    }
 
     /// <returns>Unique transactions</returns>
     /// <exception cref="ImportException"/>
-    protected internal abstract Transaction[] DetectExisting(Statement statement, Transaction[] existingTransactions);
+    protected internal abstract Transaction[] DetectNew(Statement statement, Transaction[] existingTransactions);
 
     /// <returns>Returns the transactions that previously existed as open provisions, but became finalized since then.</returns>
     /// <exception cref="ImportException"/>
     protected internal abstract Transaction[] DetectFinalized(Statement statement, Transaction[] existingTransactions);
 
+    /// <exception cref="ImportException"/>
+    protected internal abstract Balance CalculateRemaining(Statement statement);
 
     /// <exception cref="ImportException" />
     /// <exception cref="OperationCanceledException" />
@@ -75,7 +101,7 @@ internal abstract partial class AbstractImportService(
     {
         try
         {
-            return accountRepository.GetAccountsOfUser(userId)
+            return AccountRepository.GetAccountsOfUser(userId)
                 .ToBlockingEnumerable(cancellationToken)
                 .FirstOrDefault(x => x.Id == accountId)
                ?? throw new ImportException(Messages.AccountDoesNotBelongToUser); // or does not exist
@@ -88,7 +114,6 @@ internal abstract partial class AbstractImportService(
         }
     }
 
-    /// <remarks>Leaves the file stream in the beginning position.</remarks>
     /// <exception cref="ImportException"/>
     /// <exception cref="OperationCanceledException"/>
     private async Task SaveFile(Statement statement, ImportFile file, CancellationToken cancellationToken)
@@ -98,12 +123,10 @@ internal abstract partial class AbstractImportService(
             UploadStarting();
 
             var documentId = Guid.NewGuid();
-            string path = $"{AccountsFolderName}/{statement.AccountId:D}/{DateTimeOffset.UtcNow.ToString(@"yyyy/MM", CultureInfo.InvariantCulture)}/{documentId:D}";
+            string path = $"{AccountsFolderName}/{statement.AccountId:D}/{dateTimeService.UtcNow.ToString(@"yyyy/MM", CultureInfo.InvariantCulture)}/{documentId:D}";
 
             using Stream readStream = file.OpenReadStream();
             await storageService.WriteToFile(UploadsContainerName, path, readStream, cancellationToken);
-
-            readStream.Seek(0, SeekOrigin.Begin);
 
             UploadSucceeded();
 
@@ -125,29 +148,20 @@ internal abstract partial class AbstractImportService(
 
     /// <exception cref="ImportException"/>
     /// <exception cref="OperationCanceledException"/>
-    private async Task Persist(Guid accountId, Statement statement, CancellationToken cancellationToken)
+    private async Task<(Transaction[], Transaction[])> Collide(Statement statement, CancellationToken cancellationToken)
     {
-        Transaction[] existingTransactions;
-        try
-        {
-            existingTransactions = await transactionRepository.GetTransactionsOfAccount(accountId, cancellationToken);
-        }
-        catch (RepositoryException ex)
-        {
-            string errorMessage = string.Format(CultureInfo.InvariantCulture, CannotCheckExistingTransactions, accountId);
-            throw new ImportException(errorMessage, ex);
-        }
+        Transaction[] existingTransactions = await FetchExistingTransactions(statement, cancellationToken);
 
-        Transaction[] newTransactions = DetectExisting(statement, existingTransactions);
+        Transaction[] newTransactions = DetectNew(statement, existingTransactions);
 
         Transaction[] finalizedProvisions = DetectFinalized(statement, existingTransactions);
 
-        await PersistStatement(statement, newTransactions, finalizedProvisions, cancellationToken);
+        return (newTransactions, finalizedProvisions);
     }
 
     /// <exception cref="ImportException"/>
     /// <exception cref="OperationCanceledException"/>
-    private async Task PersistStatement(Statement statement, Transaction[] newTransactions, Transaction[] finalizedTransactions, CancellationToken cancellationToken)
+    private async Task PersistStatement(Statement statement, Transaction[] newTransactions, Transaction[] finalizedTransactions, Balance? balance, CancellationToken cancellationToken)
     {
         try
         {
@@ -158,10 +172,15 @@ internal abstract partial class AbstractImportService(
             await unitOfWork.BeginTransactionAsync(cancellationToken);
 
             await statementRepository.Insert(statement, cancellationToken);
-            await transactionRepository.Insert(newTransactions, cancellationToken);
-            await transactionRepository.Delete(finalizedTransactions, cancellationToken);
+            await TransactionRepository.Insert(newTransactions, cancellationToken);
+            await TransactionRepository.Delete(finalizedTransactions, cancellationToken);
+
+            if (balance != null)
+                await AccountRepository.SaveBalance(balance, cancellationToken);
 
             await unitOfWork.CommitAsync(cancellationToken);
+
+            PersistSucceeded();
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
@@ -173,21 +192,33 @@ internal abstract partial class AbstractImportService(
         }
     }
 
+
+    /// <exception cref="ImportException"/>
+    private protected static TStatement Cast<TStatement>(Statement statement)
+        where TStatement : Statement
+    {
+        return statement as TStatement ??
+            throw new ImportException($"Statement (type: {statement.GetType().Name}) was expected to be type of {typeof(TStatement).Name}");
+    }
+
     [LoggerMessage(Level = LogLevel.Error, Message = "An error occurred while verifying the holder of account ({AccountId}).")]
-    protected partial void AccountHolderVerificationFailed(Exception ex, Guid accountId);
+    private partial void AccountHolderVerificationFailed(Exception ex, Guid accountId);
 
     [LoggerMessage(Level = LogLevel.Error, Message = "Parsing of statement document failed for account ({AccountId}).")]
-    protected partial void ParseFailed(Exception ex, Guid accountId);
+    private protected partial void ParseFailed(Exception ex, Guid accountId);
 
     [LoggerMessage(Level = LogLevel.Trace, Message = "Starting to save the uploaded document.")]
-    protected partial void UploadStarting();
+    private partial void UploadStarting();
 
     [LoggerMessage(Level = LogLevel.Trace, Message = "Statement document successfully uploaded.")]
-    protected partial void UploadSucceeded();
+    private partial void UploadSucceeded();
 
     [LoggerMessage(Level = LogLevel.Error, Message = "An error occurred while saving the uploaded document for account ({AccountId}).")]
-    protected partial void UploadFailed(Exception ex, Guid accountId);
+    private protected partial void UploadFailed(Exception ex, Guid accountId);
+
+    [LoggerMessage(Level = LogLevel.Trace, Message = "The uploaded statement successfully persisted.")]
+    private partial void PersistSucceeded();
 
     [LoggerMessage(Level = LogLevel.Error, Message = "Persisting of uploaded statement failed for account ({AccountId}).")]
-    protected partial void PersistFailed(Exception ex, Guid accountId);
+    private partial void PersistFailed(Exception ex, Guid accountId);
 }

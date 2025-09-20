@@ -8,23 +8,10 @@ using SmartAccountant.Models;
 namespace SmartAccountant.Import.Service.Tests.DebitImportServiceTests;
 
 [TestClass]
-public class Parse: Base
+public class Parse : Base
 {
     [TestMethod]
-    public void ThrowImportExceptionForWrongModelType()
-    {
-        // Arrange
-        CreditCardStatementImportModel model = new()
-        {
-            File = null!
-        };
-
-        // Act, Assert
-        Assert.ThrowsExactly<ImportException>(() => sut.Parse(model, null!));
-    }
-
-    [TestMethod]
-    public void ThrowImportExceptionForUnexpectedErrorInStatementFactory()
+    public async Task ThrowImportExceptionForUnexpectedErrorInStatementFactory()
     {
         // Arrange
         DebitStatementImportModel model = new()
@@ -43,7 +30,7 @@ public class Parse: Base
             .Throws<NotImplementedException>();
 
         // Act, Assert
-        var result = Assert.ThrowsExactly<ImportException>(() => sut.Parse(model, account));
+        var result = await Assert.ThrowsExactlyAsync<ImportException>(async () => await sut.Parse(model, account, CancellationToken.None));
 
         loggerMock.Verify(l => l.IsEnabled(LogLevel.Error), Times.Once);
 
@@ -51,7 +38,7 @@ public class Parse: Base
     }
 
     [TestMethod]
-    public void DirectlyThrowImportExceptionInStatementFactory()
+    public async Task DirectlyThrowImportExceptionInStatementFactory()
     {
         // Arrange
         DebitStatementImportModel model = new()
@@ -70,7 +57,7 @@ public class Parse: Base
             .Throws(new ImportException("test"));
 
         // Act, Assert
-        var result = Assert.ThrowsExactly<ImportException>(() => sut.Parse(model, account));
+        var result = await Assert.ThrowsExactlyAsync<ImportException>(async () => await sut.Parse(model, account, CancellationToken.None));
 
         loggerMock.Verify(l => l.IsEnabled(LogLevel.Error), Times.Never);
 
@@ -78,7 +65,7 @@ public class Parse: Base
     }
 
     [TestMethod]
-    public void ThrowImportExceptionForParserExceptionInParser()
+    public async Task ThrowImportExceptionForParserExceptionInParser()
     {
         // Arrange
         DebitStatementImportModel model = new()
@@ -96,7 +83,7 @@ public class Parse: Base
         SetupStatementFactory(model, account, null!);
 
         // Act, Assert
-        var result = Assert.ThrowsExactly<ImportException>(() => sut.Parse(model, account));
+        var result = await Assert.ThrowsExactlyAsync<ImportException>(async () => await sut.Parse(model, account, CancellationToken.None));
 
         loggerMock.Verify(l => l.IsEnabled(LogLevel.Error), Times.Once);
 
@@ -104,7 +91,7 @@ public class Parse: Base
     }
 
     [TestMethod]
-    public void Succeed()
+    public async Task SucceedForZeroTransaction()
     {
         // Arrange
         DebitStatementImportModel model = new()
@@ -129,7 +116,48 @@ public class Parse: Base
         SetupStatementFactory(model, account, statement);
 
         // Act
-        Statement result = sut.Parse(model, account);
+        Statement result = await sut.Parse(model, account, CancellationToken.None);
+
+        // Assert
+        loggerMock.Verify(l => l.IsEnabled(LogLevel.Error), Times.Never);
+
+        Assert.AreEqual(statement, result);
+    }
+
+    [TestMethod]
+    public async Task Succeed()
+    {
+        // Arrange
+        DebitStatementImportModel model = new()
+        {
+            File = new ImportFile()
+            {
+                ContentType = "",
+                FileName = "test",
+                OpenReadStream = () => new MemoryStream()
+            }
+        };
+
+        SavingAccount account = new()
+        {
+            AccountNumber = "0"
+        };
+
+        DebitStatement statement = new()
+        {
+            Transactions = [new DebitTransaction()
+            {
+                Amount= new MonetaryValue(100, Currency.USD),
+                RemainingBalance = new MonetaryValue(15, Currency.USD),
+            }]
+        };
+
+        SetupLogger(LogLevel.Error, true);
+
+        SetupStatementFactory(model, account, statement);
+
+        // Act
+        Statement result = await sut.Parse(model, account, CancellationToken.None);
 
         // Assert
         loggerMock.Verify(l => l.IsEnabled(LogLevel.Error), Times.Never);

@@ -1,6 +1,6 @@
 ﻿namespace SmartAccountant.Abstractions.Models.Request;
 
-public abstract class AbstractStatementImportModel
+public abstract record class AbstractStatementImportModel
 {
     public Guid RequestId { get; init; }
 

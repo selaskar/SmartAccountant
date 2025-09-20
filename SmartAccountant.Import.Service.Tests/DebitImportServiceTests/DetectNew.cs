@@ -4,7 +4,7 @@ using SmartAccountant.Models;
 namespace SmartAccountant.Import.Service.Tests.DebitImportServiceTests;
 
 [TestClass]
-public class DetectExisting : Base
+public class DetectNew : Base
 {
     [TestMethod]
     public void ThrowImportExceptionForWrongStatement()
@@ -13,7 +13,7 @@ public class DetectExisting : Base
         CreditCardStatement creditCardStatement = new();
 
         // Act, Assert
-        Assert.ThrowsExactly<ImportException>(() => sut.DetectExisting(creditCardStatement, null!));
+        Assert.ThrowsExactly<ImportException>(() => sut.DetectNew(creditCardStatement, null!));
     }
 
     [TestMethod]
@@ -46,7 +46,7 @@ public class DetectExisting : Base
         }];
 
         // Act
-        Transaction[] result = sut.DetectExisting(debitStatement, existingTransactions);
+        Transaction[] result = sut.DetectNew(debitStatement, existingTransactions);
 
         // Assert
         Assert.AreEqual(expected, result.Length);

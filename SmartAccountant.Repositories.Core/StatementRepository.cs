@@ -18,7 +18,7 @@ internal sealed class StatementRepository(CoreDbContext dbContext, IMapper mappe
             dbContext.Statements.Add(entity);
             await dbContext.SaveChangesAsync(cancellationToken);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             throw new RepositoryException($"Failed to insert statement ({statement.Id}).", ex);
         }

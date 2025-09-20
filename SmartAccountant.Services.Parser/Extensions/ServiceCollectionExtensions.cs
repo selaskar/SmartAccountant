@@ -1,7 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using Microsoft.Extensions.DependencyInjection;
 using SmartAccountant.Abstractions.Interfaces;
-using SmartAccountant.Models;
 using SmartAccountant.Services.Parser.Abstract;
 using SmartAccountant.Services.Parser.Factories;
 using SmartAccountant.Services.Parser.ParseStrategies;
@@ -14,12 +13,14 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection ConfigureParser(this IServiceCollection services)
     {
         // parse strategies
-        services.AddSingleton<IStatementParseStrategy<DebitTransaction>, GarantiDebitStatementParseStrategy>();
+        services.AddSingleton<IMultipartStatementParseStrategy, GarantiMultipartStatementParseStrategy>();
 
         // factories
         services.AddSingleton<IStatementParseStrategyFactory, StatementParseStrategyFactory>();
 
         // parsers
+        services.AddSingleton<IStatementParser, ExcelSpreadsheetParserService>();
+        services.AddSingleton<IMultipartStatementParser, ExcelSpreadsheetParserService>();
         services.AddSingleton<ISpreadsheetParser, ExcelSpreadsheetParserService>();
 
         return services;

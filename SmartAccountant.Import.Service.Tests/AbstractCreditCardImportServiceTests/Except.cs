@@ -1,21 +1,10 @@
-﻿using SmartAccountant.Abstractions.Exceptions;
-using SmartAccountant.Models;
+﻿using SmartAccountant.Models;
 
-namespace SmartAccountant.Import.Service.Tests.CreditCardImportServiceTests;
+namespace SmartAccountant.Import.Service.Tests.AbstractCreditCardImportServiceTests;
 
 [TestClass]
-public class DetectExisting : Base
+public class Except
 {
-    [TestMethod]
-    public void ThrowImportExceptionForWrongStatement()
-    {
-        // Arrange
-        DebitStatement statement = new();
-
-        // Act, Assert
-        Assert.ThrowsExactly<ImportException>(() => sut.DetectExisting(statement, null!));
-    }
-
     [TestMethod]
     [DataRow("2025-03-14", "2025-03-14", "a", "a", 10, 10, Currency.USD, Currency.USD, ProvisionState.Finalized, ProvisionState.Finalized, 0)]
     [DataRow("2025-03-14", "2025-03-14", "a", "a", 10, 10, Currency.USD, Currency.USD, ProvisionState.Finalized, ProvisionState.Open, 1)]
@@ -58,17 +47,14 @@ public class DetectExisting : Base
         int expected)
     {
         // Arrange
-        CreditCardStatement debitStatement = new()
+        CreditCardTransaction[] newTransactions = [ new ()
         {
-            Transactions = [ new CreditCardTransaction()
-            {
-                AccountId = Guid.Empty,
-                Timestamp = new DateTimeOffset(DateOnly.ParseExact(date1, "yyyy-MM-dd"), TimeOnly.MinValue,TimeSpan.Zero),
-                Description = description1,
-                Amount = new MonetaryValue(amount1, currency1),
-                ProvisionState = state1
-            }]
-        };
+            AccountId = Guid.Empty,
+            Timestamp = new DateTimeOffset(DateOnly.ParseExact(date1, "yyyy-MM-dd"), TimeOnly.MinValue,TimeSpan.Zero),
+            Description = description1,
+            Amount = new MonetaryValue(amount1, currency1),
+            ProvisionState = state1
+        }];
 
         CreditCardTransaction[] existingTransactions = [ new CreditCardTransaction()
         {
@@ -80,7 +66,7 @@ public class DetectExisting : Base
         }];
 
         // Act
-        Transaction[] result = sut.DetectExisting(debitStatement, existingTransactions);
+        Transaction[] result = AbstractCreditCardImportService.Except(newTransactions, existingTransactions);
 
         // Assert
         Assert.AreEqual(expected, result.Length);
