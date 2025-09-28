@@ -28,13 +28,15 @@ internal sealed class TransactionRepository(CoreDbContext dbContext, IMapper map
     }
 
     /// <inheritdoc/>
-    public async Task<Models.Transaction[]> GetTransactionsOfUser(Guid holderId, DateTimeOffset since, DateTimeOffset until, CancellationToken cancellationToken)
+    public async Task<Models.Transaction[]> GetTransactionsOfMonth(Guid holderId, DateOnly month, CancellationToken cancellationToken)
     {
         try
         {
             var transactions = await dbContext.Transactions.AsNoTracking()
+                .Include(t => t.Account)
                 .Where(x => x.Account!.HolderId == holderId
-                    && x.Timestamp >= since && x.Timestamp < until)
+                    && x.Timestamp.Year == month.Year
+                    && x.Timestamp.Month == month.Month)
                 .Select(x => mapper.Map<Models.Transaction>(x))
                 .ToArrayAsync(cancellationToken);
 

@@ -5,7 +5,7 @@ using SmartAccountant.Abstractions.Interfaces;
 using SmartAccountant.Core.Helpers;
 using SmartAccountant.Models;
 
-namespace SmartAccountant.Controllers;
+namespace SmartAccountant.API.Controllers;
 
 [Authorize]
 [ApiController]

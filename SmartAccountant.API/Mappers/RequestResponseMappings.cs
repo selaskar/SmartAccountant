@@ -1,10 +1,10 @@
 ﻿using AutoMapper;
 using SmartAccountant.Abstractions.Models.Request;
+using SmartAccountant.API.Models.Request;
+using SmartAccountant.API.Models.Response;
 using SmartAccountant.Models;
-using SmartAccountant.Models.Request;
-using SmartAccountant.Models.Response;
 
-namespace SmartAccountant.Mappers;
+namespace SmartAccountant.API.Mappers;
 
 internal sealed class RequestResponseMappings : Profile
 {

@@ -28,4 +28,8 @@ internal abstract class Transaction
 
     [StringLength(500)]
     public string? PersonalNote { get; set; }
+
+    public MainCategory Category { get; set; }
+
+    public byte SubCategory { get; set; }
 }

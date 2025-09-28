@@ -6,15 +6,15 @@ using FileStorage.Options;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Identity.Web;
-using SmartAccountant.Filters;
+using SmartAccountant.API.Filters;
+using SmartAccountant.API.Mappers;
 using SmartAccountant.Identity.Extensions;
 using SmartAccountant.Import.Service.Extensions;
-using SmartAccountant.Mappers;
 using SmartAccountant.Repositories.Core.Extensions;
 using SmartAccountant.Services.Extensions;
 using SmartAccountant.Services.Parser.Extensions;
 
-namespace SmartAccountant;
+namespace SmartAccountant.API;
 
 internal sealed class Program
 {

@@ -1,4 +1,4 @@
-﻿namespace SmartAccountant.Models.Response;
+﻿namespace SmartAccountant.API.Models.Response;
 
 public record UploadStatementResponse : BaseResponse
 {

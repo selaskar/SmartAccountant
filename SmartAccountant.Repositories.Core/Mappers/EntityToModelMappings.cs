@@ -63,17 +63,20 @@ internal sealed class EntityToModelMappings : Profile
             .ForMember(x => x.Amount, opt => opt.MapFrom(e => e.Amount.Amount))
             .ForMember(x => x.AmountCurrency, opt => opt.MapFrom(e => e.Amount.Currency))
             .ForMember(x => x.Description, opt => opt.MapFrom(e => e.Description))
-            .ForMember(x => x.PersonalNote, opt => opt.MapFrom(e => e.PersonalNote));
+            .ForMember(x => x.PersonalNote, opt => opt.MapFrom(e => e.PersonalNote))
+            .ForMember(x => x.Category, opt => opt.MapFrom(e => e.Category.Category))
+            .ForMember(x => x.SubCategory, opt => opt.MapFrom(e => e.Category.SubCategory));
 
         CreateMap<Entities.Transaction, Models.Transaction>()
             .ForMember(x => x.Id, opt => opt.MapFrom(e => e.Id))
             .ForMember(x => x.AccountId, opt => opt.MapFrom(e => e.AccountId))
-            .ForSourceMember(x => x.Account, opt => opt.DoNotValidate())
+            .ForMember(x => x.Account, opt => opt.MapFrom(e => e.Account))
             .ForMember(x => x.ReferenceNumber, opt => opt.MapFrom(e => e.ReferenceNumber))
             .ForMember(x => x.Timestamp, opt => opt.MapFrom(e => e.Timestamp))
             .ForMember(x => x.Amount, opt => opt.MapFrom(e => new Models.MonetaryValue(e.Amount, e.AmountCurrency)))
             .ForMember(x => x.Description, opt => opt.MapFrom(e => e.Description))
-            .ForMember(x => x.PersonalNote, opt => opt.MapFrom(e => e.PersonalNote));
+            .ForMember(x => x.PersonalNote, opt => opt.MapFrom(e => e.PersonalNote))
+            .ForMember(x => x.Category, opt => opt.MapFrom(e => new Models.TransactionCategory(e.Category, e.SubCategory)));
 
         CreateMap<Models.DebitTransaction, Entities.DebitTransaction>()
             .IncludeBase<Models.Transaction, Entities.Transaction>()
