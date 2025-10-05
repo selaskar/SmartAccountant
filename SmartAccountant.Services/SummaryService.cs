@@ -28,17 +28,17 @@ internal class SummaryService(IAuthorizationService authorizationService,
             Transaction[] allTransactions = await transactionRepository.GetTransactionsOfMonth(userId, month, cancellationToken);
 
             Calculate(currencies, allTransactions, cs => cs.IncomeTotal, BalanceType.Debit, MainCategory.Income);
-            //TODO: split interest+fee
-            Calculate(currencies, allTransactions, cs => cs.ExpensesTotal, BalanceType.Credit, MainCategory.Expense, MainCategory.InterestOrFee);
+            Calculate(currencies, allTransactions, cs => cs.ExpensesTotal, BalanceType.Credit, MainCategory.Expense);
             Calculate(currencies, allTransactions, cs => cs.LoansTotal, BalanceType.Debit, MainCategory.Loan);
             Calculate(currencies, allTransactions, cs => cs.SavingsTotal, BalanceType.Debit, MainCategory.Saving);
+            Calculate(currencies, allTransactions, cs => cs.InterestAndFeesTotal, BalanceType.Credit, MainCategory.InterestOrFee);
 
             CalculateSubExpenses(currencies, allTransactions);
 
             CalculateRemainingBalances(currencies, allTransactions);
 
             foreach (var currencySummary in currencies.Values)
-                currencySummary.Net = currencySummary.IncomeTotal - currencySummary.ExpensesTotal + currencySummary.LoansTotal + currencySummary.SavingsTotal;
+                currencySummary.Net = currencySummary.IncomeTotal - (currencySummary.ExpensesTotal + currencySummary.InterestAndFeesTotal) + currencySummary.LoansTotal + currencySummary.SavingsTotal;
 
             return new MonthlySummary()
             {
@@ -66,14 +66,9 @@ internal class SummaryService(IAuthorizationService authorizationService,
                     Id = Guid.NewGuid(),
                 };
             }
-
-            Dictionary<ExpenseSubCategories, MonetaryValue> dicSubTotals = item.GroupBy(t => (ExpenseSubCategories)t.Category.SubCategory)
+            
+            summary.ExpensesBreakdown = item.GroupBy(t => (ExpenseSubCategories)t.Category.SubCategory)
                  .ToDictionary(t => t.Key, g => g.Select(x => x.NormalizeBalance(BalanceType.Credit)).Sum());
-
-            summary.ExpensesBreakdown = new ExpenseSummary()
-            {
-                SubTotals = dicSubTotals,
-            };
         }
     }
 

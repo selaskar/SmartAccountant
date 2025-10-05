@@ -8,6 +8,7 @@ public record CurrencySummary : BaseModel
             OriginalLimitsTotal =
             IncomeTotal =
             ExpensesTotal =
+            InterestAndFeesTotal =
             PlannedExpensesTotal =
             LoansTotal =
             SavingsTotal =
@@ -28,6 +29,8 @@ public record CurrencySummary : BaseModel
 
     public MonetaryValue ExpensesTotal { get; set; }
 
+    public MonetaryValue InterestAndFeesTotal { get; set; }
+
     public MonetaryValue PlannedExpensesTotal { get; set; }
 
     public MonetaryValue LoansTotal { get; set; }
@@ -36,5 +39,6 @@ public record CurrencySummary : BaseModel
 
     public MonetaryValue Net { get; set; }
 
-    public ExpenseSummary? ExpensesBreakdown { get; set; }
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "CA2227:Collection properties should be read only", Justification = "This property will not be modified after initial set.")]
+    public IDictionary<ExpenseSubCategories, MonetaryValue> ExpensesBreakdown { get; set; } = new Dictionary<ExpenseSubCategories, MonetaryValue>();
 }

@@ -1,4 +1,6 @@
-﻿namespace SmartAccountant.Models;
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace SmartAccountant.Models;
 
 public readonly record struct TransactionCategory(MainCategory Category, byte SubCategory)
 {
@@ -19,8 +21,11 @@ public enum ExpenseSubCategories : byte
 {
     General = 0,
     Rent = 1,
+    [Display(Name = "Rent-related")]
     RentRelated = 2,
+    [Display(Name = "Maintenance Fee")]
     MaintenanceFee = 3,
+    [Display(Name = "Heating or Cooling")]
     HeatingOrCooling = 4,
     Water = 5,
     Electricity = 6,
