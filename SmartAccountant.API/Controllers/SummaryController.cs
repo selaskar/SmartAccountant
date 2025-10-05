@@ -5,7 +5,7 @@ using SmartAccountant.Abstractions.Interfaces;
 using SmartAccountant.Core.Helpers;
 using SmartAccountant.Models;
 
-namespace SmartAccountant.Controllers;
+namespace SmartAccountant.API.Controllers;
 
 [Authorize]
 [ApiController]
@@ -23,8 +23,7 @@ public sealed class SummaryController(ISummaryService summaryService) : Controll
     {
         try
         {
-            //TODO: need Ok()
-            return await summaryService.GetSummary(month, cancellationToken);
+            return Ok(await summaryService.GetSummary(month, cancellationToken));
         }
         catch (SummaryException ex)
         {

@@ -1,5 +1,8 @@
-﻿using SmartAccountant.Abstractions.Exceptions;
+﻿using System.Linq.Expressions;
+using System.Reflection;
+using SmartAccountant.Abstractions.Exceptions;
 using SmartAccountant.Abstractions.Interfaces;
+using SmartAccountant.Core.Helpers;
 using SmartAccountant.Models;
 using SmartAccountant.Repositories.Core.Abstract;
 using SmartAccountant.Services.Resources;
@@ -18,52 +21,24 @@ internal class SummaryService(IAuthorizationService authorizationService,
         {
             Guid userId = authorizationService.UserId;
 
-            // end of month
-            var begin = new DateTimeOffset(new DateTime(month.Year, month.Month, 1), TimeSpan.Zero);
-            var asOf = new DateTimeOffset(new DateTime(month.Year, month.Month, 1).AddMonths(1), TimeSpan.Zero);
+            Dictionary<Currency, CurrencySummary> currencies = new();
 
-            IEnumerable<Balance> balances = await accountRepository.GetBalancesOfUser(userId, asOf, cancellationToken);
+            await CalculateOriginalLimits(month, userId, currencies, cancellationToken);
 
-            var currencies = balances.GroupBy(b => b.Account!.Currency,
-                (currency, balances) => new MonetaryValue(balances.Sum(x => x.Amount.Amount), currency))
-                .ToDictionary(x => x.Currency, mv => new CurrencySummary()
-                {
-                    RemainingBalancesTotal = mv,
-                    PlannedExpenses = new MonetaryValue(0, mv.Currency)
-                });
+            Transaction[] allTransactions = await transactionRepository.GetTransactionsOfMonth(userId, month, cancellationToken);
 
-            //TODO: asOf won't yield the correct behavior always.
-            IEnumerable<CreditCardLimit> limits = await accountRepository.GetLimitsOfUser(userId, asOf, cancellationToken);
+            Calculate(currencies, allTransactions, cs => cs.IncomeTotal, BalanceType.Debit, MainCategory.Income);
+            //TODO: split interest+fee
+            Calculate(currencies, allTransactions, cs => cs.ExpensesTotal, BalanceType.Credit, MainCategory.Expense, MainCategory.InterestOrFee);
+            Calculate(currencies, allTransactions, cs => cs.LoansTotal, BalanceType.Debit, MainCategory.Loan);
+            Calculate(currencies, allTransactions, cs => cs.SavingsTotal, BalanceType.Debit, MainCategory.Saving);
 
-            foreach (IGrouping<Currency, CreditCardLimit> item in limits.GroupBy(l => l.Amount.Currency))
-            {
-                IEnumerable<(MonetaryValue originalLimit, MonetaryValue? remainingLimit)> remainingLimits = item.Select(l => (l.Amount, (MonetaryValue?)null)).ToList();
-                if (currencies.TryGetValue(item.Key, out CurrencySummary? value))
-                    value.RemainingLimits = remainingLimits;
-                else
-                {
-                    currencies[item.Key] = new CurrencySummary()
-                    {
-                        RemainingLimits = remainingLimits,
-                    };
-                }
-            }
+            CalculateSubExpenses(currencies, allTransactions);
 
-            Transaction[] allTransactions = await transactionRepository.GetTransactionsOfUser(userId, begin, asOf, cancellationToken);
+            CalculateRemainingBalances(currencies, allTransactions);
 
-            foreach (var item in allTransactions.GroupBy(x => x.Amount.Currency,
-                (currency, transactions) => new MonetaryValue(transactions.Sum(x => x.Amount.Amount), currency)))
-            {
-                if (currencies.TryGetValue(item.Currency, out CurrencySummary? value))
-                    value.ExpensesTotal = item;
-                else
-                {
-                    currencies[item.Currency] = new CurrencySummary()
-                    {
-                        ExpensesTotal = item
-                    };
-                }
-            }
+            foreach (var currencySummary in currencies.Values)
+                currencySummary.Net = currencySummary.IncomeTotal - currencySummary.ExpensesTotal + currencySummary.LoansTotal + currencySummary.SavingsTotal;
 
             return new MonthlySummary()
             {
@@ -75,6 +50,98 @@ internal class SummaryService(IAuthorizationService authorizationService,
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
             throw new SummaryException(Messages.CannotCalculateSummary, ex);
+        }
+    }
+
+    private static void CalculateSubExpenses(Dictionary<Currency, CurrencySummary> currencies, Transaction[] allTransactions)
+    {
+        foreach (IGrouping<Currency, Transaction> item in allTransactions
+            .Where(t => t.Category.Category == MainCategory.Expense)
+            .GroupBy(t => t.Amount.Currency))
+        {
+            if (!currencies.TryGetValue(item.Key, out CurrencySummary? summary))
+            {
+                summary = currencies[item.Key] = new CurrencySummary(item.Key)
+                {
+                    Id = Guid.NewGuid(),
+                };
+            }
+
+            Dictionary<ExpenseSubCategories, MonetaryValue> dicSubTotals = item.GroupBy(t => (ExpenseSubCategories)t.Category.SubCategory)
+                 .ToDictionary(t => t.Key, g => g.Select(x => x.NormalizeBalance(BalanceType.Credit)).Sum());
+
+            summary.ExpensesBreakdown = new ExpenseSummary()
+            {
+                SubTotals = dicSubTotals,
+            };
+        }
+    }
+
+    private async Task CalculateOriginalLimits(DateOnly month, Guid userId, Dictionary<Currency, CurrencySummary> currencies, CancellationToken cancellationToken)
+    {
+        var asOf = new DateTimeOffset(new DateTime(month.Year, month.Month, 1).AddMonths(1), TimeSpan.Zero);
+        IEnumerable<CreditCardLimit> limits = await accountRepository.GetLimitsOfUser(userId, asOf, cancellationToken);
+
+        foreach (IGrouping<Currency, CreditCardLimit> item in limits.GroupBy(l => l.Amount.Currency))
+        {
+            if (!currencies.TryGetValue(item.Key, out CurrencySummary? summary))
+            {
+                summary = currencies[item.Key] = new CurrencySummary(item.Key)
+                {
+                    Id = Guid.NewGuid(),
+                };
+            }
+
+            summary.OriginalLimitsTotal = new MonetaryValue(item.Sum(x => x.Amount.Amount), item.Key);
+        }
+    }
+
+    /// <exception cref="ArgumentException"/>
+    private static void Calculate(Dictionary<Currency, CurrencySummary> currencies, IEnumerable<Transaction> allTransactions,
+        Expression<Func<CurrencySummary, MonetaryValue>> propertySelector,
+        BalanceType balanceType,
+        params MainCategory[] categories)
+    {
+        IEnumerable<MonetaryValue> filtered = allTransactions
+                .Where(t => categories.Contains(t.Category.Category))
+                .GroupBy(x => x.Amount.Currency, (currency, transactions) => transactions.Select(x => x.NormalizeBalance(balanceType)).Sum());
+
+        var propertyInfo = (propertySelector.Body as MemberExpression)?.Member as PropertyInfo ??
+            throw new ArgumentException("Property selector must target a property.");
+
+        foreach (MonetaryValue item in filtered)
+        {
+            if (!currencies.TryGetValue(item.Currency, out CurrencySummary? summary))
+            {
+                summary = currencies[item.Currency] = new CurrencySummary(item.Currency)
+                {
+                    Id = Guid.NewGuid(),
+                };
+            }
+
+            propertyInfo.SetValue(summary, item);
+        }
+    }
+
+    private static void CalculateRemainingBalances(Dictionary<Currency, CurrencySummary> currencies, IEnumerable<Transaction> allTransactions)
+    {
+        //TODO: for saving accounts that have no transaction within that month, we need to search past.
+        IEnumerable<MonetaryValue> remainingBalances = allTransactions
+            .OfType<DebitTransaction>()
+            .GroupBy(x => x.AccountId, (accountId, debits) => debits.OrderByDescending(x => x.Timestamp).ThenByDescending(x => x.ReferenceNumber).First())
+            .GroupBy(x => x.RemainingBalance.Currency, (currency, debits) => new MonetaryValue(debits.Sum(d => d.RemainingBalance.Amount), currency));
+
+        foreach (MonetaryValue item in remainingBalances)
+        {
+            if (!currencies.TryGetValue(item.Currency, out CurrencySummary? summary))
+            {
+                summary = currencies[item.Currency] = new CurrencySummary(item.Currency)
+                {
+                    Id = Guid.NewGuid(),
+                };
+            }
+
+            summary.RemainingBalancesTotal = item;
         }
     }
 }

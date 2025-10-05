@@ -1,4 +1,4 @@
-﻿namespace SmartAccountant.Models.Request;
+﻿namespace SmartAccountant.API.Models.Request;
 
 public record UploadMultipartStatementRequest: UploadCreditCardStatementRequest
 {

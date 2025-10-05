@@ -1,6 +1,9 @@
 is_global = true
 global_level = 100 #This is the implicit value for unnamed .globalconfig files
 
+# CA1028: Enum Storage should be Int32
+dotnet_diagnostic.CA1028.severity = none
+
 # CA1032: Implement standard exception constructors
 dotnet_diagnostic.CA1032.severity = silent
 

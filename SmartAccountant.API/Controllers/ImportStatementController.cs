@@ -6,12 +6,12 @@ using Microsoft.AspNetCore.Mvc;
 using SmartAccountant.Abstractions.Exceptions;
 using SmartAccountant.Abstractions.Interfaces;
 using SmartAccountant.Abstractions.Models.Request;
+using SmartAccountant.API.Models.Request;
+using SmartAccountant.API.Models.Response;
 using SmartAccountant.Core.Helpers;
 using SmartAccountant.Models;
-using SmartAccountant.Models.Request;
-using SmartAccountant.Models.Response;
 
-namespace SmartAccountant.Controllers;
+namespace SmartAccountant.API.Controllers;
 
 [Authorize]
 [ApiController]

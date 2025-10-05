@@ -9,10 +9,9 @@ public interface ITransactionRepository
     /// <exception cref="OperationCanceledException" />
     Task<Transaction[]> GetTransactionsOfAccount(Guid accountId, CancellationToken cancellationToken);
 
-    /// <remarks><paramref name="until"/> is exclusive.</remarks>
     /// <exception cref="RepositoryException" />
     /// <exception cref="OperationCanceledException" />
-    Task<Transaction[]> GetTransactionsOfUser(Guid holderId, DateTimeOffset since, DateTimeOffset until, CancellationToken cancellationToken);
+    Task<Transaction[]> GetTransactionsOfMonth(Guid holderId, DateOnly month, CancellationToken cancellationToken);
 
     /// <exception cref="RepositoryException" />
     /// <exception cref="OperationCanceledException" />

@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace SmartAccountant.Models.Request;
+namespace SmartAccountant.API.Models.Request;
 
 public abstract record class AbstractUploadStatementRequest : BaseRequest
 {

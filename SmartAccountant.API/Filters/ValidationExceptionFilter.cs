@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 
-namespace SmartAccountant.Filters;
+namespace SmartAccountant.API.Filters;
 
 internal sealed class ValidationExceptionFilter : IExceptionFilter
 {

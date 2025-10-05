@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Mvc.Filters;
 using SmartAccountant.Abstractions.Exceptions;
 
-namespace SmartAccountant.Filters;
+namespace SmartAccountant.API.Filters;
 
 internal sealed class AuthenticationExceptionFilter : IExceptionFilter
 {

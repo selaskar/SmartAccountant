@@ -43,6 +43,7 @@ internal sealed class AccountRepository(CoreDbContext dbContext, IMapper mapper)
         }
     }
 
+    //TODO: delete
     /// <inheritdoc/>
     public async Task<IEnumerable<Models.Balance>> GetBalancesOfUser(Guid userId, DateTimeOffset asOf, CancellationToken cancellationToken)
     {
@@ -53,7 +54,7 @@ internal sealed class AccountRepository(CoreDbContext dbContext, IMapper mapper)
                 .GroupBy(b => b.SavingAccountId, (key, grouping) => grouping.OrderByDescending(g => g.AsOf).First())
                 .ToListAsync(cancellationToken);
 
-            Guid[] accountIds = [.. balances.Select(b => b.SavingAccountId)];
+            Guid[] accountIds = balances.Select(b => b.SavingAccountId).ToArray();
 
             List<SavingAccount> accounts = await dbContext.SavingAccounts.AsNoTracking()
                 .Where(a => accountIds.Contains(a.Id))
@@ -76,6 +77,7 @@ internal sealed class AccountRepository(CoreDbContext dbContext, IMapper mapper)
         {
             List<CreditCardLimit> limits = await dbContext.CreditCardLimits.AsNoTracking()
                 .Where(l => l.Card!.HolderId == userId && l.ValidSince <= asOf && l.ValidUntil >= asOf)
+                .GroupBy(l => l.Id, (cardId, limits) => limits.OrderByDescending(l => l.ValidSince).First())
                 .ToListAsync(cancellationToken);
 
             return limits.Select(mapper.Map<Models.CreditCardLimit>);

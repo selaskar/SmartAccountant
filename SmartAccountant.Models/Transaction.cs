@@ -8,6 +8,8 @@ public abstract record class Transaction : BaseModel
 {
     public Guid? AccountId { get; set; }
 
+    public Account? Account { get; set; }
+
     public string? ReferenceNumber { get; init; }
 
     public DateTimeOffset Timestamp { get; init; }
@@ -17,16 +19,16 @@ public abstract record class Transaction : BaseModel
     public string? Description { get; init; }
 
     public string? PersonalNote { get; set; }
-}
 
-//TODO: category and sub-categories? Flags?
-public enum TransactionType
-{
-    Deposit = 0,
-    Withdrawal = 1,
-    TransferIn = 2,
-    TransferOut = 3,
-    Expense = 4,
-    Installment = 5,
-    DebtPayment = 6,
+    public TransactionCategory Category { get; set; }
+
+
+    /// <exception cref="ArgumentNullException"/>
+    public MonetaryValue NormalizeBalance(BalanceType expected)
+    {
+        ArgumentNullException.ThrowIfNull(Account);
+
+        return Amount * (Account.NormalBalance == expected ? 1 : -1);
+    }
+
 }
