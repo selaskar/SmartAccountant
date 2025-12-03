@@ -1,4 +1,6 @@
-﻿namespace SmartAccountant.Models;
+﻿using SmartAccountant.Shared.Structs;
+
+namespace SmartAccountant.Models;
 
 public record Balance : BaseModel
 {

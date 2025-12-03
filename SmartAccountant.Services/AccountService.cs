@@ -9,15 +9,15 @@ namespace SmartAccountant.Services;
 internal class AccountService(IAccountRepository accountRepository, IAuthorizationService authorizationService) : IAccountService
 {
     /// <inheritdoc/>
-    public IAsyncEnumerable<Account> GetAccountsOfUser()
+    public async Task<Account[]> GetAccountsOfUser(CancellationToken cancellationToken)
     {
         Guid userId = authorizationService.UserId;
 
         try
         {
-            return accountRepository.GetAccountsOfUser(userId);
+            return await accountRepository.GetAccountsOfUser(userId, cancellationToken);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             throw new AccountException(Messages.CannotFetchAccountsOfUser, ex);
         }

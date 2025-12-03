@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Http;
 
-namespace SmartAccountant.API.Models.Request;
+namespace SmartAccountant.Dtos.Request;
 
 public abstract record class AbstractUploadStatementRequest : BaseRequest
 {

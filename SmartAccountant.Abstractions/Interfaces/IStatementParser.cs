@@ -1,5 +1,6 @@
 ﻿using SmartAccountant.Abstractions.Exceptions;
 using SmartAccountant.Models;
+using SmartAccountant.Shared.Enums;
 
 namespace SmartAccountant.Abstractions.Interfaces;
 

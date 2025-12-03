@@ -8,6 +8,8 @@ using SmartAccountant.Models;
 using SmartAccountant.Services.Parser.Extensions;
 using SmartAccountant.Services.Parser.Helpers;
 using SmartAccountant.Services.Parser.Resources;
+using SmartAccountant.Shared.Enums;
+using SmartAccountant.Shared.Structs;
 
 namespace SmartAccountant.Services.Parser.ParseStrategies;
 

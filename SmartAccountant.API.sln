@@ -57,6 +57,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmartAccountant.Identity.Te
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmartAccountant.Services.Tests", "SmartAccountant.Services.Tests\SmartAccountant.Services.Tests.csproj", "{5364E90F-A485-45BC-AACB-5838ACCDE76F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmartAccountant.Shared", "SmartAccountant.Shared\SmartAccountant.Shared.csproj", "{495FB244-F2A6-4808-B03B-BCDFA69C4256}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmartAccountant.Dtos", "SmartAccountant.Dtos\SmartAccountant.Dtos.csproj", "{A8CFB587-6884-41A7-B313-C3382091F54A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -135,6 +139,14 @@ Global
 		{5364E90F-A485-45BC-AACB-5838ACCDE76F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5364E90F-A485-45BC-AACB-5838ACCDE76F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5364E90F-A485-45BC-AACB-5838ACCDE76F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{495FB244-F2A6-4808-B03B-BCDFA69C4256}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{495FB244-F2A6-4808-B03B-BCDFA69C4256}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{495FB244-F2A6-4808-B03B-BCDFA69C4256}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{495FB244-F2A6-4808-B03B-BCDFA69C4256}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A8CFB587-6884-41A7-B313-C3382091F54A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A8CFB587-6884-41A7-B313-C3382091F54A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A8CFB587-6884-41A7-B313-C3382091F54A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A8CFB587-6884-41A7-B313-C3382091F54A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

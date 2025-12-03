@@ -1,4 +1,4 @@
-﻿namespace SmartAccountant.Models;
+﻿namespace SmartAccountant.Shared.Structs;
 
 public record struct Period : IComparable<Period>
 {

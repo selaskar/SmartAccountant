@@ -2,6 +2,8 @@
 using SmartAccountant.Models;
 using SmartAccountant.Services.Parser.ParseStrategies;
 using SmartAccountant.Services.Parser.Resources;
+using SmartAccountant.Shared.Enums;
+using SmartAccountant.Shared.Structs;
 
 namespace SmartAccountant.Services.Parser.Tests.ParseStrategies.GarantiDebitStatementParseStrategyTests;
 
@@ -35,6 +37,7 @@ public class CrossCheck
                 new DebitTransaction
                 {
                     Amount = new MonetaryValue(-50, Currency.USD),
+                    Description = "",
                     RemainingBalance = new MonetaryValue(100, Currency.USD)
                 }
             }
@@ -55,11 +58,13 @@ public class CrossCheck
                 new DebitTransaction
                 {
                     Amount = new MonetaryValue(-50, Currency.USD),
+                    Description = "",
                     RemainingBalance = new MonetaryValue(100, Currency.USD)
                 },
                 new DebitTransaction
                 {
                     Amount = new MonetaryValue(10, Currency.USD),
+                    Description = "",
                     RemainingBalance = new MonetaryValue(111, Currency.USD)
                 }
             }
@@ -82,11 +87,13 @@ public class CrossCheck
                 new DebitTransaction
                 {
                     Amount = new MonetaryValue(-50, Currency.USD),
+                    Description = "",
                     RemainingBalance = new MonetaryValue(100, Currency.USD)
                 },
                 new DebitTransaction
                 {
                     Amount = new MonetaryValue(10, Currency.USD),
+                    Description = "",
                     RemainingBalance = new MonetaryValue(110, Currency.USD)
                 }
             }

@@ -2,6 +2,8 @@
 using SmartAccountant.Models;
 using SmartAccountant.Services.Parser.ParseStrategies;
 using SmartAccountant.Services.Parser.Resources;
+using SmartAccountant.Shared.Enums;
+using SmartAccountant.Shared.Structs;
 
 namespace SmartAccountant.Services.Parser.Tests.ParseStrategies.GarantiMultipartStatementParseStrategyTests;
 
@@ -40,10 +42,12 @@ public class CrossCheck
                 new CreditCardTransaction
                 {
                     Amount = new MonetaryValue(80, Currency.USD),
+                    Description = "",
                 },
                 new CreditCardTransaction
                 {
                     Amount = new MonetaryValue(20, Currency.USD),
+                    Description = "",
                 }
             },
         };
@@ -55,27 +59,29 @@ public class CrossCheck
     }
 
     [TestMethod]
-    public void ThrowErrorForHighDeflection()
+    public void ThrowErrorForPositiveBigDeflection()
     {
         // Arrange
         SharedStatement statement = new()
         {
-            TotalExpenses = 100 + GarantiMultipartStatementParseStrategy.DeflectionIgnoreThreshold + 1,
+            TotalExpenses = 120 + GarantiMultipartStatementParseStrategy.DeflectionIgnoreThreshold - 1,
             TotalPayments = 50,
             Transactions =
             {
                 new CreditCardTransaction
                 {
                     Amount = new MonetaryValue(80, Currency.USD),
+                    Description = "",
                 },
                 new CreditCardTransaction
                 {
                     Amount = new MonetaryValue(20, Currency.USD),
+                    Description = "",
                 },
                 new CreditCardTransaction
                 {
                     Amount = new MonetaryValue(100, Currency.USD),
-                    Description = "işlem ücreti"
+                    Description = "fee"
                 },
                 new CreditCardTransaction
                 {
@@ -90,32 +96,108 @@ public class CrossCheck
     }
 
     [TestMethod]
-    public void NotThrowErrorForLowOrNoDeflection()
+    public void ThrowErrorForNegativeBigDeflection()
     {
         // Arrange
         SharedStatement statement = new()
         {
-            TotalExpenses = 100 + GarantiMultipartStatementParseStrategy.DeflectionIgnoreThreshold,
+            TotalExpenses = 50 + GarantiMultipartStatementParseStrategy.DeflectionIgnoreThreshold + 1,
             TotalPayments = 50,
             Transactions =
             {
                 new CreditCardTransaction
                 {
                     Amount = new MonetaryValue(80, Currency.USD),
+                    Description = "",
                 },
                 new CreditCardTransaction
                 {
                     Amount = new MonetaryValue(20, Currency.USD),
+                    Description = "",
                 },
                 new CreditCardTransaction
                 {
                     Amount = new MonetaryValue(100, Currency.USD),
-                    Description = "işlem ücreti"
+                    Description = "fee"
+                },
+                new CreditCardTransaction
+                {
+                    Description = "Debt Payment",
+                    Amount = new MonetaryValue(-200, Currency.USD),
+                }
+            },
+        };
+
+        // Act, Assert
+        Assert.ThrowsExactly<ParserException>(() => sut.CrossCheck(statement));
+    }
+
+    [TestMethod]
+    public void NotThrowErrorForPositiveSmallOrNoDeflection()
+    {
+        // Arrange
+        SharedStatement statement = new()
+        {
+            TotalExpenses = 120 + GarantiMultipartStatementParseStrategy.DeflectionIgnoreThreshold,
+            TotalPayments = 50,
+            Transactions =
+            {
+                new CreditCardTransaction
+                {
+                    Amount = new MonetaryValue(80, Currency.USD),
+                    Description = "",
+                },
+                new CreditCardTransaction
+                {
+                    Amount = new MonetaryValue(20, Currency.USD),
+                    Description = "",
+                },
+                new CreditCardTransaction
+                {
+                    Amount = new MonetaryValue(100, Currency.USD),
+                    Description = "fee"
                 },
                 new CreditCardTransaction
                 {
                     Description = "Debt Payment",
                     Amount = new MonetaryValue(-50, Currency.USD),
+                }
+            },
+        };
+
+        // Act, Assert
+        sut.CrossCheck(statement);
+    }
+
+    [TestMethod]
+    public void NotThrowErrorForNegativeSmallOrNoDeflection()
+    {
+        // Arrange
+        SharedStatement statement = new()
+        {
+            TotalExpenses = 50 + GarantiMultipartStatementParseStrategy.DeflectionIgnoreThreshold,
+            TotalPayments = 50,
+            Transactions =
+            {
+                new CreditCardTransaction
+                {
+                    Amount = new MonetaryValue(80, Currency.USD),
+                    Description = "",
+                },
+                new CreditCardTransaction
+                {
+                    Amount = new MonetaryValue(20, Currency.USD),
+                    Description = "",
+                },
+                new CreditCardTransaction
+                {
+                    Amount = new MonetaryValue(100, Currency.USD),
+                    Description = "fee"
+                },
+                new CreditCardTransaction
+                {
+                    Description = "Debt Payment",
+                    Amount = new MonetaryValue(-200, Currency.USD),
                 }
             },
         };

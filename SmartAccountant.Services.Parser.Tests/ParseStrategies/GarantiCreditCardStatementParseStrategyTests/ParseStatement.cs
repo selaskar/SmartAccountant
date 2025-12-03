@@ -5,6 +5,7 @@ using SmartAccountant.Abstractions.Exceptions;
 using SmartAccountant.Models;
 using SmartAccountant.Services.Parser.ParseStrategies;
 using SmartAccountant.Services.Parser.Resources;
+using SmartAccountant.Shared.Enums;
 
 namespace SmartAccountant.Services.Parser.Tests.ParseStrategies.GarantiCreditCardStatementParseStrategyTests;
 

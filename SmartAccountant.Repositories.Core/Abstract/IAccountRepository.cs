@@ -10,8 +10,9 @@ public interface IAccountRepository
     Task<Account?> GetAccount(Guid accountId, CancellationToken cancellationToken);
 
     /// <exception cref="RepositoryException" />
-    IAsyncEnumerable<Account> GetAccountsOfUser(Guid userId);
-    
+    /// <exception cref="OperationCanceledException" />
+    Task<Account[]> GetAccountsOfUser(Guid userId, CancellationToken cancellationToken);
+
     /// <exception cref="RepositoryException" />
     /// <exception cref="OperationCanceledException"/>
     Task<IEnumerable<Balance>> GetBalancesOfUser(Guid userId, DateTimeOffset asOf, CancellationToken cancellationToken);

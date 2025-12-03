@@ -157,6 +157,7 @@ namespace SmartAccountant.Repositories.Core.Migrations
                         .HasColumnType("tinyint");
 
                     b.Property<string>("Description")
+                        .IsRequired()
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 

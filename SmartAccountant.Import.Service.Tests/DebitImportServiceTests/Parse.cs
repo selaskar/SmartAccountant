@@ -4,6 +4,8 @@ using SmartAccountant.Abstractions.Exceptions;
 using SmartAccountant.Abstractions.Models.Request;
 using SmartAccountant.Import.Service.Resources;
 using SmartAccountant.Models;
+using SmartAccountant.Shared.Enums;
+using SmartAccountant.Shared.Structs;
 
 namespace SmartAccountant.Import.Service.Tests.DebitImportServiceTests;
 
@@ -148,6 +150,7 @@ public class Parse : Base
             Transactions = [new DebitTransaction()
             {
                 Amount= new MonetaryValue(100, Currency.USD),
+                Description = "",
                 RemainingBalance = new MonetaryValue(15, Currency.USD),
             }]
         };

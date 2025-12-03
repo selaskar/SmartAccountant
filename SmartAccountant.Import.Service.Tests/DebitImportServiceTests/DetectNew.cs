@@ -1,5 +1,7 @@
 ﻿using SmartAccountant.Abstractions.Exceptions;
 using SmartAccountant.Models;
+using SmartAccountant.Shared.Enums;
+using SmartAccountant.Shared.Structs;
 
 namespace SmartAccountant.Import.Service.Tests.DebitImportServiceTests;
 
@@ -34,6 +36,7 @@ public class DetectNew : Base
             {
                 AccountId = Guid.Empty,
                 ReferenceNumber = refNumber1,
+                Description = "",
                 RemainingBalance = new MonetaryValue(remaining1, currency1),
             }]
         };
@@ -42,6 +45,7 @@ public class DetectNew : Base
         {
             AccountId = Guid.Empty,
             ReferenceNumber = refNumber2,
+            Description = "",
             RemainingBalance = new MonetaryValue(remaining2, currency2),
         }];
 

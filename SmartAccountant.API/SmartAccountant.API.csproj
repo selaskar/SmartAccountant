@@ -29,6 +29,7 @@
   <ItemGroup>
     <ProjectReference Include="..\FileStorage\FileStorage.csproj" />
     <ProjectReference Include="..\SmartAccountant.Abstractions\SmartAccountant.Abstractions.csproj" />
+    <ProjectReference Include="..\SmartAccountant.Dtos\SmartAccountant.Dtos.csproj" />
     <ProjectReference Include="..\SmartAccountant.Identity\SmartAccountant.Identity.csproj" />
     <ProjectReference Include="..\SmartAccountant.Import.Service\SmartAccountant.Import.Service.csproj" />
     <ProjectReference Include="..\SmartAccountant.Models\SmartAccountant.Models.csproj" />

@@ -1,7 +1,8 @@
 ﻿using System.Globalization;
 using DocumentFormat.OpenXml.Spreadsheet;
-using SmartAccountant.Models;
 using SmartAccountant.Services.Parser.ParseStrategies;
+using SmartAccountant.Shared.Enums;
+using SmartAccountant.Shared.Structs;
 
 namespace SmartAccountant.Services.Parser.Tests.ParseStrategies.AbstractGarantiStatementParseStrategyTests;
 

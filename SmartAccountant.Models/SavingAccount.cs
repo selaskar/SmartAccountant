@@ -1,4 +1,6 @@
-﻿namespace SmartAccountant.Models;
+﻿using SmartAccountant.Shared.Enums;
+
+namespace SmartAccountant.Models;
 
 public record class SavingAccount : Account
 {

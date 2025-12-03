@@ -1,9 +1,10 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SmartAccountant.Abstractions.Exceptions;
 using SmartAccountant.Abstractions.Interfaces;
 using SmartAccountant.Core.Helpers;
-using SmartAccountant.Models;
+using SmartAccountant.Dtos;
 
 namespace SmartAccountant.API.Controllers;
 
@@ -13,7 +14,7 @@ namespace SmartAccountant.API.Controllers;
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
 [ProducesResponseType(StatusCodes.Status403Forbidden)]
 [ProducesResponseType(StatusCodes.Status499ClientClosedRequest)]
-public sealed class SummaryController(ISummaryService summaryService) : ControllerBase
+public sealed class SummaryController(ISummaryService summaryService, IMapper mapper) : ControllerBase
 {
     [EndpointSummary("Calculates the summary of given month on currency basis.")]
     [HttpGet]
@@ -23,7 +24,8 @@ public sealed class SummaryController(ISummaryService summaryService) : Controll
     {
         try
         {
-            return Ok(await summaryService.GetSummary(month, cancellationToken));
+            Models.MonthlySummary summary = await summaryService.GetSummary(month, cancellationToken);
+            return Ok(mapper.Map<MonthlySummary>(summary));
         }
         catch (SummaryException ex)
         {

@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using SmartAccountant.Shared.Structs;
 
 namespace SmartAccountant.Repositories.Core.Mappers;
 
@@ -6,6 +7,8 @@ internal sealed class EntityToModelMappings : Profile
 {
     public EntityToModelMappings()
     {
+        //TODO: base entity and mapping
+
         CreateMap<Entities.Account, Models.Account>()
             .ForMember(x => x.Id, opt => opt.MapFrom(e => e.Id))
             .ForMember(x => x.Bank, opt => opt.MapFrom(e => e.Bank))
@@ -16,6 +19,8 @@ internal sealed class EntityToModelMappings : Profile
             .ForMember(x => x.Currency, opt => opt.MapFrom(e => e.Currency))
             .ForMember(x => x.AccountNumber, opt => opt.MapFrom(e => e.AccountNumber));
 
+        //TODO: abstract credit card entity and mapping
+
         CreateMap<Entities.CreditCard, Models.CreditCard>()
             .IncludeBase<Entities.Account, Models.Account>()
             .ForMember(x => x.CardNumber, opt => opt.MapFrom(e => e.CardNumber))
@@ -23,7 +28,9 @@ internal sealed class EntityToModelMappings : Profile
 
         CreateMap<Entities.VirtualCard, Models.VirtualCard>()
             .IncludeBase<Entities.Account, Models.Account>()
-            .ForMember(x => x.CardNumber, opt => opt.MapFrom(e => e.CardNumber));
+            .ForMember(x => x.CardNumber, opt => opt.MapFrom(e => e.CardNumber))
+            .ForMember(x => x.ParentId, opt => opt.MapFrom(e => e.Parent))
+            .ForMember(x => x.Parent, opt => opt.Ignore());
 
         CreateMap<Models.Statement, Entities.Statement>()
             .ForMember(x => x.Id, opt => opt.MapFrom(e => e.Id))
@@ -73,10 +80,10 @@ internal sealed class EntityToModelMappings : Profile
             .ForMember(x => x.Account, opt => opt.MapFrom(e => e.Account))
             .ForMember(x => x.ReferenceNumber, opt => opt.MapFrom(e => e.ReferenceNumber))
             .ForMember(x => x.Timestamp, opt => opt.MapFrom(e => e.Timestamp))
-            .ForMember(x => x.Amount, opt => opt.MapFrom(e => new Models.MonetaryValue(e.Amount, e.AmountCurrency)))
+            .ForMember(x => x.Amount, opt => opt.MapFrom(e => new MonetaryValue(e.Amount, e.AmountCurrency)))
             .ForMember(x => x.Description, opt => opt.MapFrom(e => e.Description))
             .ForMember(x => x.PersonalNote, opt => opt.MapFrom(e => e.PersonalNote))
-            .ForMember(x => x.Category, opt => opt.MapFrom(e => new Models.TransactionCategory(e.Category, e.SubCategory)));
+            .ForMember(x => x.Category, opt => opt.MapFrom(e => new TransactionCategory(e.Category, e.SubCategory)));
 
         CreateMap<Models.DebitTransaction, Entities.DebitTransaction>()
             .IncludeBase<Models.Transaction, Entities.Transaction>()
@@ -85,7 +92,7 @@ internal sealed class EntityToModelMappings : Profile
 
         CreateMap<Entities.DebitTransaction, Models.DebitTransaction>()
             .IncludeBase<Entities.Transaction, Models.Transaction>()
-            .ForMember(x => x.RemainingBalance, opt => opt.MapFrom(e => new Models.MonetaryValue(e.RemainingAmount, e.RemainingAmountCurrency)));
+            .ForMember(x => x.RemainingBalance, opt => opt.MapFrom(e => new MonetaryValue(e.RemainingAmount, e.RemainingAmountCurrency)));
 
         CreateMap<Models.CreditCardTransaction, Entities.CreditCardTransaction>()
             .IncludeBase<Models.Transaction, Entities.Transaction>()
@@ -96,7 +103,7 @@ internal sealed class EntityToModelMappings : Profile
             .ForMember(x => x.Id, opt => opt.MapFrom(e => e.Id))
             .ForMember(x => x.SavingAccountId, opt => opt.MapFrom(e => e.SavingAccountId))
             .ForMember(x => x.Account, opt => opt.MapFrom(e => e.SavingAccount))
-            .ForMember(x => x.Amount, opt => opt.MapFrom(e => new Models.MonetaryValue(e.Amount, e.AmountCurrency)))
+            .ForMember(x => x.Amount, opt => opt.MapFrom(e => new MonetaryValue(e.Amount, e.AmountCurrency)))
             .ForMember(x => x.AsOf, opt => opt.MapFrom(e => e.AsOf));
 
         CreateMap<Models.Balance, Entities.Balance>()
@@ -110,8 +117,8 @@ internal sealed class EntityToModelMappings : Profile
         CreateMap<Entities.CreditCardLimit, Models.CreditCardLimit>()
             .ForMember(x => x.Id, opt => opt.MapFrom(e => e.Id))
             .ForMember(x => x.CreditCardId, opt => opt.MapFrom(e => e.CardId))
-            .ForMember(x => x.Amount, opt => opt.MapFrom(e => new Models.MonetaryValue(e.Amount, e.AmountCurrency)))
-            .ForMember(x => x.Period, opt => opt.MapFrom(e => new Models.Period()
+            .ForMember(x => x.Amount, opt => opt.MapFrom(e => new MonetaryValue(e.Amount, e.AmountCurrency)))
+            .ForMember(x => x.Period, opt => opt.MapFrom(e => new Period()
             {
                 ValidFrom = e.ValidSince,
                 ValidTo = e.ValidUntil

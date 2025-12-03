@@ -1,0 +1,26 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <Version>1.0.7</Version>
+    <NeutralLanguage>en-US</NeutralLanguage>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Update="Resources\ModelStrings.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>ModelStrings.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="Resources\ModelStrings.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>ModelStrings.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+
+</Project>

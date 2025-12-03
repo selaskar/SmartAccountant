@@ -1,4 +1,7 @@
-﻿namespace SmartAccountant.Models.Tests.MonetaryValueTests;
+﻿using SmartAccountant.Shared.Enums;
+using SmartAccountant.Shared.Structs;
+
+namespace SmartAccountant.Models.Tests.MonetaryValueTests;
 
 [TestClass]
 public class Multiply

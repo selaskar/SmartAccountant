@@ -64,8 +64,8 @@ public abstract class Base
         => loggerMock.Setup(l => l.IsEnabled(logLevel)).Returns(enabled);
 
     private protected void SetupAccountRepository(Guid userId, params Account[] accounts)
-        => accountRepositoryMock.Setup(a => a.GetAccountsOfUser(userId))
-        .Returns(accounts.ToAsyncEnumerable());
+        => accountRepositoryMock.Setup(a => a.GetAccountsOfUser(userId, It.IsAny<CancellationToken>()))
+        .Returns(Task.FromResult(accounts));
 
     private protected ISetup<ITransactionRepository, Task<Transaction[]>> SetupTransactionRepository(Guid accountId)
         => transactionRepositoryMock.Setup(s => s.GetTransactionsOfAccount(accountId, It.IsAny<CancellationToken>()));

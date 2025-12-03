@@ -8,6 +8,7 @@ using SmartAccountant.Import.Service.Abstract;
 using SmartAccountant.Import.Service.Resources;
 using SmartAccountant.Models;
 using SmartAccountant.Repositories.Core.Abstract;
+using SmartAccountant.Shared.Structs;
 
 namespace SmartAccountant.Import.Service;
 

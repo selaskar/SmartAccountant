@@ -1,4 +1,5 @@
 ﻿using SmartAccountant.Models;
+using SmartAccountant.Shared.Enums;
 
 namespace SmartAccountant.Services.Parser.Abstract;
 

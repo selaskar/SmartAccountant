@@ -125,9 +125,9 @@ internal sealed class MultipartCreditCardImportService(
         else
             throw new ImportException(DiscoveredCardNumbersMismatch.FormatMessage(statement.CardNumber1, statement.CardNumber2, abstractPrimaryCreditCard.CardNumber));
 
-        IAsyncEnumerable<Account> accounts = AccountRepository.GetAccountsOfUser(primaryAccount.HolderId);
+        Account[] accounts = await AccountRepository.GetAccountsOfUser(primaryAccount.HolderId, cancellationToken);
 
-        await foreach (Account secondaryAccount in accounts)
+        foreach (Account secondaryAccount in accounts)
         {
             if (secondaryAccount.Id == abstractPrimaryCreditCard.Id)
                 continue;
@@ -140,8 +140,6 @@ internal sealed class MultipartCreditCardImportService(
                 statement.DependentAccountId = abstractSecondaryCreditCard.Id;
                 break;
             }
-
-            cancellationToken.ThrowIfCancellationRequested();
         }
 
         if (statement.DependentAccountId is null)

@@ -73,7 +73,7 @@ public class ImportStatement : Base
 
         SetupAuthorizationService(accountId);
 
-        accountRepositoryMock.Setup(a => a.GetAccountsOfUser(accountId)).Returns(AsyncEnumerable.Empty<Account>());
+        accountRepositoryMock.Setup(a => a.GetAccountsOfUser(accountId, It.IsAny<CancellationToken>())).Returns(Task.FromResult(Array.Empty<Account>()));
 
         // Act, Assert
         var result = await Assert.ThrowsExactlyAsync<ImportException>(() => sut.ImportStatement(model, CancellationToken.None));
@@ -101,7 +101,7 @@ public class ImportStatement : Base
 
         SetupAuthorizationService(accountId);
 
-        accountRepositoryMock.Setup(a => a.GetAccountsOfUser(accountId))
+        accountRepositoryMock.Setup(a => a.GetAccountsOfUser(accountId, It.IsAny<CancellationToken>()))
             .Throws(new RepositoryException("test", null!));
 
         // Act, Assert
@@ -130,7 +130,7 @@ public class ImportStatement : Base
 
         SetupAuthorizationService(accountId);
 
-        accountRepositoryMock.Setup(a => a.GetAccountsOfUser(accountId))
+        accountRepositoryMock.Setup(a => a.GetAccountsOfUser(accountId, It.IsAny<CancellationToken>()))
             .Throws<TaskCanceledException>();
 
         // Act, Assert

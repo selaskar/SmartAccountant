@@ -46,7 +46,7 @@ internal abstract partial class AbstractImportService(
 
         Guid userId = authorizationService.UserId;
 
-        Account account = ValidateAccountHolder(userId, model.AccountId, cancellationToken);
+        Account account = await ValidateAccountHolder(userId, model.AccountId, cancellationToken);
 
         Statement statement = await Parse(model, account, cancellationToken);
 
@@ -97,12 +97,13 @@ internal abstract partial class AbstractImportService(
 
     /// <exception cref="ImportException" />
     /// <exception cref="OperationCanceledException" />
-    private Account ValidateAccountHolder(Guid userId, Guid accountId, CancellationToken cancellationToken)
+    private async Task<Account> ValidateAccountHolder(Guid userId, Guid accountId, CancellationToken cancellationToken)
     {
         try
         {
-            return AccountRepository.GetAccountsOfUser(userId)
-                .ToBlockingEnumerable(cancellationToken)
+            Account[] accounts = await AccountRepository.GetAccountsOfUser(userId, cancellationToken);
+
+            return accounts
                 .FirstOrDefault(x => x.Id == accountId)
                ?? throw new ImportException(Messages.AccountDoesNotBelongToUser); // or does not exist
         }

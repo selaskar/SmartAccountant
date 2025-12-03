@@ -1,5 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using SmartAccountant.Models;
+using SmartAccountant.Shared.Enums;
 
 namespace SmartAccountant.Repositories.Core.Entities;
 

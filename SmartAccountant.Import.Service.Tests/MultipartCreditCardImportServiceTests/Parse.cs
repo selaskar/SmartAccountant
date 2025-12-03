@@ -4,6 +4,7 @@ using SmartAccountant.Abstractions.Exceptions;
 using SmartAccountant.Abstractions.Models.Request;
 using SmartAccountant.Import.Service.Resources;
 using SmartAccountant.Models;
+using SmartAccountant.Shared.Enums;
 
 namespace SmartAccountant.Import.Service.Tests.MultipartCreditCardImportServiceTests;
 
@@ -304,7 +305,8 @@ public class Parse : Base
                 statement.CardNumber2 = secondAccount.CardNumber;
             });
 
-        SetupAccountRepository(account.HolderId, account, unrelatedAccount, secondAccount);
+        accountRepositoryMock.Setup(a => a.GetAccountsOfUser(account.HolderId, It.IsAny<CancellationToken>()))
+            .Throws<OperationCanceledException>();
 
         using CancellationTokenSource cts = new();
         await cts.CancelAsync();
@@ -393,8 +395,8 @@ public class Parse : Base
         SharedStatement statement = new()
         {
             AccountId = account.Id,
-            Transactions = [new CreditCardTransaction()],
-            SecondaryTransactions = [new CreditCardTransaction()],
+            Transactions = [new CreditCardTransaction() { Description = "" }],
+            SecondaryTransactions = [new CreditCardTransaction() { Description = "" }],
         };
 
         SetupLogger(LogLevel.Error, true);
@@ -460,8 +462,8 @@ public class Parse : Base
         SharedStatement statement = new()
         {
             AccountId = account.Id,
-            Transactions = [new CreditCardTransaction()],
-            SecondaryTransactions = [new CreditCardTransaction()],
+            Transactions = [new CreditCardTransaction() { Description = "" }],
+            SecondaryTransactions = [new CreditCardTransaction() { Description = "" }],
         };
 
         SetupLogger(LogLevel.Error, true);

@@ -1,4 +1,4 @@
-﻿namespace SmartAccountant.API.Models.Response;
+﻿namespace SmartAccountant.Dtos.Response;
 
 public record BaseResponse
 {

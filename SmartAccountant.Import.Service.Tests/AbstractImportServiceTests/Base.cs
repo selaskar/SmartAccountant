@@ -8,6 +8,7 @@ using SmartAccountant.Abstractions.Models.Request;
 using SmartAccountant.Import.Service.Abstract;
 using SmartAccountant.Models;
 using SmartAccountant.Repositories.Core.Abstract;
+using SmartAccountant.Shared.Enums;
 
 namespace SmartAccountant.Import.Service.Tests.AbstractImportServiceTests;
 
@@ -73,8 +74,8 @@ public abstract class Base
         => authorizationServiceMock.SetupGet(a => a.UserId).Returns(userId);
 
     private protected void SetupAccountRepository(Account account)
-        => accountRepositoryMock.Setup(a => a.GetAccountsOfUser(account.Id))
-            .Returns(AsyncEnumerable.ToAsyncEnumerable([account]));
+        => accountRepositoryMock.Setup(a => a.GetAccountsOfUser(account.Id, It.IsAny<CancellationToken>()))
+            .Returns(Task.FromResult(new[] { account }));
 
     private protected void SetupStatementFactory(TestStatementImportModel model, Account account, Statement statement)
         => statementFactoryMock.Setup(s => s.Create(model, account)).Returns(statement);

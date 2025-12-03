@@ -50,11 +50,13 @@ public class FetchExistingTransactions : Base
         SetupTransactionRepository(accountId).ReturnsAsync([new CreditCardTransaction()
         {
             AccountId = accountId,
+            Description = "",
         }]);
 
         SetupTransactionRepository(dependentAccountId).ReturnsAsync([new CreditCardTransaction()
         {
             AccountId = dependentAccountId,
+            Description = "",
         }]);
 
         // Act

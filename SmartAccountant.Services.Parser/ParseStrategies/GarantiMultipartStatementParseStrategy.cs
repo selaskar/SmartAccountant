@@ -9,6 +9,7 @@ using SmartAccountant.Models;
 using SmartAccountant.Services.Parser.Abstract;
 using SmartAccountant.Services.Parser.Extensions;
 using SmartAccountant.Services.Parser.Resources;
+using SmartAccountant.Shared.Enums;
 
 namespace SmartAccountant.Services.Parser.ParseStrategies;
 
@@ -68,7 +69,7 @@ internal sealed partial class GarantiMultipartStatementParseStrategy : AbstractG
 
         CompareInfo compareInfo = new CultureInfo("tr-TR").CompareInfo;
         decimal totalFees = statement.Transactions.Union(statement.SecondaryTransactions)
-            .Where(t => t.Description != null && compareInfo.IndexOf(t.Description, FeeKeyword, CompareOptions.IgnoreCase) >= 0)
+            .Where(t => compareInfo.IndexOf(t.Description, FeeKeyword, CompareOptions.IgnoreCase) >= 0)
             .Select(t => t.Amount.Amount)
             .DefaultIfEmpty().Sum();
 

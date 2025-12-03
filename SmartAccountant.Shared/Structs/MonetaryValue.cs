@@ -1,6 +1,6 @@
-﻿using System.ComponentModel;
+﻿using SmartAccountant.Shared.Enums;
 
-namespace SmartAccountant.Models;
+namespace SmartAccountant.Shared.Structs;
 
 public readonly record struct MonetaryValue(decimal Amount, Currency Currency)
 {
@@ -18,12 +18,4 @@ public readonly record struct MonetaryValue(decimal Amount, Currency Currency)
     public static MonetaryValue Subtract(MonetaryValue left, MonetaryValue right) => left - right;
 
     public static MonetaryValue Multiply(MonetaryValue left, decimal right) => left * right;
-}
-
-public enum Currency : short
-{
-    USD = 0,
-    EUR = 1,
-    [Description("₺")]
-    TRY = 2,
 }

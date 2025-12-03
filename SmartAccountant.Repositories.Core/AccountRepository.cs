@@ -26,18 +26,18 @@ internal sealed class AccountRepository(CoreDbContext dbContext, IMapper mapper)
     }
 
     /// <inheritdoc/>
-    public IAsyncEnumerable<Models.Account> GetAccountsOfUser(Guid userId)
+    public async Task<Models.Account[]> GetAccountsOfUser(Guid userId, CancellationToken cancellationToken)
     {
         try
         {
-            var accounts = dbContext.Accounts.AsNoTracking()
+            var accounts = await dbContext.Accounts.AsNoTracking()
                 .Where(x => x.HolderId == userId)
                 .Select(x => mapper.Map<Models.Account>(x))
-                .AsAsyncEnumerable();
+                .ToArrayAsync(cancellationToken);
 
             return accounts;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             throw new RepositoryException($"Failed to fetch accounts of user ({userId}).", ex);
         }

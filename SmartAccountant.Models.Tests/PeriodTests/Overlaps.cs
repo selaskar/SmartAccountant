@@ -1,4 +1,6 @@
-﻿namespace SmartAccountant.Models.Tests.PeriodTests;
+﻿using SmartAccountant.Shared.Structs;
+
+namespace SmartAccountant.Models.Tests.PeriodTests;
 
 [TestClass]
 public class Overlaps

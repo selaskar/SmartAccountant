@@ -33,7 +33,7 @@ internal sealed class TransactionRepository(CoreDbContext dbContext, IMapper map
     {
         try
         {
-            var transactions = await dbContext.Transactions.AsNoTracking()
+            Models.Transaction[] transactions = await dbContext.Transactions.AsNoTracking()
                 .Include(t => t.Account)
                 .Where(x => x.Account!.HolderId == holderId
                     && x.Timestamp.Year == month.Year
@@ -54,7 +54,7 @@ internal sealed class TransactionRepository(CoreDbContext dbContext, IMapper map
     {
         try
         {
-            Entities.Transaction[] entities = mapper.Map<Entities.Transaction[]>(transactions);
+            var entities = mapper.Map<Entities.Transaction[]>(transactions);
 
             // Adds along statement documents.
             dbContext.Transactions.AddRange(entities);
@@ -71,7 +71,7 @@ internal sealed class TransactionRepository(CoreDbContext dbContext, IMapper map
     {
         try
         {
-            Entities.Transaction[] entities = mapper.Map<Entities.Transaction[]>(transactions);
+            var entities = mapper.Map<Entities.Transaction[]>(transactions);
 
             // Adds along statement documents.
             dbContext.Transactions.RemoveRange(entities);
@@ -80,6 +80,22 @@ internal sealed class TransactionRepository(CoreDbContext dbContext, IMapper map
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
             throw new RepositoryException($"Failed to remove transactions.", ex);
+        }
+    }
+
+    /// <inheritdoc/>
+    public Task UpdateDebitTransaction(Models.DebitTransaction debitTransaction, CancellationToken cancellationToken)
+    {
+        try
+        {
+            //TODO: electively update fields.
+            var entity = mapper.Map<Entities.DebitTransaction>(debitTransaction);
+            dbContext.Transactions.Update(entity);
+            return dbContext.SaveChangesAsync(cancellationToken);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            throw new RepositoryException($"Failed to update debit transaction ({debitTransaction.Id}).", ex);
         }
     }
 }

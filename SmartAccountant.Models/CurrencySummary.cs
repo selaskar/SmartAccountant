@@ -1,4 +1,8 @@
-﻿namespace SmartAccountant.Models;
+﻿using System.Diagnostics.CodeAnalysis;
+using SmartAccountant.Shared.Enums;
+using SmartAccountant.Shared.Structs;
+
+namespace SmartAccountant.Models;
 
 public record CurrencySummary : BaseModel
 {
@@ -14,11 +18,6 @@ public record CurrencySummary : BaseModel
             SavingsTotal =
             Net =
             new MonetaryValue(0, currency);
-    }
-
-    public CurrencySummary()
-    {
-        // For JSON de-/serialization
     }
 
     public MonetaryValue RemainingBalancesTotal { get; set; }
@@ -39,6 +38,6 @@ public record CurrencySummary : BaseModel
 
     public MonetaryValue Net { get; set; }
 
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "CA2227:Collection properties should be read only", Justification = "This property will not be modified after initial set.")]
+    [SuppressMessage("Usage", "CA2227:Collection properties should be read only", Justification = "This property will not be modified after initial set.")]
     public IDictionary<ExpenseSubCategories, MonetaryValue> ExpensesBreakdown { get; set; } = new Dictionary<ExpenseSubCategories, MonetaryValue>();
 }

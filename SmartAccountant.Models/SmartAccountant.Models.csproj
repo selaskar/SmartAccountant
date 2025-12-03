@@ -4,7 +4,10 @@
     <TargetFramework>net9.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <Version>1.0.20</Version>
   </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\SmartAccountant.Shared\SmartAccountant.Shared.csproj" />
+  </ItemGroup>
 
 </Project>

@@ -2,5 +2,5 @@
 
 public abstract record class BaseModel
 {
-    public Guid Id { get; init; }
+    public Guid Id { get; set; }
 }

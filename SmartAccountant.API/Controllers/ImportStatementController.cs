@@ -6,9 +6,9 @@ using Microsoft.AspNetCore.Mvc;
 using SmartAccountant.Abstractions.Exceptions;
 using SmartAccountant.Abstractions.Interfaces;
 using SmartAccountant.Abstractions.Models.Request;
-using SmartAccountant.API.Models.Request;
-using SmartAccountant.API.Models.Response;
 using SmartAccountant.Core.Helpers;
+using SmartAccountant.Dtos.Request;
+using SmartAccountant.Dtos.Response;
 using SmartAccountant.Models;
 
 namespace SmartAccountant.API.Controllers;

@@ -1,4 +1,4 @@
-﻿namespace SmartAccountant.API.Models.Request;
+﻿namespace SmartAccountant.Dtos.Request;
 
 public record BaseRequest
 {

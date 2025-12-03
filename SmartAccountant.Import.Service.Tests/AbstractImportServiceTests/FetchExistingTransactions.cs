@@ -38,6 +38,7 @@ public class FetchExistingTransactions : Base
         SetupTransactionRepository(accountId).ReturnsAsync([new DebitTransaction()
         {
             AccountId = accountId,
+            Description = "",
         }]);
 
         // Act

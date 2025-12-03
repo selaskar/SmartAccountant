@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using FluentValidation;
 using SmartAccountant.Abstractions.Exceptions;
 using SmartAccountant.Abstractions.Interfaces;
 using SmartAccountant.Core.Helpers;
@@ -8,7 +9,11 @@ using SmartAccountant.Services.Resources;
 
 namespace SmartAccountant.Services;
 
-internal class TransactionService(ITransactionRepository transactionRepository, IAuthorizationService authorizationService, IAccountRepository accountRepository)
+internal class TransactionService(
+    ITransactionRepository transactionRepository, 
+    IAuthorizationService authorizationService, 
+    IAccountRepository accountRepository,
+    IValidator<DebitTransaction> validator)
     : ITransactionService
 {
     private static readonly CompositeFormat AccountNotFound = CompositeFormat.Parse(Messages.AccountNotFound);
@@ -18,11 +23,7 @@ internal class TransactionService(ITransactionRepository transactionRepository, 
     {
         try
         {
-            Account account = await accountRepository.GetAccount(accountId, cancellationToken)
-                ?? throw new TransactionException(AccountNotFound.FormatMessage(accountId), null);
-
-            if (account.HolderId != authorizationService.UserId)
-                throw new TransactionException(Messages.AccountDoesNotBelongToUser, null);
+            await VerifyAccountHolder(accountId, cancellationToken);
 
             return await transactionRepository.GetTransactionsOfAccount(accountId, cancellationToken);
         }
@@ -30,5 +31,33 @@ internal class TransactionService(ITransactionRepository transactionRepository, 
         {
             throw new TransactionException(Messages.CannotFetchTransactionsOfAccount, ex);
         }
+    }
+
+    /// <inheritdoc/>
+    public async Task UpdateTransaction(DebitTransaction updateModel, CancellationToken cancellationToken)
+    {
+        try
+        {
+            validator.ValidateAndThrowSafe(updateModel);
+
+            await VerifyAccountHolder(updateModel.AccountId!.Value, cancellationToken);
+
+            await transactionRepository.UpdateDebitTransaction(updateModel, cancellationToken);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException and not TransactionException)
+        {
+            throw new TransactionException(Messages.CannotUpdateDebitTransaction, ex);
+        }
+    }
+
+
+    /// <exception cref="TransactionException"/>
+    private async Task VerifyAccountHolder(Guid accountId, CancellationToken cancellationToken)
+    {
+        Account account = await accountRepository.GetAccount(accountId, cancellationToken)
+                ?? throw new TransactionException(AccountNotFound.FormatMessage(accountId), null);
+
+        if (account.HolderId != authorizationService.UserId)
+            throw new TransactionException(Messages.AccountDoesNotBelongToUser, null);
     }
 }

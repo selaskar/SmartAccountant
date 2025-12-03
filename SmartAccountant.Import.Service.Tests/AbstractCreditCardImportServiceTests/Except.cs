@@ -1,4 +1,6 @@
 ﻿using SmartAccountant.Models;
+using SmartAccountant.Shared.Enums;
+using SmartAccountant.Shared.Structs;
 
 namespace SmartAccountant.Import.Service.Tests.AbstractCreditCardImportServiceTests;
 

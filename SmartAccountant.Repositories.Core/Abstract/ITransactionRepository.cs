@@ -20,4 +20,8 @@ public interface ITransactionRepository
     /// <exception cref="RepositoryException" />
     /// <exception cref="OperationCanceledException" />
     Task Delete(IEnumerable<Transaction> transactions, CancellationToken cancellationToken);
+
+    /// <exception cref="RepositoryException" />
+    /// <exception cref="OperationCanceledException" />
+    Task UpdateDebitTransaction(DebitTransaction debitTransaction, CancellationToken cancellationToken);
 }

@@ -2,6 +2,8 @@
 using SmartAccountant.Models;
 using SmartAccountant.Services.Parser.ParseStrategies;
 using SmartAccountant.Services.Parser.Resources;
+using SmartAccountant.Shared.Enums;
+using SmartAccountant.Shared.Structs;
 
 namespace SmartAccountant.Services.Parser.Tests.ParseStrategies.GarantiCreditCardStatementParseStrategyTests;
 
@@ -36,10 +38,12 @@ public class CrossCheck
                 new CreditCardTransaction
                 {
                     Amount = new MonetaryValue(50, Currency.USD),
+                    Description = "",
                 },
                 new CreditCardTransaction
                 {
                     Amount = new MonetaryValue(30, Currency.USD),
+                    Description = "",
                 }
             },
         };
@@ -62,15 +66,17 @@ public class CrossCheck
                 new CreditCardTransaction
                 {
                     Amount = new MonetaryValue(50, Currency.USD),
+                    Description = "",
                 },
                 new CreditCardTransaction
                 {
                     Amount = new MonetaryValue(30, Currency.USD),
+                    Description = "",
                 },
                 new CreditCardTransaction
                 {
-                    Description = "Debt Payment",
                     Amount = new MonetaryValue(-10, Currency.USD),
+                    Description = "Debt Payment",
                 }
             },
         };

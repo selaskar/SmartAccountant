@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using SmartAccountant.Models;
+using SmartAccountant.Shared.Enums;
 
 namespace SmartAccountant.Repositories.Core.Entities;
 
@@ -24,7 +24,7 @@ internal abstract class Transaction
     public Currency AmountCurrency { get; set; }
 
     [StringLength(500)]
-    public string? Description { get; set; }
+    public required string Description { get; set; }
 
     [StringLength(500)]
     public string? PersonalNote { get; set; }

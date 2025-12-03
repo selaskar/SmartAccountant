@@ -9,3 +9,5 @@ smallint
 nvarchar
 datetimeoffset
 tinyint
+Validatable
+Dtos

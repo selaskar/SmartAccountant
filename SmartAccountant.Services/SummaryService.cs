@@ -6,6 +6,8 @@ using SmartAccountant.Core.Helpers;
 using SmartAccountant.Models;
 using SmartAccountant.Repositories.Core.Abstract;
 using SmartAccountant.Services.Resources;
+using SmartAccountant.Shared.Enums;
+using SmartAccountant.Shared.Structs;
 
 namespace SmartAccountant.Services;
 

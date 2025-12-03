@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using Moq;
+﻿using Moq;
 using SmartAccountant.Abstractions.Exceptions;
 using SmartAccountant.Abstractions.Interfaces;
 using SmartAccountant.Models;
@@ -26,25 +25,25 @@ public class GetAccountsOfUser
     }
 
     [TestMethod]
-    public void ThrowAuthenticationExceptionForUnauthenticatedUser()
+    public async Task ThrowAuthenticationExceptionForUnauthenticatedUser()
     {
         // Arrange
         authorizationServiceMock.SetupGet(a => a.UserId).Throws(new AuthenticationException("test"));
 
         // Act, Assert
-        Assert.ThrowsExactly<AuthenticationException>(() => sut.GetAccountsOfUser());
+        await Assert.ThrowsExactlyAsync<AuthenticationException>(async () => await sut.GetAccountsOfUser(CancellationToken.None));
     }
 
     [TestMethod]
-    public void ThrowAccountExceptionForUnexpectedErrorInAccountRepository()
+    public async Task ThrowAccountExceptionForUnexpectedErrorInAccountRepository()
     {
         // Arrange
         authorizationServiceMock.SetupGet(a => a.UserId).Returns(Guid.Empty);
 
-        accountRepositoryMock.Setup(x => x.GetAccountsOfUser(It.IsAny<Guid>())).Throws<InvalidOperationException>();
+        accountRepositoryMock.Setup(x => x.GetAccountsOfUser(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).Throws<InvalidOperationException>();
 
         // Act, Assert
-        var result = Assert.ThrowsExactly<AccountException>(() => sut.GetAccountsOfUser());
+        var result = await Assert.ThrowsExactlyAsync<AccountException>(async () => await sut.GetAccountsOfUser(CancellationToken.None));
 
         Assert.AreEqual(Messages.CannotFetchAccountsOfUser, result.Message);
     }
@@ -54,13 +53,13 @@ public class GetAccountsOfUser
     {
         // Arrange
         authorizationServiceMock.SetupGet(a => a.UserId).Returns(Guid.Empty);
-        
-        accountRepositoryMock.Setup(x => x.GetAccountsOfUser(It.IsAny<Guid>())).Returns(AsyncEnumerable.Empty<Account>());
+
+        accountRepositoryMock.Setup(x => x.GetAccountsOfUser(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).Returns(Task.FromResult(Array.Empty<Account>()));
 
         // Act
-        IAsyncEnumerable<Account> result = sut.GetAccountsOfUser();
+        Account[] result = await sut.GetAccountsOfUser(CancellationToken.None);
 
         // Assert
-        Assert.AreEqual(0, await result.CountAsync());
+        Assert.AreEqual(0, result.Length);
     }
 }

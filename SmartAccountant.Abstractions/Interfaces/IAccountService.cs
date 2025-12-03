@@ -7,5 +7,6 @@ public interface IAccountService
 {
     /// <exception cref="AccountException"/>
     /// <exception cref="AuthenticationException"/>
-    IAsyncEnumerable<Account> GetAccountsOfUser();
+    /// <exception cref="OperationCanceledException"/>
+    Task<Account[]> GetAccountsOfUser(CancellationToken cancellationToken);
 }

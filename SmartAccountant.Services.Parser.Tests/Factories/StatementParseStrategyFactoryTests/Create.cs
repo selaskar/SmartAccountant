@@ -2,6 +2,7 @@
 using SmartAccountant.Services.Parser.Abstract;
 using SmartAccountant.Services.Parser.Factories;
 using SmartAccountant.Services.Parser.ParseStrategies;
+using SmartAccountant.Shared.Enums;
 
 namespace SmartAccountant.Services.Parser.Tests.Factories.StatementParseStrategyFactoryTests;
 
