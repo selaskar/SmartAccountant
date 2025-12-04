@@ -48,7 +48,11 @@ internal sealed class Program
 
         builder.Services.ConfigureParser();
 
-        builder.Services.AddAutoMapper(typeof(RequestResponseMappings));
+        builder.Services.AddAutoMapper(cfg =>
+        {
+            cfg.AddProfile<RequestResponseMappings>();
+            cfg.AddProfile<ModelToDtoMappings>();
+        });
 
         builder.Services.ConfigureCoreServices();
 

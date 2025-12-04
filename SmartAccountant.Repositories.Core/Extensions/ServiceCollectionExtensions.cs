@@ -29,7 +29,7 @@ public static class ServiceCollectionExtensions
                 builder => builder.CommandTimeout(5).ExecutionStrategy((deps) => new NonRetryingExecutionStrategy(deps)));
         }, ServiceLifetime.Scoped);
 
-        services.AddAutoMapper(typeof(EntityToModelMappings));
+        services.AddAutoMapper(cfg => cfg.AddProfile<EntityToModelMappings>());
 
         //Note that, in order unit of work to work correctly, db context and repositories must be registered as scoped.
         services.AddScoped<IUnitOfWork, UnitOfWork>();
