@@ -13,7 +13,8 @@ internal class TransactionService(
     ITransactionRepository transactionRepository, 
     IAuthorizationService authorizationService, 
     IAccountRepository accountRepository,
-    IValidator<DebitTransaction> validator)
+    IValidator<DebitTransaction> debitTransactionValidator,
+    IValidator<CreditCardTransaction> ccTransactionValidator)
     : ITransactionService
 {
     private static readonly CompositeFormat AccountNotFound = CompositeFormat.Parse(Messages.AccountNotFound);
@@ -38,7 +39,7 @@ internal class TransactionService(
     {
         try
         {
-            validator.ValidateAndThrowSafe(updateModel);
+            debitTransactionValidator.ValidateAndThrowSafe(updateModel);
 
             await VerifyAccountHolder(updateModel.AccountId!.Value, cancellationToken);
 
@@ -47,6 +48,23 @@ internal class TransactionService(
         catch (Exception ex) when (ex is not OperationCanceledException and not TransactionException)
         {
             throw new TransactionException(Messages.CannotUpdateDebitTransaction, ex);
+        }
+    }
+
+    /// <inheritdoc/>
+    public async Task UpdateTransaction(CreditCardTransaction updateModel, CancellationToken cancellationToken)
+    {
+        try
+        {
+            ccTransactionValidator.ValidateAndThrowSafe(updateModel);
+
+            await VerifyAccountHolder(updateModel.AccountId!.Value, cancellationToken);
+
+            await transactionRepository.UpdateCreditCardTransaction(updateModel, cancellationToken);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException and not TransactionException)
+        {
+            throw new TransactionException(Messages.CannotUpdateCreditCardTransaction, ex);
         }
     }
 

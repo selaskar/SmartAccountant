@@ -14,4 +14,9 @@ public interface ITransactionService
     /// <exception cref="AuthenticationException"/>
     /// <exception cref="OperationCanceledException"/>
     Task UpdateTransaction(DebitTransaction updateModel, CancellationToken cancellationToken);
+
+    /// <exception cref="TransactionException"/>
+    /// <exception cref="AuthenticationException"/>
+    /// <exception cref="OperationCanceledException"/>
+    Task UpdateTransaction(CreditCardTransaction updateModel, CancellationToken cancellationToken);
 }

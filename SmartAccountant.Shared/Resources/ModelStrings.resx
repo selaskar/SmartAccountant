@@ -177,4 +177,10 @@
   <data name="MainCategory_Saving" xml:space="preserve">
     <value>Saving</value>
   </data>
+  <data name="ProvisionState_Finalized" xml:space="preserve">
+    <value>Finalized</value>
+  </data>
+  <data name="ProvisionState_Open" xml:space="preserve">
+    <value>Open Provision</value>
+  </data>
 </root>

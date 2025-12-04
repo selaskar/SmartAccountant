@@ -132,6 +132,9 @@
   <data name="CannotFetchTransactionsOfAccount" xml:space="preserve">
     <value>An error occurred while fetching transactions of the account.</value>
   </data>
+  <data name="CannotUpdateCreditCardTransaction" xml:space="preserve">
+    <value>An error occurred while updating the credit card transaction.</value>
+  </data>
   <data name="CannotUpdateDebitTransaction" xml:space="preserve">
     <value>An error occurred while updating the debit transaction.</value>
   </data>

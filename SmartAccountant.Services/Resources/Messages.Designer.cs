@@ -106,6 +106,15 @@ namespace SmartAccountant.Services.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to An error occurred while updating the credit card transaction..
+        /// </summary>
+        internal static string CannotUpdateCreditCardTransaction {
+            get {
+                return ResourceManager.GetString("CannotUpdateCreditCardTransaction", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to An error occurred while updating the debit transaction..
         /// </summary>
         internal static string CannotUpdateDebitTransaction {

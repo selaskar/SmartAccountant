@@ -239,5 +239,23 @@ namespace SmartAccountant.Shared.Resources {
                 return ResourceManager.GetString("MainCategory_Saving", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Finalized.
+        /// </summary>
+        public static string ProvisionState_Finalized {
+            get {
+                return ResourceManager.GetString("ProvisionState_Finalized", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Open Provision.
+        /// </summary>
+        public static string ProvisionState_Open {
+            get {
+                return ResourceManager.GetString("ProvisionState_Open", resourceCulture);
+            }
+        }
     }
 }

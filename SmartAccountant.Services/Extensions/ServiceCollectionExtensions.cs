@@ -13,6 +13,7 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection ConfigureCoreServices(this IServiceCollection services)
     {
         services.AddSingleton<IValidator<DebitTransaction>, DebitTransactionValidator>();
+        services.AddSingleton<IValidator<CreditCardTransaction>, CreditCardTransactionValidator>();
 
         services.AddScoped<IAccountService, AccountService>();
         services.AddScoped<IDateTimeService, DateTimeService>();

@@ -98,6 +98,22 @@ internal sealed class TransactionRepository(CoreDbContext dbContext, IMapper map
             throw new RepositoryException($"Failed to update debit transaction ({debitTransaction.Id}).", ex);
         }
     }
+
+    /// <inheritdoc/>
+    public Task UpdateCreditCardTransaction(Models.CreditCardTransaction creditCardTransaction, CancellationToken cancellationToken)
+    {
+        try
+        {
+            //TODO: electively update fields.
+            var entity = mapper.Map<Entities.CreditCardTransaction>(creditCardTransaction);
+            dbContext.Transactions.Update(entity);
+            return dbContext.SaveChangesAsync(cancellationToken);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            throw new RepositoryException($"Failed to update credit card transaction ({creditCardTransaction.Id}).", ex);
+        }
+    }
 }
 
 

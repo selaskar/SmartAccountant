@@ -34,7 +34,7 @@ public sealed class TransactionsController(ITransactionService transactionServic
     }
 
     [EndpointSummary("Updates a debit transaction.")]
-    [HttpPut]
+    [HttpPut("debit")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType<BadRequestObjectResult>(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<Transaction[]>> Update([FromBody] DebitTransaction updateDto, CancellationToken cancellationToken)
@@ -42,6 +42,24 @@ public sealed class TransactionsController(ITransactionService transactionServic
         try
         {
             var transactionToUpdate = mapper.Map<Models.DebitTransaction>(updateDto);
+            await transactionService.UpdateTransaction(transactionToUpdate, cancellationToken);
+            return Ok();
+        }
+        catch (TransactionException ex)
+        {
+            return BadRequest(ex.GetAllMessages());
+        }
+    }
+
+    [EndpointSummary("Updates a credit card transaction.")]
+    [HttpPut("cc")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType<BadRequestObjectResult>(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<Transaction[]>> Update([FromBody] CreditCardTransaction updateDto, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var transactionToUpdate = mapper.Map<Models.CreditCardTransaction>(updateDto);
             await transactionService.UpdateTransaction(transactionToUpdate, cancellationToken);
             return Ok();
         }

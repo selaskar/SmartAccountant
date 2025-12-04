@@ -24,4 +24,8 @@ public interface ITransactionRepository
     /// <exception cref="RepositoryException" />
     /// <exception cref="OperationCanceledException" />
     Task UpdateDebitTransaction(DebitTransaction debitTransaction, CancellationToken cancellationToken);
+
+    /// <exception cref="RepositoryException" />
+    /// <exception cref="OperationCanceledException" />
+    Task UpdateCreditCardTransaction(CreditCardTransaction creditCardTransaction, CancellationToken cancellationToken);
 }
