@@ -36,7 +36,7 @@ public class ImportStatement : Base
         // Act, Assert
         var result = await Assert.ThrowsExactlyAsync<ImportException>(() => sut.ImportStatement(model, CancellationToken.None));
 
-        Assert.AreEqual(Messages.UploadedStatementFileTypeNotSupported, result.Message);
+        Assert.AreEqual(ImportErrors.UploadedStatementFileTypeNotSupported, result.Error);
     }
 
     [TestMethod]
@@ -78,7 +78,7 @@ public class ImportStatement : Base
         // Act, Assert
         var result = await Assert.ThrowsExactlyAsync<ImportException>(() => sut.ImportStatement(model, CancellationToken.None));
 
-        Assert.AreEqual(Messages.AccountDoesNotBelongToUser, result.Message);
+        Assert.AreEqual(ImportErrors.AccountDoesNotBelongToUser, result.Error);
     }
 
     [TestMethod]
@@ -109,7 +109,7 @@ public class ImportStatement : Base
 
         loggerMock.Verify(l => l.IsEnabled(LogLevel.Error), Times.Once);
 
-        Assert.AreEqual(Messages.CannotValidateAccountHolder, result.Message);
+        Assert.AreEqual(ImportErrors.CannotValidateAccountHolder, result.Error);
     }
 
     [TestMethod]
@@ -163,7 +163,7 @@ public class ImportStatement : Base
 
         SetupAccountRepository(account);
 
-        statementFactoryMock.Setup(s => s.Create(model, account)).Throws(new ImportException("test"));
+        statementFactoryMock.Setup(s => s.Create(model, account)).Throws(new ImportException(ImportErrors.Unspecified, "test"));
 
         // Act, Assert
         var result = await Assert.ThrowsExactlyAsync<ImportException>(() => sut.ImportStatement(model, CancellationToken.None));
@@ -206,7 +206,7 @@ public class ImportStatement : Base
 
         SetupStatementFactory(model, account, testStatement);
 
-        SetupParser(testStatement, bank: null).Throws(new ImportException("test"));
+        SetupParser(testStatement, bank: null).Throws(new ImportException(ImportErrors.Unspecified, "test"));
 
         // Act, Assert
         var result = await Assert.ThrowsExactlyAsync<ImportException>(() => sut.ImportStatement(model, CancellationToken.None));
@@ -260,7 +260,7 @@ public class ImportStatement : Base
 
         loggerMock.Verify(l => l.IsEnabled(LogLevel.Error), Times.Once);
 
-        Assert.AreEqual(Messages.CannotSaveUploadedStatementFile, result.Message);
+        Assert.AreEqual(ImportErrors.CannotSaveUploadedStatementFile, result.Error);
     }
 
     [TestMethod]
@@ -311,9 +311,9 @@ public class ImportStatement : Base
 
         loggerMock.Verify(l => l.IsEnabled(LogLevel.Error), Times.Once);
 
-        Assert.AreEqual(1, testStatement.Documents.Count);
+        Assert.HasCount(1, testStatement.Documents);
 
-        Assert.AreEqual(Messages.CannotSaveImportedStatement, result.Message);
+        Assert.AreEqual(ImportErrors.CannotSaveImportedStatement, result.Error);
 
         unitOfWorkMock.Verify(s => s.RollbackAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
@@ -369,7 +369,7 @@ public class ImportStatement : Base
         // Act, Assert
         var result = await Assert.ThrowsExactlyAsync<ImportException>(() => sut.ImportStatement(model, CancellationToken.None));
 
-        Assert.AreEqual(1, testStatement.Documents.Count);
+        Assert.HasCount(1, testStatement.Documents);
 
         Assert.Contains(accountId.ToString(), result.Message, StringComparison.OrdinalIgnoreCase);
     }
@@ -427,7 +427,7 @@ public class ImportStatement : Base
 
         storageServiceMock.Verify(s => s.WriteToFile(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<Stream>(), It.IsAny<CancellationToken>()), Times.Once);
 
-        Assert.AreEqual(1, testStatement.Documents.Count);
+        Assert.HasCount(1, testStatement.Documents);
 
         statementRepositoryMock.Verify(s => s.Insert(testStatement, It.IsAny<CancellationToken>()), Times.Once);
 

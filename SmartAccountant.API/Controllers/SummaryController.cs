@@ -1,10 +1,9 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using SmartAccountant.Abstractions.Exceptions;
 using SmartAccountant.Abstractions.Interfaces;
-using SmartAccountant.Core.Helpers;
 using SmartAccountant.Dtos;
+using SmartAccountant.Dtos.Response;
 
 namespace SmartAccountant.API.Controllers;
 
@@ -19,17 +18,10 @@ public sealed class SummaryController(ISummaryService summaryService, IMapper ma
     [EndpointSummary("Calculates the summary of given month on currency basis.")]
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType<BadRequestObjectResult>(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType<ErrorDetail>(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<MonthlySummary>> Get([FromQuery] DateOnly month, CancellationToken cancellationToken)
     {
-        try
-        {
-            Models.MonthlySummary summary = await summaryService.GetSummary(month, cancellationToken);
-            return Ok(mapper.Map<MonthlySummary>(summary));
-        }
-        catch (SummaryException ex)
-        {
-            return BadRequest(ex.GetAllMessages());
-        }
+        Models.MonthlySummary summary = await summaryService.GetSummary(month, cancellationToken);
+        return Ok(mapper.Map<MonthlySummary>(summary));
     }
 }

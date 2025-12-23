@@ -42,7 +42,7 @@ internal abstract partial class AbstractImportService(
         Validate(model);
 
         if (!await fileTypeValidator.IsValidFile(model.File, cancellationToken))
-            throw new ImportException(Messages.UploadedStatementFileTypeNotSupported);
+            throw new ImportException(ImportErrors.UploadedStatementFileTypeNotSupported);
 
         Guid userId = authorizationService.UserId;
 
@@ -54,9 +54,7 @@ internal abstract partial class AbstractImportService(
 
         (Transaction[] newTransactions, Transaction[] finalizedProvisions) = await Collide(statement, cancellationToken);
 
-        await PersistStatement(statement, newTransactions, finalizedProvisions, balance: null, cancellationToken);
-
-        //Balance remainingBalance = CalculateRemaining(statement);
+        await PersistStatement(statement, newTransactions, finalizedProvisions, cancellationToken);
 
         return statement;
     }
@@ -80,7 +78,7 @@ internal abstract partial class AbstractImportService(
         }
         catch (RepositoryException ex)
         {
-            throw new ImportException(CannotCheckExistingTransactions.FormatMessage(statement.AccountId), ex);
+            throw new ImportException(ImportErrors.CannotCheckExistingTransactions, CannotCheckExistingTransactions.FormatMessage(statement.AccountId), ex);
         }
     }
 
@@ -92,9 +90,6 @@ internal abstract partial class AbstractImportService(
     /// <exception cref="ImportException"/>
     protected internal abstract Transaction[] DetectFinalized(Statement statement, Transaction[] existingTransactions);
 
-    /// <exception cref="ImportException"/>
-    protected internal abstract Balance CalculateRemaining(Statement statement);
-
     /// <exception cref="ImportException" />
     /// <exception cref="OperationCanceledException" />
     private async Task<Account> ValidateAccountHolder(Guid userId, Guid accountId, CancellationToken cancellationToken)
@@ -103,15 +98,14 @@ internal abstract partial class AbstractImportService(
         {
             Account[] accounts = await AccountRepository.GetAccountsOfUser(userId, cancellationToken);
 
-            return accounts
-                .FirstOrDefault(x => x.Id == accountId)
-               ?? throw new ImportException(Messages.AccountDoesNotBelongToUser); // or does not exist
+            return accounts.FirstOrDefault(x => x.Id == accountId)
+               ?? throw new ImportException(ImportErrors.AccountDoesNotBelongToUser); // or does not exist
         }
         catch (Exception ex) when (ex is not OperationCanceledException and not ImportException)
         {
             AccountHolderVerificationFailed(ex, accountId);
 
-            throw new ImportException(Messages.CannotValidateAccountHolder, ex);
+            throw new ImportException(ImportErrors.CannotValidateAccountHolder, ex);
         }
     }
 
@@ -143,7 +137,7 @@ internal abstract partial class AbstractImportService(
         {
             UploadFailed(ex, statement.AccountId);
 
-            throw new ImportException(Messages.CannotSaveUploadedStatementFile, ex);
+            throw new ImportException(ImportErrors.CannotSaveUploadedStatementFile, ex);
         }
     }
 
@@ -162,7 +156,7 @@ internal abstract partial class AbstractImportService(
 
     /// <exception cref="ImportException"/>
     /// <exception cref="OperationCanceledException"/>
-    private async Task PersistStatement(Statement statement, Transaction[] newTransactions, Transaction[] finalizedTransactions, Balance? balance, CancellationToken cancellationToken)
+    private async Task PersistStatement(Statement statement, Transaction[] newTransactions, Transaction[] finalizedTransactions, CancellationToken cancellationToken)
     {
         try
         {
@@ -176,9 +170,6 @@ internal abstract partial class AbstractImportService(
             await TransactionRepository.Insert(newTransactions, cancellationToken);
             await TransactionRepository.Delete(finalizedTransactions, cancellationToken);
 
-            if (balance != null)
-                await AccountRepository.SaveBalance(balance, cancellationToken);
-
             await unitOfWork.CommitAsync(cancellationToken);
 
             PersistSucceeded();
@@ -189,7 +180,7 @@ internal abstract partial class AbstractImportService(
 
             await unitOfWork.RollbackAsync(cancellationToken);
 
-            throw new ImportException(Messages.CannotSaveImportedStatement, ex);
+            throw new ImportException(ImportErrors.CannotSaveImportedStatement, ex);
         }
     }
 
@@ -199,7 +190,7 @@ internal abstract partial class AbstractImportService(
         where TStatement : Statement
     {
         return statement as TStatement ??
-            throw new ImportException($"Statement (type: {statement.GetType().Name}) was expected to be type of {typeof(TStatement).Name}");
+            throw new ImportException(ImportErrors.StatementTypeMismatch, $"Statement (type: {statement.GetType().Name}) was expected to be type of {typeof(TStatement).Name}");
     }
 
     [LoggerMessage(Level = LogLevel.Error, Message = "An error occurred while verifying the holder of account ({AccountId}).")]

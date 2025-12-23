@@ -51,7 +51,7 @@ internal class SummaryService(IAuthorizationService authorizationService,
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
-            throw new SummaryException(Messages.CannotCalculateSummary, ex);
+            throw new SummaryException(SummaryErrors.CannotCalculateSummary, ex);
         }
     }
 

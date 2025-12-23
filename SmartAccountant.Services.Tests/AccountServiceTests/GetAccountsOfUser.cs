@@ -3,7 +3,6 @@ using SmartAccountant.Abstractions.Exceptions;
 using SmartAccountant.Abstractions.Interfaces;
 using SmartAccountant.Models;
 using SmartAccountant.Repositories.Core.Abstract;
-using SmartAccountant.Services.Resources;
 
 namespace SmartAccountant.Services.Tests.AccountServiceTests;
 
@@ -45,7 +44,7 @@ public class GetAccountsOfUser
         // Act, Assert
         var result = await Assert.ThrowsExactlyAsync<AccountException>(async () => await sut.GetAccountsOfUser(CancellationToken.None));
 
-        Assert.AreEqual(Messages.CannotFetchAccountsOfUser, result.Message);
+        Assert.AreEqual(AccountErrors.CannotFetchAccountsOfUser, result.Error);
     }
 
     [TestMethod]
@@ -60,6 +59,6 @@ public class GetAccountsOfUser
         Account[] result = await sut.GetAccountsOfUser(CancellationToken.None);
 
         // Assert
-        Assert.AreEqual(0, result.Length);
+        Assert.HasCount(0, result);
     }
 }

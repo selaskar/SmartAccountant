@@ -99,21 +99,6 @@ internal sealed class EntityToModelMappings : Profile
             .ForMember(x => x.ProvisionState, opt => opt.MapFrom(e => e.ProvisionState))
             .ReverseMap();
 
-        CreateMap<Entities.Balance, Models.Balance>()
-            .ForMember(x => x.Id, opt => opt.MapFrom(e => e.Id))
-            .ForMember(x => x.SavingAccountId, opt => opt.MapFrom(e => e.SavingAccountId))
-            .ForMember(x => x.Account, opt => opt.MapFrom(e => e.SavingAccount))
-            .ForMember(x => x.Amount, opt => opt.MapFrom(e => new MonetaryValue(e.Amount, e.AmountCurrency)))
-            .ForMember(x => x.AsOf, opt => opt.MapFrom(e => e.AsOf));
-
-        CreateMap<Models.Balance, Entities.Balance>()
-            .ForMember(x => x.Id, opt => opt.MapFrom(e => e.Id))
-            .ForMember(x => x.SavingAccountId, opt => opt.MapFrom(e => e.SavingAccountId))
-            .ForMember(x => x.SavingAccount, opt => opt.MapFrom(e => e.Account))
-            .ForMember(x => x.Amount, opt => opt.MapFrom(e => e.Amount.Amount))
-            .ForMember(x => x.AmountCurrency, opt => opt.MapFrom(e => e.Amount.Currency))
-            .ForMember(x => x.AsOf, opt => opt.MapFrom(e => e.AsOf));
-
         CreateMap<Entities.CreditCardLimit, Models.CreditCardLimit>()
             .ForMember(x => x.Id, opt => opt.MapFrom(e => e.Id))
             .ForMember(x => x.CreditCardId, opt => opt.MapFrom(e => e.CardId))

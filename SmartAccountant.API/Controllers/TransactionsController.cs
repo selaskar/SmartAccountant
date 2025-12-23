@@ -1,10 +1,9 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using SmartAccountant.Abstractions.Exceptions;
 using SmartAccountant.Abstractions.Interfaces;
-using SmartAccountant.Core.Helpers;
 using SmartAccountant.Dtos;
+using SmartAccountant.Dtos.Response;
 
 namespace SmartAccountant.API.Controllers;
 
@@ -19,53 +18,32 @@ public sealed class TransactionsController(ITransactionService transactionServic
     [EndpointSummary("Returns all transactions of given account.")]
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType<BadRequestObjectResult>(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType<ErrorDetail>(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<Transaction[]>> Get([FromQuery] Guid accountId, CancellationToken cancellationToken)
     {
-        try
-        {
-            Models.Transaction[] transactions = await transactionService.GetTransactions(accountId, cancellationToken);
-            return Ok(mapper.Map<Transaction[]>(transactions));
-        }
-        catch (TransactionException ex)
-        {
-            return BadRequest(ex.GetAllMessages());
-        }
+        Models.Transaction[] transactions = await transactionService.GetTransactions(accountId, cancellationToken);
+        return Ok(mapper.Map<Transaction[]>(transactions));
     }
 
     [EndpointSummary("Updates a debit transaction.")]
     [HttpPut("debit")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType<BadRequestObjectResult>(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType<ErrorDetail>(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<Transaction[]>> Update([FromBody] DebitTransaction updateDto, CancellationToken cancellationToken)
     {
-        try
-        {
-            var transactionToUpdate = mapper.Map<Models.DebitTransaction>(updateDto);
-            await transactionService.UpdateTransaction(transactionToUpdate, cancellationToken);
-            return Ok();
-        }
-        catch (TransactionException ex)
-        {
-            return BadRequest(ex.GetAllMessages());
-        }
+        var transactionToUpdate = mapper.Map<Models.DebitTransaction>(updateDto);
+        await transactionService.UpdateTransaction(transactionToUpdate, cancellationToken);
+        return Ok();
     }
 
     [EndpointSummary("Updates a credit card transaction.")]
     [HttpPut("cc")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType<BadRequestObjectResult>(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType<ErrorDetail>(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<Transaction[]>> Update([FromBody] CreditCardTransaction updateDto, CancellationToken cancellationToken)
     {
-        try
-        {
-            var transactionToUpdate = mapper.Map<Models.CreditCardTransaction>(updateDto);
-            await transactionService.UpdateTransaction(transactionToUpdate, cancellationToken);
-            return Ok();
-        }
-        catch (TransactionException ex)
-        {
-            return BadRequest(ex.GetAllMessages());
-        }
+        var transactionToUpdate = mapper.Map<Models.CreditCardTransaction>(updateDto);
+        await transactionService.UpdateTransaction(transactionToUpdate, cancellationToken);
+        return Ok();
     }
 }

@@ -15,7 +15,7 @@ internal class StatementFactory : IStatementFactory
         {
             case DebitStatementImportModel:
                 if (account is not SavingAccount savingAccount)
-                    throw new ImportException($"Account (type:{account.GetType().Name}) is expected to be a {typeof(SavingAccount).Name}.");
+                    throw new ImportException(ImportErrors.SavingAccountExpected, $"Account (type:{account.GetType().Name}) is expected to be a {typeof(SavingAccount).Name}.");
 
                 return new DebitStatement()
                 {

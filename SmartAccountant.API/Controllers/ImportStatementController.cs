@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Mvc;
 using SmartAccountant.Abstractions.Exceptions;
 using SmartAccountant.Abstractions.Interfaces;
 using SmartAccountant.Abstractions.Models.Request;
-using SmartAccountant.Core.Helpers;
 using SmartAccountant.Dtos.Request;
 using SmartAccountant.Dtos.Response;
 using SmartAccountant.Models;
@@ -25,7 +24,7 @@ public sealed class ImportStatementController(IMapper mapper) : ControllerBase
     [HttpPost(nameof(ImportableStatementTypes.Debit))]
     [Consumes(MediaTypeNames.Multipart.FormData)]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType<BadRequestObjectResult>(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType<ErrorDetail>(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<UploadStatementResponse>> UploadDebit(
         [FromKeyedServices(nameof(ImportableStatementTypes.Debit))] IImportService importService,
         [FromForm] UploadDebitStatementRequest request,
@@ -38,7 +37,7 @@ public sealed class ImportStatementController(IMapper mapper) : ControllerBase
     [HttpPost(nameof(ImportableStatementTypes.CreditCard))]
     [Consumes(MediaTypeNames.Multipart.FormData)]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType<BadRequestObjectResult>(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType<ErrorDetail>(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<UploadStatementResponse>> UploadCreditCard(
         [FromKeyedServices(nameof(ImportableStatementTypes.CreditCard))] IImportService importService,
         [FromForm] UploadCreditCardStatementRequest request,
@@ -51,7 +50,7 @@ public sealed class ImportStatementController(IMapper mapper) : ControllerBase
     [HttpPost(nameof(ImportableStatementTypes.Multipart))]
     [Consumes(MediaTypeNames.Multipart.FormData)]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType<BadRequestObjectResult>(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType<ErrorDetail>(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<UploadStatementResponse>> UploadMultipartCreditCard(
         [FromKeyedServices(nameof(ImportableStatementTypes.Multipart))] IImportService importService,
         [FromForm] UploadMultipartStatementRequest request,
@@ -60,6 +59,7 @@ public sealed class ImportStatementController(IMapper mapper) : ControllerBase
         return await ImportInternal<MultipartStatementImportModel>(importService, request, cancellationToken);
     }
 
+    /// <exception cref="ImportException"/>
     /// <exception cref="OperationCanceledException"/>
     /// <exception cref="ValidationException"/>
     /// <exception cref="AuthenticationException"/>
@@ -75,20 +75,13 @@ public sealed class ImportStatementController(IMapper mapper) : ControllerBase
 
         var requestModel = mapper.Map<TModel>(request);
 
-        try
-        {
-            Statement statement = await importService.ImportStatement(requestModel, cancellationToken);
+        Statement statement = await importService.ImportStatement(requestModel, cancellationToken);
 
-            UploadStatementResponse response = mapper.Map<UploadStatementResponse>(statement) with
-            {
-                RequestId = request.RequestId
-            };
-
-            return Ok(response);
-        }
-        catch (ImportException ex)
+        UploadStatementResponse response = mapper.Map<UploadStatementResponse>(statement) with
         {
-            return BadRequest(ex.GetAllMessages());
-        }
+            RequestId = request.RequestId
+        };
+
+        return Ok(response);
     }
 }

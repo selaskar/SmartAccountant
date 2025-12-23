@@ -37,7 +37,7 @@ public class ParseStatement
         sut.ParseStatement(statement, worksheet, null!);
 
         // Assert
-        Assert.AreEqual(0, statement.Transactions.Count);
+        Assert.IsEmpty(statement.Transactions);
     }
 
     [TestMethod]
@@ -54,7 +54,7 @@ public class ParseStatement
         sut.ParseStatement(statement, worksheet, null!);
 
         // Assert
-        Assert.AreEqual(0, statement.Transactions.Count);
+        Assert.IsEmpty(statement.Transactions);
     }
 
     [TestMethod]
@@ -173,7 +173,7 @@ public class ParseStatement
         sut.ParseStatement(statement, worksheet, null!);
 
         // Assert
-        Assert.AreEqual(1, statement.Transactions.Count);
+        Assert.HasCount(1, statement.Transactions);
 
         DebitTransaction transaction = statement.Transactions.First();
         Assert.AreEqual(new DateTimeOffset(new DateTime(2025, 2, 13), TimeSpan.Zero), transaction.Timestamp);
@@ -218,7 +218,7 @@ public class ParseStatement
         sut.ParseStatement(statement, worksheet, null!);
 
         // Assert
-        Assert.AreEqual(3, statement.Transactions.Count);
+        Assert.HasCount(3, statement.Transactions);
         Assert.AreEqual(39.9999m, statement.Transactions.Sum(x => x.Amount.Amount));
     }
 

@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.Identity.Web;
 using SmartAccountant.API.Filters;
 using SmartAccountant.API.Mappers;
+using SmartAccountant.API.Middleware;
 using SmartAccountant.Identity.Extensions;
 using SmartAccountant.Import.Service.Extensions;
 using SmartAccountant.Repositories.Core.Extensions;
@@ -29,8 +30,9 @@ internal sealed class Program
         builder.Services
             .AddControllers(options =>
             {
-                options.Filters.Add<ValidationExceptionFilter>();
                 options.Filters.Add<AuthenticationExceptionFilter>();
+                options.Filters.Add<ValidationExceptionFilter>();
+                options.Filters.Add<EnumExceptionFilter>();
             })
             .AddJsonOptions(options => options.JsonSerializerOptions.AllowTrailingCommas = true);
 
@@ -110,6 +112,8 @@ internal sealed class Program
     private static void BuildAndRun(WebApplicationBuilder builder)
     {
         WebApplication app = builder.Build();
+
+        app.ConfigureExceptionHandler();
 
         // Configure the HTTP request pipeline.
         if (app.Environment.IsDevelopment())

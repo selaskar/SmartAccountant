@@ -35,7 +35,7 @@ public class Parse : Base
 
         loggerMock.Verify(l => l.IsEnabled(LogLevel.Error), Times.Once);
 
-        Assert.AreEqual(Messages.CannotParseUploadedStatementFile, result.Message);
+        Assert.AreEqual(ImportErrors.CannotParseUploadedStatementFile, result.Error);
     }
 
     [TestMethod]
@@ -55,7 +55,7 @@ public class Parse : Base
         SetupLogger(LogLevel.Error, true);
 
         statementFactoryMock.Setup(s => s.Create(model, account))
-            .Throws(new ImportException("test"));
+            .Throws(new ImportException(ImportErrors.Unspecified, "test"));
 
         // Act, Assert
         var result = await Assert.ThrowsExactlyAsync<ImportException>(async () => await sut.Parse(model, account, CancellationToken.None));
@@ -88,7 +88,7 @@ public class Parse : Base
 
         loggerMock.Verify(l => l.IsEnabled(LogLevel.Error), Times.Once);
 
-        Assert.AreEqual(Messages.CannotParseUploadedStatementFile, result.Message);
+        Assert.AreEqual(ImportErrors.CannotParseUploadedStatementFile, result.Error);
     }
 
     [TestMethod]
@@ -167,7 +167,7 @@ public class Parse : Base
         // Act, Assert
         var result = await Assert.ThrowsExactlyAsync<ImportException>(async () => await sut.Parse(model, account, CancellationToken.None));
 
-        Assert.AreEqual(Messages.PrimaryCardNumberNotDetermined, result.Message);
+        Assert.AreEqual(ImportErrors.PrimaryCardNumberNotDetermined, result.Error);
     }
 
     [TestMethod]
@@ -211,7 +211,7 @@ public class Parse : Base
         // Act, Assert
         var result = await Assert.ThrowsExactlyAsync<ImportException>(async () => await sut.Parse(model, account, CancellationToken.None));
 
-        Assert.AreEqual(Messages.SecondaryCardNumberNotDetermined, result.Message);
+        Assert.AreEqual(ImportErrors.SecondaryCardNumberNotDetermined, result.Error);
     }
 
     [TestMethod]

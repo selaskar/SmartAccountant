@@ -87,8 +87,8 @@ public class ParseMultipartStatement
         sut.ParseMultipartStatement(statement, worksheet, sharedStringTable);
 
         // Assert
-        Assert.AreEqual(1, statement.Transactions.Count);
-        Assert.AreEqual(1, statement.SecondaryTransactions.Count);
+        Assert.HasCount(1, statement.Transactions);
+        Assert.HasCount(1, statement.SecondaryTransactions);
 
         Assert.AreEqual(ProvisionState.Finalized, statement.Transactions[0].ProvisionState);
         Assert.AreEqual(ProvisionState.Finalized, statement.SecondaryTransactions[0].ProvisionState);

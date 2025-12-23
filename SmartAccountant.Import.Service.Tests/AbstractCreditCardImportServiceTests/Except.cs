@@ -30,8 +30,8 @@ public class Except
     [DataRow("2025-03-14", "2025-03-15", "a", "a", 10, 10, Currency.USD, Currency.EUR, ProvisionState.Finalized, ProvisionState.Open, 1)]
     [DataRow("2025-03-14", "2025-03-15", "a", "a", 10, 09, Currency.USD, Currency.USD, ProvisionState.Finalized, ProvisionState.Finalized, 1)]
     [DataRow("2025-03-14", "2025-03-15", "a", "a", 10, 09, Currency.USD, Currency.USD, ProvisionState.Finalized, ProvisionState.Open, 1)]
-    [DataRow("2025-03-14", "2025-03-15", "a", "A", 10, 09, Currency.USD, Currency.EUR, ProvisionState.Finalized, ProvisionState.Finalized, 1)]
-    [DataRow("2025-03-14", "2025-03-15", "a", "A", 10, 09, Currency.USD, Currency.EUR, ProvisionState.Finalized, ProvisionState.Open, 1)]
+    [DataRow("2025-03-14", "2025-03-15", "a", "a", 10, 09, Currency.USD, Currency.EUR, ProvisionState.Finalized, ProvisionState.Finalized, 1)]
+    [DataRow("2025-03-14", "2025-03-15", "a", "a", 10, 09, Currency.USD, Currency.EUR, ProvisionState.Finalized, ProvisionState.Open, 1)]
     [DataRow("2025-03-14", "2025-03-15", "a", "A", 10, 10, Currency.USD, Currency.USD, ProvisionState.Finalized, ProvisionState.Finalized, 1)]
     [DataRow("2025-03-14", "2025-03-15", "a", "A", 10, 10, Currency.USD, Currency.USD, ProvisionState.Finalized, ProvisionState.Open, 1)]
     [DataRow("2025-03-14", "2025-03-15", "a", "A", 10, 10, Currency.USD, Currency.EUR, ProvisionState.Finalized, ProvisionState.Finalized, 1)]
@@ -71,6 +71,6 @@ public class Except
         Transaction[] result = AbstractCreditCardImportService.Except(newTransactions, existingTransactions);
 
         // Assert
-        Assert.AreEqual(expected, result.Length);
+        Assert.HasCount(expected, result);
     }
 }

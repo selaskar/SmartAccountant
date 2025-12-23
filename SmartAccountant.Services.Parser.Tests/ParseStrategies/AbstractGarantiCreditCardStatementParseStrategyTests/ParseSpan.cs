@@ -58,7 +58,7 @@ public class ParseSpan
         AbstractGarantiCreditCardStatementParseStrategy.ParseSpan(rows.AsSpan(), accountId, transactions, ProvisionState.Finalized, sharedStringTable);
 
         // Assert
-        Assert.AreEqual(1, transactions.Count);
+        Assert.HasCount(1, transactions);
         Assert.AreEqual(accountId, transactions[0].AccountId);
         Assert.AreEqual(ProvisionState.Finalized, transactions[0].ProvisionState);
         Assert.AreEqual(130m, transactions[0].Amount.Amount);

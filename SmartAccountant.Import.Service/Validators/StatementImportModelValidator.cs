@@ -1,6 +1,7 @@
 ﻿using FluentValidation;
+using SmartAccountant.Abstractions.Exceptions;
 using SmartAccountant.Abstractions.Models.Request;
-using SmartAccountant.Import.Service.Resources;
+using SmartAccountant.Import.Service.Extensions;
 
 namespace SmartAccountant.Import.Service.Validators;
 
@@ -17,7 +18,8 @@ internal abstract class StatementImportModelValidator<T> : AbstractValidator<T>
 
         RuleFor(x => x.File).NotNull().SetValidator(new ImportFileValidator());
 
-        RuleFor(x => x.File.Length).GreaterThan(0).WithMessage(Messages.UploadedStatementFileEmpty)
-            .LessThanOrEqualTo(AbstractImportService.MaxFileSize).WithMessage(Messages.UploadedStatementFileTooBig);
+        RuleFor(x => x.File.Length)
+            .GreaterThan(0).WithErrorCode(ImportErrors.UploadedStatementFileEmpty)
+            .LessThanOrEqualTo(AbstractImportService.MaxFileSize).WithErrorCode(ImportErrors.UploadedStatementFileTooBig);
     }
 }

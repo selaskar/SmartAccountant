@@ -60,7 +60,7 @@ public class DetectNew : Base
         Transaction[] result = sut.DetectNew(statement, existingTransactions);
 
         // Assert
-        Assert.AreEqual(1, result.Length);
+        Assert.HasCount(1, result);
         Assert.AreEqual("Description 2", result[0].Description);
     }
 }

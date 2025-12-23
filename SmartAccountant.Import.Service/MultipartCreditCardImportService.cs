@@ -54,7 +54,7 @@ internal sealed class MultipartCreditCardImportService(
         {
             ParseFailed(ex, account.Id);
 
-            throw new ImportException(Messages.CannotParseUploadedStatementFile, ex);
+            throw new ImportException(ImportErrors.CannotParseUploadedStatementFile, ex);
         }
     }
 
@@ -71,7 +71,7 @@ internal sealed class MultipartCreditCardImportService(
         }
         catch (RepositoryException ex)
         {
-            throw new ImportException(CannotCheckExistingTransactions.FormatMessage(statement.AccountId), ex);
+            throw new ImportException(ImportErrors.CannotCheckExistingTransactions, CannotCheckExistingTransactions.FormatMessage(statement.AccountId), ex);
         }
     }
 
@@ -92,11 +92,6 @@ internal sealed class MultipartCreditCardImportService(
         return [];
     }
 
-    /// <inheritdoc />
-    protected internal override Balance CalculateRemaining(Statement statement)
-    {
-        throw new NotImplementedException();
-    }
 
     /// <exception cref="ImportException"/>
     /// <exception cref="RepositoryException" />
@@ -104,26 +99,26 @@ internal sealed class MultipartCreditCardImportService(
     private async Task AssignAccountIds(SharedStatement statement, Account primaryAccount, CancellationToken cancellationToken)
     {
         var abstractPrimaryCreditCard = primaryAccount as AbstractCreditCard
-            ?? throw new ImportException($"Primary account (type: {primaryAccount.GetType().Name}) is expected to be type of {typeof(AbstractCreditCard).Name}");
+            ?? throw new ImportException(ImportErrors.AbstractCreditCardExpected ,$"Primary account (type: {primaryAccount.GetType().Name}) is expected to be type of {typeof(AbstractCreditCard).Name}");
 
         string cardNumberToSearch;
         bool transactionsInCorrectOrder;
         if (CreditCardUtilities.CompareNumbersWithMasking(abstractPrimaryCreditCard.CardNumber, statement.CardNumber1))
         {
             cardNumberToSearch = statement.CardNumber2
-                ?? throw new ImportException(Messages.SecondaryCardNumberNotDetermined);
+                ?? throw new ImportException(ImportErrors.SecondaryCardNumberNotDetermined);
 
             transactionsInCorrectOrder = true;           
         }
         else if (CreditCardUtilities.CompareNumbersWithMasking(abstractPrimaryCreditCard.CardNumber, statement.CardNumber2))
         {
             cardNumberToSearch = statement.CardNumber1
-                ?? throw new ImportException(Messages.PrimaryCardNumberNotDetermined);
+                ?? throw new ImportException(ImportErrors.PrimaryCardNumberNotDetermined);
 
             transactionsInCorrectOrder = false;
         }
         else
-            throw new ImportException(DiscoveredCardNumbersMismatch.FormatMessage(statement.CardNumber1, statement.CardNumber2, abstractPrimaryCreditCard.CardNumber));
+            throw new ImportException(ImportErrors.DiscoveredCardNumbersMismatch, DiscoveredCardNumbersMismatch.FormatMessage(statement.CardNumber1, statement.CardNumber2, abstractPrimaryCreditCard.CardNumber));
 
         Account[] accounts = await AccountRepository.GetAccountsOfUser(primaryAccount.HolderId, cancellationToken);
 
@@ -143,7 +138,7 @@ internal sealed class MultipartCreditCardImportService(
         }
 
         if (statement.DependentAccountId is null)
-            throw new ImportException(CannotDetermineSecondaryAccount.FormatMessage(cardNumberToSearch));
+            throw new ImportException(ImportErrors.CannotDetermineSecondaryAccount, CannotDetermineSecondaryAccount.FormatMessage(cardNumberToSearch));
 
         if (transactionsInCorrectOrder)
         {

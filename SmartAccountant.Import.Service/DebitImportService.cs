@@ -8,7 +8,6 @@ using SmartAccountant.Import.Service.Abstract;
 using SmartAccountant.Import.Service.Resources;
 using SmartAccountant.Models;
 using SmartAccountant.Repositories.Core.Abstract;
-using SmartAccountant.Shared.Structs;
 
 namespace SmartAccountant.Import.Service;
 
@@ -52,7 +51,7 @@ internal sealed class DebitImportService(
         {
             ParseFailed(ex, account.Id);
 
-            throw new ImportException(Messages.CannotParseUploadedStatementFile, ex);
+            throw new ImportException(ImportErrors.CannotParseUploadedStatementFile, ex);
         }
     }
 
@@ -74,26 +73,5 @@ internal sealed class DebitImportService(
     {
         //Open provisions don't apply to debit accounts.
         return [];
-    }
-
-    /// <inheritdoc/>
-    protected internal override Balance CalculateRemaining(Statement statement)
-    {
-        var debitStatement = Cast<DebitStatement>(statement);
-
-        var lastTrx = debitStatement.Transactions.LastOrDefault();
-
-        if (lastTrx == null)
-        {
-
-        }
-
-        return new Balance()
-        {
-            Id = Guid.NewGuid(),
-            SavingAccountId = statement.AccountId,
-            Amount = new MonetaryValue(debitStatement.RemainingBalance, debitStatement.Currency),
-            AsOf = lastTrx.Timestamp,
-        };
     }
 }

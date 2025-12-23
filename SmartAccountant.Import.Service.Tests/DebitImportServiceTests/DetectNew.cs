@@ -53,6 +53,6 @@ public class DetectNew : Base
         Transaction[] result = sut.DetectNew(debitStatement, existingTransactions);
 
         // Assert
-        Assert.AreEqual(expected, result.Length);
+        Assert.HasCount(expected, result);
     }
 }

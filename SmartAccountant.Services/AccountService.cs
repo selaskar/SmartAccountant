@@ -2,7 +2,6 @@
 using SmartAccountant.Abstractions.Interfaces;
 using SmartAccountant.Models;
 using SmartAccountant.Repositories.Core.Abstract;
-using SmartAccountant.Services.Resources;
 
 namespace SmartAccountant.Services;
 
@@ -19,7 +18,7 @@ internal class AccountService(IAccountRepository accountRepository, IAuthorizati
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
-            throw new AccountException(Messages.CannotFetchAccountsOfUser, ex);
+            throw new AccountException(AccountErrors.CannotFetchAccountsOfUser, ex);
         }
     }
 }

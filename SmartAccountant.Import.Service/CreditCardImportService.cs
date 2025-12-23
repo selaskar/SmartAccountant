@@ -48,7 +48,7 @@ internal sealed class CreditCardImportService(
         {
             ParseFailed(ex, account.Id);
 
-            throw new ImportException(Messages.CannotParseUploadedStatementFile, ex);
+            throw new ImportException(ImportErrors.CannotParseUploadedStatementFile, ex);
         }
     }
 
@@ -72,16 +72,5 @@ internal sealed class CreditCardImportService(
 
         //The transactions which no longer exist as open transactions in new statement.
         return Except(news: existingOpenProvision, existing: newOpenProvision);
-    }
-
-    /// <inheritdoc/>
-    protected internal override Balance CalculateRemaining(Statement statement)
-    {
-        var creditCardStatement = Cast<CreditCardStatement>(statement);
-
-        //(creditCardStatement.Account as CreditCard).GetLimit();
-        //creditCardStatement.TotalDueAmount
-
-        return null;
     }
 }

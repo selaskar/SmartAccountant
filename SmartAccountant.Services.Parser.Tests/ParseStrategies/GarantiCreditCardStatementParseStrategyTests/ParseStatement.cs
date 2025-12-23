@@ -57,7 +57,7 @@ public class ParseStatement
         sut.ParseStatement(statement, worksheet, sharedStringTable);
 
         // Assert
-        Assert.AreEqual(0, statement.Transactions.Count);
+        Assert.IsEmpty(statement.Transactions);
     }
 
     [TestMethod]
@@ -77,7 +77,7 @@ public class ParseStatement
         sut.ParseStatement(statement, worksheet, sharedStringTable);
 
         // Assert
-        Assert.AreEqual(0, statement.Transactions.Count);
+        Assert.IsEmpty(statement.Transactions);
     }
 
     [TestMethod]
@@ -178,7 +178,7 @@ public class ParseStatement
         sut.ParseStatement(statement, worksheet, sharedStringTable);
 
         // Assert
-        Assert.AreEqual(1, statement.Transactions.Count);
+        Assert.HasCount(1, statement.Transactions);
 
         CreditCardTransaction transaction = statement.Transactions.First();
         Assert.AreEqual(new DateTimeOffset(new DateTime(2025, 02, 27), TimeSpan.Zero), transaction.Timestamp);
@@ -236,7 +236,7 @@ public class ParseStatement
         sut.ParseStatement(statement, worksheet, sharedStringTable);
 
         // Assert
-        Assert.AreEqual(2, statement.Transactions.Count);
+        Assert.HasCount(2, statement.Transactions);
     
         Assert.AreEqual(ProvisionState.Open, statement.Transactions[0].ProvisionState);
         Assert.AreEqual(ProvisionState.Finalized, statement.Transactions[1].ProvisionState);

@@ -30,7 +30,7 @@ internal class TransactionService(
         }
         catch (Exception ex) when (ex is not OperationCanceledException and not TransactionException)
         {
-            throw new TransactionException(Messages.CannotFetchTransactionsOfAccount, ex);
+            throw new TransactionException(TransactionErrors.CannotFetchTransactionsOfAccount, ex);
         }
     }
 
@@ -47,7 +47,7 @@ internal class TransactionService(
         }
         catch (Exception ex) when (ex is not OperationCanceledException and not TransactionException)
         {
-            throw new TransactionException(Messages.CannotUpdateDebitTransaction, ex);
+            throw new TransactionException(TransactionErrors.CannotUpdateDebitTransaction, ex);
         }
     }
 
@@ -64,7 +64,7 @@ internal class TransactionService(
         }
         catch (Exception ex) when (ex is not OperationCanceledException and not TransactionException)
         {
-            throw new TransactionException(Messages.CannotUpdateCreditCardTransaction, ex);
+            throw new TransactionException(TransactionErrors.CannotUpdateCreditCardTransaction, ex);
         }
     }
 
@@ -73,9 +73,9 @@ internal class TransactionService(
     private async Task VerifyAccountHolder(Guid accountId, CancellationToken cancellationToken)
     {
         Account account = await accountRepository.GetAccount(accountId, cancellationToken)
-                ?? throw new TransactionException(AccountNotFound.FormatMessage(accountId), null);
+                ?? throw new TransactionException(TransactionErrors.AccountNotFound, AccountNotFound.FormatMessage(accountId), null);
 
         if (account.HolderId != authorizationService.UserId)
-            throw new TransactionException(Messages.AccountDoesNotBelongToUser, null);
+            throw new TransactionException(TransactionErrors.AccountDoesNotBelongToUser, null);
     }
 }

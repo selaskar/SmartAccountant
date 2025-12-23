@@ -128,11 +128,6 @@ public abstract class Base
         {
             return [];
         }
-
-        protected internal override Balance CalculateRemaining(Statement statement)
-        {
-            throw new NotImplementedException();
-        }
     }
 
     internal sealed record class TestStatementImportModel : AbstractStatementImportModel { }

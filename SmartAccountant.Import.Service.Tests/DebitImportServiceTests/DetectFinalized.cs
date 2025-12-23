@@ -12,6 +12,6 @@ public class DetectFinalized : Base
         Transaction[] result = sut.DetectFinalized(null!, null!);
 
         // Assert
-        Assert.AreEqual(0, result.Length);
+        Assert.HasCount(0, result);
     }
 }

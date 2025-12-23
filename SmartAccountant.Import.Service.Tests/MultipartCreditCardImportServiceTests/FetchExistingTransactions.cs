@@ -63,6 +63,6 @@ public class FetchExistingTransactions : Base
         Transaction[] result = await sut.FetchExistingTransactions(statement, CancellationToken.None);
 
         // Assert
-        Assert.AreEqual(2, result.Length);
+        Assert.HasCount(2, result);
     }
 }
