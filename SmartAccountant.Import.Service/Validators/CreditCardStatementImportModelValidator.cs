@@ -1,7 +1,8 @@
 ﻿using FluentValidation;
 using SmartAccountant.Abstractions.Models.Request;
-using SmartAccountant.Import.Service.Resources;
+using SmartAccountant.Import.Service.Extensions;
 using SmartAccountant.Shared;
+using SmartAccountant.Shared.Enums.Errors;
 
 namespace SmartAccountant.Import.Service.Validators;
 
@@ -13,6 +14,6 @@ internal sealed class CreditCardStatementImportModelValidator : StatementImportM
         RuleFor(x => x.DueDate.Date).ExclusiveBetween(ApplicationDefinitions.EpochStart.ToDateTime(TimeOnly.MinValue), ApplicationDefinitions.EpochEnd.ToDateTime(TimeOnly.MinValue));
 
         RuleFor(x => x).Must(x => x.RolloverAmount + x.TotalExpenses + x.TotalFees - x.TotalPayments == x.TotalDueAmount)
-            .WithMessage(Messages.TotalDueAmountMismatch);
+            .WithErrorCode(ImportErrors.TotalDueAmountMismatch);
     }
 }

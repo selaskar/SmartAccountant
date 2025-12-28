@@ -19,7 +19,7 @@ namespace SmartAccountant.Shared.Resources {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "17.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "18.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     public class ModelStrings {
@@ -57,6 +57,42 @@ namespace SmartAccountant.Shared.Resources {
             }
             set {
                 resourceCulture = value;
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Cannot fetch accounts of user..
+        /// </summary>
+        public static string AccountErrors_CannotFetchAccountsOfUser {
+            get {
+                return ResourceManager.GetString("AccountErrors_CannotFetchAccountsOfUser", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to An unexpected error occurred..
+        /// </summary>
+        public static string AccountErrors_Unspecified {
+            get {
+                return ResourceManager.GetString("AccountErrors_Unspecified", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to An authentication error occurred..
+        /// </summary>
+        public static string AuthenticationErrors_Unspecified {
+            get {
+                return ResourceManager.GetString("AuthenticationErrors_Unspecified", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to User not authenticated..
+        /// </summary>
+        public static string AuthenticationErrors_UserNotAuthenticated {
+            get {
+                return ResourceManager.GetString("AuthenticationErrors_UserNotAuthenticated", resourceCulture);
             }
         }
         
@@ -187,6 +223,168 @@ namespace SmartAccountant.Shared.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to A credit card was expected..
+        /// </summary>
+        public static string ImportErrors_AbstractCreditCardExpected {
+            get {
+                return ResourceManager.GetString("ImportErrors_AbstractCreditCardExpected", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Account does not belong to the authenticated user..
+        /// </summary>
+        public static string ImportErrors_AccountDoesNotBelongToUser {
+            get {
+                return ResourceManager.GetString("ImportErrors_AccountDoesNotBelongToUser", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to An error occurred while checking the existing transactions of the account..
+        /// </summary>
+        public static string ImportErrors_CannotCheckExistingTransactions {
+            get {
+                return ResourceManager.GetString("ImportErrors_CannotCheckExistingTransactions", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Secondary account ID could not be determined for discovered card number..
+        /// </summary>
+        public static string ImportErrors_CannotDetermineSecondaryAccount {
+            get {
+                return ResourceManager.GetString("ImportErrors_CannotDetermineSecondaryAccount", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to An error occurred while parsing the uploaded statement document..
+        /// </summary>
+        public static string ImportErrors_CannotParseUploadedStatementFile {
+            get {
+                return ResourceManager.GetString("ImportErrors_CannotParseUploadedStatementFile", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to An error occurred while persisting the imported statement..
+        /// </summary>
+        public static string ImportErrors_CannotSaveImportedStatement {
+            get {
+                return ResourceManager.GetString("ImportErrors_CannotSaveImportedStatement", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to An error occurred while saving the uploaded document..
+        /// </summary>
+        public static string ImportErrors_CannotSaveUploadedStatementFile {
+            get {
+                return ResourceManager.GetString("ImportErrors_CannotSaveUploadedStatementFile", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to An error occurred while validating the account holder information..
+        /// </summary>
+        public static string ImportErrors_CannotValidateAccountHolder {
+            get {
+                return ResourceManager.GetString("ImportErrors_CannotValidateAccountHolder", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Neither of discovered card numbers match the primary card number..
+        /// </summary>
+        public static string ImportErrors_DiscoveredCardNumbersMismatch {
+            get {
+                return ResourceManager.GetString("ImportErrors_DiscoveredCardNumbersMismatch", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Primary card number was expected to be discovered by parser..
+        /// </summary>
+        public static string ImportErrors_PrimaryCardNumberNotDetermined {
+            get {
+                return ResourceManager.GetString("ImportErrors_PrimaryCardNumberNotDetermined", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to A saving account wasn&apos;t expected..
+        /// </summary>
+        public static string ImportErrors_SavingAccountExpected {
+            get {
+                return ResourceManager.GetString("ImportErrors_SavingAccountExpected", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Secondary card number was expected to be discovered by parser..
+        /// </summary>
+        public static string ImportErrors_SecondaryCardNumberNotDetermined {
+            get {
+                return ResourceManager.GetString("ImportErrors_SecondaryCardNumberNotDetermined", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The statement wasn&apos;t of expected type..
+        /// </summary>
+        public static string ImportErrors_StatementTypeMismatch {
+            get {
+                return ResourceManager.GetString("ImportErrors_StatementTypeMismatch", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Sum of rollover amount, total expenses, fees and debt payments must be equal to total due amount..
+        /// </summary>
+        public static string ImportErrors_TotalDueAmountMismatch {
+            get {
+                return ResourceManager.GetString("ImportErrors_TotalDueAmountMismatch", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to An error occurred while importing the statement..
+        /// </summary>
+        public static string ImportErrors_Unspecified {
+            get {
+                return ResourceManager.GetString("ImportErrors_Unspecified", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Statement file shouldn&apos;t be empty..
+        /// </summary>
+        public static string ImportErrors_UploadedStatementFileEmpty {
+            get {
+                return ResourceManager.GetString("ImportErrors_UploadedStatementFileEmpty", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Statement file size shouldn&apos;t exceed 1 MB..
+        /// </summary>
+        public static string ImportErrors_UploadedStatementFileTooBig {
+            get {
+                return ResourceManager.GetString("ImportErrors_UploadedStatementFileTooBig", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Only Microsoft Excel workbooks are accepted..
+        /// </summary>
+        public static string ImportErrors_UploadedStatementFileTypeNotSupported {
+            get {
+                return ResourceManager.GetString("ImportErrors_UploadedStatementFileTypeNotSupported", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Expense.
         /// </summary>
         public static string MainCategory_Expense {
@@ -241,6 +439,123 @@ namespace SmartAccountant.Shared.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Calculated deflection amount is larger than allowed absolute threshold..
+        /// </summary>
+        public static string ParserErrors_DeflectionTooLarge {
+            get {
+                return ResourceManager.GetString("ParserErrors_DeflectionTooLarge", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unrecognized file format. Column count was expected to be at least 5..
+        /// </summary>
+        public static string ParserErrors_InsufficientColumnCount {
+            get {
+                return ResourceManager.GetString("ParserErrors_InsufficientColumnCount", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Total amount of transactions and the remaining balance do not match..
+        /// </summary>
+        public static string ParserErrors_TransactionAmountAndBalanceMismatch {
+            get {
+                return ResourceManager.GetString("ParserErrors_TransactionAmountAndBalanceMismatch", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Total amount of transactions and the due amount do not match..
+        /// </summary>
+        public static string ParserErrors_TransactionAmountAndTotalExpensesMismatch {
+            get {
+                return ResourceManager.GetString("ParserErrors_TransactionAmountAndTotalExpensesMismatch", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unrecognized file format. Expected to have transaction date at column A..
+        /// </summary>
+        public static string ParserErrors_TransactionDateColumnMissing {
+            get {
+                return ResourceManager.GetString("ParserErrors_TransactionDateColumnMissing", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to A transaction doesn&apos;t have a valid amount value..
+        /// </summary>
+        public static string ParserErrors_UnexpectedAmountFormat {
+            get {
+                return ResourceManager.GetString("ParserErrors_UnexpectedAmountFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unrecognized date format. Could not parse transaction date..
+        /// </summary>
+        public static string ParserErrors_UnexpectedDateFormat {
+            get {
+                return ResourceManager.GetString("ParserErrors_UnexpectedDateFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to An unexpected error occurred while parsing the spreadsheet..
+        /// </summary>
+        public static string ParserErrors_UnexpectedErrorParsingSpreadsheet {
+            get {
+                return ResourceManager.GetString("ParserErrors_UnexpectedErrorParsingSpreadsheet", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to An unexpected error occurred while parsing the statement..
+        /// </summary>
+        public static string ParserErrors_UnexpectedErrorParsingStatement {
+            get {
+                return ResourceManager.GetString("ParserErrors_UnexpectedErrorParsingStatement", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Statement was expected to be consist of 2 parts..
+        /// </summary>
+        public static string ParserErrors_UnexpectedPartCount {
+            get {
+                return ResourceManager.GetString("ParserErrors_UnexpectedPartCount", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to A transaction doesn&apos;t have a valid remaining amount value..
+        /// </summary>
+        public static string ParserErrors_UnexpectedRemainingAmountFormat {
+            get {
+                return ResourceManager.GetString("ParserErrors_UnexpectedRemainingAmountFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to An unexpected error occurred during parse..
+        /// </summary>
+        public static string ParserErrors_Unspecified {
+            get {
+                return ResourceManager.GetString("ParserErrors_Unspecified", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Could not find a sheet in the document..
+        /// </summary>
+        public static string ParserErrors_UploadedDocumentMissingSheet {
+            get {
+                return ResourceManager.GetString("ParserErrors_UploadedDocumentMissingSheet", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Finalized.
         /// </summary>
         public static string ProvisionState_Finalized {
@@ -255,6 +570,114 @@ namespace SmartAccountant.Shared.Resources {
         public static string ProvisionState_Open {
             get {
                 return ResourceManager.GetString("ProvisionState_Open", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to An Azure blob storage-related exception occurred..
+        /// </summary>
+        public static string StorageErrors_AzureStorageError {
+            get {
+                return ResourceManager.GetString("StorageErrors_AzureStorageError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to File already exists in destination..
+        /// </summary>
+        public static string StorageErrors_FileAlreadyExists {
+            get {
+                return ResourceManager.GetString("StorageErrors_FileAlreadyExists", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to An unexpected error occurred..
+        /// </summary>
+        public static string StorageErrors_Unspecified {
+            get {
+                return ResourceManager.GetString("StorageErrors_Unspecified", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to File upload failed..
+        /// </summary>
+        public static string StorageErrors_UploadFailed {
+            get {
+                return ResourceManager.GetString("StorageErrors_UploadFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to An error occurred while calculating the summary..
+        /// </summary>
+        public static string SummaryErrors_CannotCalculateSummary {
+            get {
+                return ResourceManager.GetString("SummaryErrors_CannotCalculateSummary", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Summary couldn&apos;t be calculated..
+        /// </summary>
+        public static string SummaryErrors_Unspecified {
+            get {
+                return ResourceManager.GetString("SummaryErrors_Unspecified", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Account does not belong to user..
+        /// </summary>
+        public static string TransactionErrors_AccountDoesNotBelongToUser {
+            get {
+                return ResourceManager.GetString("TransactionErrors_AccountDoesNotBelongToUser", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Account not found..
+        /// </summary>
+        public static string TransactionErrors_AccountNotFound {
+            get {
+                return ResourceManager.GetString("TransactionErrors_AccountNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to An error occurred while fetching transactions of the account..
+        /// </summary>
+        public static string TransactionErrors_CannotFetchTransactionsOfAccount {
+            get {
+                return ResourceManager.GetString("TransactionErrors_CannotFetchTransactionsOfAccount", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to An error occurred while updating the credit card transaction..
+        /// </summary>
+        public static string TransactionErrors_CannotUpdateCreditCardTransaction {
+            get {
+                return ResourceManager.GetString("TransactionErrors_CannotUpdateCreditCardTransaction", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to An error occurred while updating the debit transaction..
+        /// </summary>
+        public static string TransactionErrors_CannotUpdateDebitTransaction {
+            get {
+                return ResourceManager.GetString("TransactionErrors_CannotUpdateDebitTransaction", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to An unexpected error occurred..
+        /// </summary>
+        public static string TransactionErrors_Unspecified {
+            get {
+                return ResourceManager.GetString("TransactionErrors_Unspecified", resourceCulture);
             }
         }
     }

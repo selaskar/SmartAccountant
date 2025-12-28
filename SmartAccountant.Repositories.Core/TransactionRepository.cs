@@ -13,7 +13,6 @@ internal sealed class TransactionRepository(CoreDbContext dbContext, IMapper map
     {
         try
         {
-            //TODO: take period as filter parameter.
             var transactions = await dbContext.Transactions.AsNoTracking()
                 .Include(x => x.Account)
                 .Where(x => x.AccountId == accountId)
@@ -24,7 +23,7 @@ internal sealed class TransactionRepository(CoreDbContext dbContext, IMapper map
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
-            throw new RepositoryException($"Failed to fetch transactions of account ({accountId}).", ex);
+            throw new ServerException($"Failed to fetch transactions of account ({accountId}).", ex);
         }
     }
 
@@ -45,7 +44,7 @@ internal sealed class TransactionRepository(CoreDbContext dbContext, IMapper map
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
-            throw new RepositoryException($"Failed to fetch transactions of user ({holderId}).", ex);
+            throw new ServerException($"Failed to fetch transactions of user ({holderId}).", ex);
         }
     }
 
@@ -62,7 +61,7 @@ internal sealed class TransactionRepository(CoreDbContext dbContext, IMapper map
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
-            throw new RepositoryException("Failed to insert transactions.", ex);
+            throw new ServerException("Failed to insert transactions.", ex);
         }
     }
 
@@ -79,7 +78,7 @@ internal sealed class TransactionRepository(CoreDbContext dbContext, IMapper map
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
-            throw new RepositoryException($"Failed to remove transactions.", ex);
+            throw new ServerException($"Failed to remove transactions.", ex);
         }
     }
 
@@ -95,7 +94,7 @@ internal sealed class TransactionRepository(CoreDbContext dbContext, IMapper map
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
-            throw new RepositoryException($"Failed to update debit transaction ({debitTransaction.Id}).", ex);
+            throw new ServerException($"Failed to update debit transaction ({debitTransaction.Id}).", ex);
         }
     }
 
@@ -111,9 +110,7 @@ internal sealed class TransactionRepository(CoreDbContext dbContext, IMapper map
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
-            throw new RepositoryException($"Failed to update credit card transaction ({creditCardTransaction.Id}).", ex);
+            throw new ServerException($"Failed to update credit card transaction ({creditCardTransaction.Id}).", ex);
         }
     }
 }
-
-

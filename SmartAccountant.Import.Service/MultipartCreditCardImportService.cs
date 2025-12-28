@@ -10,6 +10,7 @@ using SmartAccountant.Import.Service.Helpers;
 using SmartAccountant.Import.Service.Resources;
 using SmartAccountant.Models;
 using SmartAccountant.Repositories.Core.Abstract;
+using SmartAccountant.Shared.Enums.Errors;
 
 namespace SmartAccountant.Import.Service;
 
@@ -50,7 +51,7 @@ internal sealed class MultipartCreditCardImportService(
 
             return statement;
         }
-        catch (Exception ex) when (ex is not OperationCanceledException and not ImportException)
+        catch (Exception ex) when (ex is not OperationCanceledException and not ServerException and not ImportException)
         {
             ParseFailed(ex, account.Id);
 
@@ -69,7 +70,7 @@ internal sealed class MultipartCreditCardImportService(
             Transaction[] existingSecondaryTransactions = await TransactionRepository.GetTransactionsOfAccount(sharedStatement.DependentAccountId!.Value, cancellationToken);
             return existingPrimaryTransactions.Union(existingSecondaryTransactions).ToArray();
         }
-        catch (RepositoryException ex)
+        catch (Exception ex) when (ex is not OperationCanceledException and not ServerException)
         {
             throw new ImportException(ImportErrors.CannotCheckExistingTransactions, CannotCheckExistingTransactions.FormatMessage(statement.AccountId), ex);
         }
@@ -94,7 +95,7 @@ internal sealed class MultipartCreditCardImportService(
 
 
     /// <exception cref="ImportException"/>
-    /// <exception cref="RepositoryException" />
+    /// <exception cref="ServerException"/>
     /// <exception cref="OperationCanceledException"/>
     private async Task AssignAccountIds(SharedStatement statement, Account primaryAccount, CancellationToken cancellationToken)
     {

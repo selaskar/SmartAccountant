@@ -117,7 +117,10 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="AccountNotFound" xml:space="preserve">
-    <value>Account ({0}) not found.</value>
+  <data name="FileAlreadyExists" xml:space="preserve">
+    <value>The file ({0}) already exists in the container ({1}).</value>
+  </data>
+  <data name="UploadFailed" xml:space="preserve">
+    <value>Upload failed with code {0}.</value>
   </data>
 </root>

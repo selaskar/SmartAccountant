@@ -1,13 +1,19 @@
-﻿using Azure;
+﻿using System.Text;
+using Azure;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
+using FileStorage.Resources;
 using SmartAccountant.Abstractions.Exceptions;
 using SmartAccountant.Abstractions.Interfaces;
+using SmartAccountant.Core.Helpers;
 
 namespace FileStorage;
 
 internal sealed class StorageService(BlobServiceClient client) : IStorageService
 {
+    private static readonly CompositeFormat UploadFailed = CompositeFormat.Parse(Messages.UploadFailed);
+    private static readonly CompositeFormat FileAlreadyExists = CompositeFormat.Parse(Messages.FileAlreadyExists);
+  
     /// <inheritdoc/>
     public async Task WriteToFile(string container, string filePath, Stream stream, CancellationToken cancellationToken)
     {
@@ -17,22 +23,22 @@ internal sealed class StorageService(BlobServiceClient client) : IStorageService
             BlobClient blobClient = containerClient.GetBlobClient(filePath);
 
             if (await blobClient.ExistsAsync(cancellationToken))
-                throw new StorageException($"The file ({filePath}) already exists in the container ({container}).");
+                throw new StorageException(StorageErrors.FileAlreadyExists, FileAlreadyExists.FormatMessage(filePath, container));
 
             Response<BlobContentInfo> response = await blobClient.UploadAsync(stream, cancellationToken);
 
             Response rawResponse = response.GetRawResponse();
 
             if (rawResponse.IsError)
-                throw new StorageException($"Upload failed with code {rawResponse.Status}");
+                throw new StorageException(StorageErrors.UploadFailed, UploadFailed.FormatMessage(rawResponse.Status));
         }
         catch (RequestFailedException ex)
         {
-            throw new StorageException("An Azure blob storage-related exception occurred.", ex);
+            throw new StorageException(StorageErrors.AzureStorageError, ex);
         }
         catch (Exception ex) when (ex is not OperationCanceledException and not StorageException)
         {
-            throw new StorageException("An unexpected error occurred.", ex);
+            throw new StorageException(StorageErrors.Unspecified, ex);
         }
     }
 }

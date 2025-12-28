@@ -5,6 +5,7 @@ using SmartAccountant.Services.Parser.Abstract;
 using SmartAccountant.Services.Parser.Extensions;
 using SmartAccountant.Services.Parser.Resources;
 using SmartAccountant.Shared.Enums;
+using SmartAccountant.Shared.Enums.Errors;
 
 namespace SmartAccountant.Services.Parser.ParseStrategies;
 
@@ -41,7 +42,7 @@ internal sealed partial class GarantiCreditCardStatementParseStrategy : Abstract
             .DefaultIfEmpty().Sum();
 
         if (creditCardStatement.TotalExpenses != totalExpenses)
-            throw new ParserException(Messages.TransactionAmountAndTotalExpensesDontMatch);
+            throw new ParserException(ParserErrors.TransactionAmountAndTotalExpensesMismatch);
     }
 
     /// <exception cref="ParserException"/>
@@ -80,7 +81,7 @@ internal sealed partial class GarantiCreditCardStatementParseStrategy : Abstract
         }
         catch (Exception ex) when (ex is not ParserException)
         {
-            throw new ParserException(Messages.UnexpectedErrorParsingStatement, ex);
+            throw new ParserException(ParserErrors.UnexpectedErrorParsingStatement, ex);
         }
     }
 }

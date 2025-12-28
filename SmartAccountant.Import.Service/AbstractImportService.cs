@@ -10,6 +10,7 @@ using SmartAccountant.Import.Service.Abstract;
 using SmartAccountant.Import.Service.Resources;
 using SmartAccountant.Models;
 using SmartAccountant.Repositories.Core.Abstract;
+using SmartAccountant.Shared.Enums.Errors;
 
 namespace SmartAccountant.Import.Service;
 
@@ -64,6 +65,7 @@ internal abstract partial class AbstractImportService(
     protected internal abstract void Validate(AbstractStatementImportModel model);
 
     /// <exception cref="ImportException"/>
+    /// <exception cref="ServerException"/>
     /// <exception cref="OperationCanceledException"/>
     protected internal abstract Task<Statement> Parse(AbstractStatementImportModel model, Account account, CancellationToken cancellationToken);
 
@@ -76,7 +78,7 @@ internal abstract partial class AbstractImportService(
             Transaction[] existingTransactions = await TransactionRepository.GetTransactionsOfAccount(statement.AccountId, cancellationToken);
             return existingTransactions;
         }
-        catch (RepositoryException ex)
+        catch (Exception ex) when (ex is not OperationCanceledException and not ServerException)
         {
             throw new ImportException(ImportErrors.CannotCheckExistingTransactions, CannotCheckExistingTransactions.FormatMessage(statement.AccountId), ex);
         }
@@ -91,6 +93,7 @@ internal abstract partial class AbstractImportService(
     protected internal abstract Transaction[] DetectFinalized(Statement statement, Transaction[] existingTransactions);
 
     /// <exception cref="ImportException" />
+    /// <exception cref="ServerException" />
     /// <exception cref="OperationCanceledException" />
     private async Task<Account> ValidateAccountHolder(Guid userId, Guid accountId, CancellationToken cancellationToken)
     {
@@ -101,7 +104,7 @@ internal abstract partial class AbstractImportService(
             return accounts.FirstOrDefault(x => x.Id == accountId)
                ?? throw new ImportException(ImportErrors.AccountDoesNotBelongToUser); // or does not exist
         }
-        catch (Exception ex) when (ex is not OperationCanceledException and not ImportException)
+        catch (Exception ex) when (ex is not OperationCanceledException and not ServerException and not ImportException)
         {
             AccountHolderVerificationFailed(ex, accountId);
 

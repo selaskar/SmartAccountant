@@ -7,6 +7,7 @@ using SmartAccountant.Models;
 using SmartAccountant.Services.Parser.Abstract;
 using SmartAccountant.Services.Parser.Resources;
 using SmartAccountant.Shared.Enums;
+using SmartAccountant.Shared.Enums.Errors;
 
 namespace SmartAccountant.Services.Parser.Tests.ExcelSpreadsheetParserServiceTests;
 
@@ -66,7 +67,7 @@ public class ReadStatement : Base
         void AssertParserException()
         {
             var exception = Assert.Throws<ParserException>(() => sut.ReadStatement(statement, stream, Bank.Unknown));
-            Assert.AreEqual(Messages.UploadedDocumentMissingSheet, exception.Message);
+            Assert.AreEqual(ParserErrors.UploadedDocumentMissingSheet, exception.Error);
         }
     }
 
@@ -116,7 +117,7 @@ public class ReadStatement : Base
 
         Mock<IStatementParseStrategy<DebitTransaction>> mockStrategy = MockStatementFactory();
 
-        mockStrategy.Setup(x => x.CrossCheck(statement)).Throws(() => new ParserException("test"));
+        mockStrategy.Setup(x => x.CrossCheck(statement)).Throws(() => new ParserException(ParserErrors.Unspecified));
 
         // Act, Assert
         var result = Assert.ThrowsExactly<ParserException>(() => sut.ReadStatement(statement, stream, Bank.GarantiBBVA));

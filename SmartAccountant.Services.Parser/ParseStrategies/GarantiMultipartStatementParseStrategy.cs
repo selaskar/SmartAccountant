@@ -10,6 +10,7 @@ using SmartAccountant.Services.Parser.Abstract;
 using SmartAccountant.Services.Parser.Extensions;
 using SmartAccountant.Services.Parser.Resources;
 using SmartAccountant.Shared.Enums;
+using SmartAccountant.Shared.Enums.Errors;
 
 namespace SmartAccountant.Services.Parser.ParseStrategies;
 
@@ -37,7 +38,7 @@ internal sealed partial class GarantiMultipartStatementParseStrategy : AbstractG
             .ToImmutableArray();
 
         if (sectionHeaders.Length != 2)
-            throw new ParserException(UnexpectedPartCount.FormatMessage(sectionHeaders.Length));
+            throw new ParserException(ParserErrors.UnexpectedPartCount, UnexpectedPartCount.FormatMessage(sectionHeaders.Length));
 
         statement.CardNumber1 = regex.Match(sectionHeaders[0].GetCell(0).GetCellValue(stringTable)).Value;
         statement.CardNumber2 = regex.Match(sectionHeaders[1].GetCell(0).GetCellValue(stringTable)).Value;
@@ -65,7 +66,7 @@ internal sealed partial class GarantiMultipartStatementParseStrategy : AbstractG
 
         // Since we don't take cancellations into account, our sum can only be be equal to or larger than the given one in statement.
         if (statement.TotalExpenses > totalExpenses)
-            throw new ParserException(Messages.TransactionAmountAndTotalExpensesDontMatch);
+            throw new ParserException(ParserErrors.TransactionAmountAndTotalExpensesMismatch);
 
         CompareInfo compareInfo = new CultureInfo("tr-TR").CompareInfo;
         decimal totalFees = statement.Transactions.Union(statement.SecondaryTransactions)
@@ -79,7 +80,7 @@ internal sealed partial class GarantiMultipartStatementParseStrategy : AbstractG
 
         decimal deflection = totalPayments + totalExpenses - statement.TotalExpenses + statement.TotalPayments - totalFees;
         if (Math.Abs(deflection) > DeflectionIgnoreThreshold)
-            throw new ParserException(DeflectionTooLarge.FormatMessage(deflection, DeflectionIgnoreThreshold));
+            throw new ParserException(ParserErrors.DeflectionTooLarge, DeflectionTooLarge.FormatMessage(deflection, DeflectionIgnoreThreshold));
     }
 
     // Example: 1234 **** **** 5678

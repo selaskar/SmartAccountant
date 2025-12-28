@@ -21,7 +21,7 @@ internal sealed class AccountRepository(CoreDbContext dbContext, IMapper mapper)
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
-            throw new RepositoryException($"Failed to fetch account ({accountId}).", ex);
+            throw new ServerException($"Failed to fetch account ({accountId}).", ex);
         }
     }
 
@@ -39,7 +39,7 @@ internal sealed class AccountRepository(CoreDbContext dbContext, IMapper mapper)
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
-            throw new RepositoryException($"Failed to fetch accounts of user ({userId}).", ex);
+            throw new ServerException($"Failed to fetch accounts of user ({userId}).", ex);
         }
     }
 
@@ -57,7 +57,7 @@ internal sealed class AccountRepository(CoreDbContext dbContext, IMapper mapper)
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
-            throw new RepositoryException($"Failed to fetch credit card limits for user ({userId}).", ex);
+            throw new ServerException($"Failed to fetch credit card limits for user ({userId}).", ex);
         }
     }
 }

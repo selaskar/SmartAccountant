@@ -2,6 +2,7 @@
 
 public static class ExceptionExtensions
 {
+    /// <exception cref="ArgumentNullException" />
     public static string GetAllMessages(this Exception exception)
     {
         ArgumentNullException.ThrowIfNull(exception);

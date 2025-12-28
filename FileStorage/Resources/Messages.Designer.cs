@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace SmartAccountant.Services.Resources {
+namespace FileStorage.Resources {
     using System;
     
     
@@ -39,7 +39,7 @@ namespace SmartAccountant.Services.Resources {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("SmartAccountant.Services.Resources.Messages", typeof(Messages).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("FileStorage.Resources.Messages", typeof(Messages).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -61,11 +61,20 @@ namespace SmartAccountant.Services.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Account ({0}) not found..
+        ///   Looks up a localized string similar to The file ({0}) already exists in the container ({1})..
         /// </summary>
-        internal static string AccountNotFound {
+        internal static string FileAlreadyExists {
             get {
-                return ResourceManager.GetString("AccountNotFound", resourceCulture);
+                return ResourceManager.GetString("FileAlreadyExists", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Upload failed with code {0}..
+        /// </summary>
+        internal static string UploadFailed {
+            get {
+                return ResourceManager.GetString("UploadFailed", resourceCulture);
             }
         }
     }

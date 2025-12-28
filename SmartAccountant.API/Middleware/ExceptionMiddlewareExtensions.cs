@@ -1,12 +1,14 @@
 ﻿using System.Net;
+using System.Net.Mime;
 using Microsoft.AspNetCore.Diagnostics;
+using SmartAccountant.Core.Helpers;
 using SmartAccountant.Dtos.Response;
 
 namespace SmartAccountant.API.Middleware;
 
 internal static class ExceptionMiddlewareExtensions
 {
-    public static void ConfigureExceptionHandler(this IApplicationBuilder app)
+    internal static void ConfigureExceptionHandler(this IApplicationBuilder app)
     {
         app.UseExceptionHandler(Handler);
     }
@@ -19,18 +21,18 @@ internal static class ExceptionMiddlewareExtensions
     private static async Task Handler2(HttpContext httpContext)
     {
         httpContext.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-        httpContext.Response.ContentType = System.Net.Mime.MediaTypeNames.Application.Json;
+        httpContext.Response.ContentType = MediaTypeNames.Application.Json;
 
         var contextFeature = httpContext.Features.Get<IExceptionHandlerFeature>();
         if (contextFeature == null)
             return;
 
-        // No need to log errors here, as they are logged by default by ASP.NET Core.
+        // No need to log errors here, as they are logged by ExceptionHandlerMiddleware. See app settings.
         await httpContext.Response.WriteAsJsonAsync(new ErrorDetail()
         {
             Code = httpContext.Response.StatusCode,
             Error = "Internal Server Error.",
-            Detail = contextFeature.Error.Message,
+            Detail = contextFeature.Error.GetAllMessages(),
             Category = ErrorCategory.ServerError
         });
     }

@@ -5,7 +5,6 @@ using SmartAccountant.Abstractions.Interfaces;
 using SmartAccountant.Core.Helpers;
 using SmartAccountant.Models;
 using SmartAccountant.Repositories.Core.Abstract;
-using SmartAccountant.Services.Resources;
 using SmartAccountant.Shared.Enums;
 using SmartAccountant.Shared.Structs;
 
@@ -49,7 +48,7 @@ internal class SummaryService(IAuthorizationService authorizationService,
                 Currencies = currencies.Values.ToList(),
             };
         }
-        catch (Exception ex) when (ex is not OperationCanceledException)
+        catch (Exception ex) when (ex is not OperationCanceledException and not ServerException)
         {
             throw new SummaryException(SummaryErrors.CannotCalculateSummary, ex);
         }
@@ -74,6 +73,10 @@ internal class SummaryService(IAuthorizationService authorizationService,
         }
     }
 
+    /// <exception cref="ServerException"/>
+    /// <exception cref="OperationCanceledException"/>
+    /// <exception cref="ArgumentNullException"/>
+    /// <exception cref="ArgumentOutOfRangeException"/>
     private async Task CalculateOriginalLimits(DateOnly month, Guid userId, Dictionary<Currency, CurrencySummary> currencies, CancellationToken cancellationToken)
     {
         var asOf = new DateTimeOffset(new DateTime(month.Year, month.Month, 1).AddMonths(1), TimeSpan.Zero);

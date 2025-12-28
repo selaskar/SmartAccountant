@@ -6,6 +6,7 @@ using SmartAccountant.Models;
 using SmartAccountant.Services.Parser.Extensions;
 using SmartAccountant.Services.Parser.Resources;
 using SmartAccountant.Shared.Enums;
+using SmartAccountant.Shared.Enums.Errors;
 using SmartAccountant.Shared.Structs;
 
 namespace SmartAccountant.Services.Parser.ParseStrategies;
@@ -28,7 +29,7 @@ internal class AbstractGarantiCreditCardStatementParseStrategy : AbstractGaranti
         }
         catch (Exception ex) when (ex is not ParserException)
         {
-            throw new ParserException(Messages.UnexpectedErrorParsingStatement, ex);
+            throw new ParserException(ParserErrors.UnexpectedErrorParsingStatement, ex);
         }
     }
 
@@ -49,7 +50,7 @@ internal class AbstractGarantiCreditCardStatementParseStrategy : AbstractGaranti
         DateTimeOffset date = ParseDate(row, column: 0, stringTable, rowNumber);
 
         if (!ParseMoney(row, column: 4, Currency.TRY, defaultIfEmpty: 0, stringTable, parseCulture, out MonetaryValue? amount))
-            throw new ParserException(UnexpectedAmountFormat.FormatMessage(rowNumber + 1));
+            throw new ParserException(ParserErrors.UnexpectedAmountFormat, UnexpectedAmountFormat.FormatMessage(rowNumber + 1));
 
         return new CreditCardTransaction()
         {

@@ -117,6 +117,18 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="AccountErrors_CannotFetchAccountsOfUser" xml:space="preserve">
+    <value>Cannot fetch accounts of user.</value>
+  </data>
+  <data name="AccountErrors_Unspecified" xml:space="preserve">
+    <value>An unexpected error occurred.</value>
+  </data>
+  <data name="AuthenticationErrors_Unspecified" xml:space="preserve">
+    <value>An authentication error occurred.</value>
+  </data>
+  <data name="AuthenticationErrors_UserNotAuthenticated" xml:space="preserve">
+    <value>User not authenticated.</value>
+  </data>
   <data name="ExpenseSubCategories_Custom" xml:space="preserve">
     <value>Custom</value>
   </data>
@@ -159,6 +171,60 @@
   <data name="ExpenseSubCategories_Water" xml:space="preserve">
     <value>Water</value>
   </data>
+  <data name="ImportErrors_AbstractCreditCardExpected" xml:space="preserve">
+    <value>A credit card was expected.</value>
+  </data>
+  <data name="ImportErrors_AccountDoesNotBelongToUser" xml:space="preserve">
+    <value>Account does not belong to the authenticated user.</value>
+  </data>
+  <data name="ImportErrors_CannotCheckExistingTransactions" xml:space="preserve">
+    <value>An error occurred while checking the existing transactions of the account.</value>
+  </data>
+  <data name="ImportErrors_CannotDetermineSecondaryAccount" xml:space="preserve">
+    <value>Secondary account ID could not be determined for discovered card number.</value>
+  </data>
+  <data name="ImportErrors_CannotParseUploadedStatementFile" xml:space="preserve">
+    <value>An error occurred while parsing the uploaded statement document.</value>
+  </data>
+  <data name="ImportErrors_CannotSaveImportedStatement" xml:space="preserve">
+    <value>An error occurred while persisting the imported statement.</value>
+  </data>
+  <data name="ImportErrors_CannotSaveUploadedStatementFile" xml:space="preserve">
+    <value>An error occurred while saving the uploaded document.</value>
+  </data>
+  <data name="ImportErrors_CannotValidateAccountHolder" xml:space="preserve">
+    <value>An error occurred while validating the account holder information.</value>
+  </data>
+  <data name="ImportErrors_DiscoveredCardNumbersMismatch" xml:space="preserve">
+    <value>Neither of discovered card numbers match the primary card number.</value>
+  </data>
+  <data name="ImportErrors_PrimaryCardNumberNotDetermined" xml:space="preserve">
+    <value>Primary card number was expected to be discovered by parser.</value>
+  </data>
+  <data name="ImportErrors_SavingAccountExpected" xml:space="preserve">
+    <value>A saving account wasn't expected.</value>
+  </data>
+  <data name="ImportErrors_SecondaryCardNumberNotDetermined" xml:space="preserve">
+    <value>Secondary card number was expected to be discovered by parser.</value>
+  </data>
+  <data name="ImportErrors_StatementTypeMismatch" xml:space="preserve">
+    <value>The statement wasn't of expected type.</value>
+  </data>
+  <data name="ImportErrors_TotalDueAmountMismatch" xml:space="preserve">
+    <value>Sum of rollover amount, total expenses, fees and debt payments must be equal to total due amount.</value>
+  </data>
+  <data name="ImportErrors_Unspecified" xml:space="preserve">
+    <value>An error occurred while importing the statement.</value>
+  </data>
+  <data name="ImportErrors_UploadedStatementFileEmpty" xml:space="preserve">
+    <value>Statement file shouldn't be empty.</value>
+  </data>
+  <data name="ImportErrors_UploadedStatementFileTooBig" xml:space="preserve">
+    <value>Statement file size shouldn't exceed 1 MB.</value>
+  </data>
+  <data name="ImportErrors_UploadedStatementFileTypeNotSupported" xml:space="preserve">
+    <value>Only Microsoft Excel workbooks are accepted.</value>
+  </data>
   <data name="MainCategory_Expense" xml:space="preserve">
     <value>Expense</value>
   </data>
@@ -177,10 +243,85 @@
   <data name="MainCategory_Saving" xml:space="preserve">
     <value>Saving</value>
   </data>
+  <data name="ParserErrors_DeflectionTooLarge" xml:space="preserve">
+    <value>Calculated deflection amount is larger than allowed absolute threshold.</value>
+  </data>
+  <data name="ParserErrors_InsufficientColumnCount" xml:space="preserve">
+    <value>Unrecognized file format. Column count was expected to be at least 5.</value>
+  </data>
+  <data name="ParserErrors_TransactionAmountAndBalanceMismatch" xml:space="preserve">
+    <value>Total amount of transactions and the remaining balance do not match.</value>
+  </data>
+  <data name="ParserErrors_TransactionAmountAndTotalExpensesMismatch" xml:space="preserve">
+    <value>Total amount of transactions and the due amount do not match.</value>
+  </data>
+  <data name="ParserErrors_TransactionDateColumnMissing" xml:space="preserve">
+    <value>Unrecognized file format. Expected to have transaction date at column A.</value>
+  </data>
+  <data name="ParserErrors_UnexpectedAmountFormat" xml:space="preserve">
+    <value>A transaction doesn't have a valid amount value.</value>
+  </data>
+  <data name="ParserErrors_UnexpectedDateFormat" xml:space="preserve">
+    <value>Unrecognized date format. Could not parse transaction date.</value>
+  </data>
+  <data name="ParserErrors_UnexpectedErrorParsingSpreadsheet" xml:space="preserve">
+    <value>An unexpected error occurred while parsing the spreadsheet.</value>
+  </data>
+  <data name="ParserErrors_UnexpectedErrorParsingStatement" xml:space="preserve">
+    <value>An unexpected error occurred while parsing the statement.</value>
+  </data>
+  <data name="ParserErrors_UnexpectedPartCount" xml:space="preserve">
+    <value>Statement was expected to be consist of 2 parts.</value>
+  </data>
+  <data name="ParserErrors_UnexpectedRemainingAmountFormat" xml:space="preserve">
+    <value>A transaction doesn't have a valid remaining amount value.</value>
+  </data>
+  <data name="ParserErrors_Unspecified" xml:space="preserve">
+    <value>An unexpected error occurred during parse.</value>
+  </data>
+  <data name="ParserErrors_UploadedDocumentMissingSheet" xml:space="preserve">
+    <value>Could not find a sheet in the document.</value>
+  </data>
   <data name="ProvisionState_Finalized" xml:space="preserve">
     <value>Finalized</value>
   </data>
   <data name="ProvisionState_Open" xml:space="preserve">
     <value>Open Provision</value>
+  </data>
+  <data name="StorageErrors_AzureStorageError" xml:space="preserve">
+    <value>An Azure blob storage-related exception occurred.</value>
+  </data>
+  <data name="StorageErrors_FileAlreadyExists" xml:space="preserve">
+    <value>File already exists in destination.</value>
+  </data>
+  <data name="StorageErrors_Unspecified" xml:space="preserve">
+    <value>An unexpected error occurred.</value>
+  </data>
+  <data name="StorageErrors_UploadFailed" xml:space="preserve">
+    <value>File upload failed.</value>
+  </data>
+  <data name="SummaryErrors_CannotCalculateSummary" xml:space="preserve">
+    <value>An error occurred while calculating the summary.</value>
+  </data>
+  <data name="SummaryErrors_Unspecified" xml:space="preserve">
+    <value>Summary couldn't be calculated.</value>
+  </data>
+  <data name="TransactionErrors_AccountDoesNotBelongToUser" xml:space="preserve">
+    <value>Account does not belong to user.</value>
+  </data>
+  <data name="TransactionErrors_AccountNotFound" xml:space="preserve">
+    <value>Account not found.</value>
+  </data>
+  <data name="TransactionErrors_CannotFetchTransactionsOfAccount" xml:space="preserve">
+    <value>An error occurred while fetching transactions of the account.</value>
+  </data>
+  <data name="TransactionErrors_CannotUpdateCreditCardTransaction" xml:space="preserve">
+    <value>An error occurred while updating the credit card transaction.</value>
+  </data>
+  <data name="TransactionErrors_CannotUpdateDebitTransaction" xml:space="preserve">
+    <value>An error occurred while updating the debit transaction.</value>
+  </data>
+  <data name="TransactionErrors_Unspecified" xml:space="preserve">
+    <value>An unexpected error occurred.</value>
   </data>
 </root>

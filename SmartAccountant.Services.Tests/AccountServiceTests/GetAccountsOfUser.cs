@@ -3,6 +3,7 @@ using SmartAccountant.Abstractions.Exceptions;
 using SmartAccountant.Abstractions.Interfaces;
 using SmartAccountant.Models;
 using SmartAccountant.Repositories.Core.Abstract;
+using SmartAccountant.Shared.Enums.Errors;
 
 namespace SmartAccountant.Services.Tests.AccountServiceTests;
 
@@ -27,7 +28,7 @@ public class GetAccountsOfUser
     public async Task ThrowAuthenticationExceptionForUnauthenticatedUser()
     {
         // Arrange
-        authorizationServiceMock.SetupGet(a => a.UserId).Throws(new AuthenticationException("test"));
+        authorizationServiceMock.SetupGet(a => a.UserId).Throws(new AuthenticationException(AuthenticationErrors.UserNotAuthenticated));
 
         // Act, Assert
         await Assert.ThrowsExactlyAsync<AuthenticationException>(async () => await sut.GetAccountsOfUser(CancellationToken.None));

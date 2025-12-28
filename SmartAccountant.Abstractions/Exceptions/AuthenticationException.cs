@@ -1,7 +1,9 @@
-﻿namespace SmartAccountant.Abstractions.Exceptions;
+﻿using SmartAccountant.Shared.Enums.Errors;
 
-public class AuthenticationException(string message, Exception? innerException) : Exception(message, innerException)
+namespace SmartAccountant.Abstractions.Exceptions;
+
+public class AuthenticationException(AuthenticationErrors error)
+    : EnumException<AuthenticationErrors>(error)
 {
-    public AuthenticationException(string message) : this(message, null)
-    { }
 }
+

@@ -1,9 +1,19 @@
-﻿namespace SmartAccountant.Abstractions.Exceptions;
+﻿using SmartAccountant.Shared.Enums.Errors;
 
-public class ParserException(string message, Exception? innerException) : Exception(message, innerException)
+namespace SmartAccountant.Abstractions.Exceptions;
+
+public class ParserException(ParserErrors error, string message, Exception? innerException)
+    : EnumException<ParserErrors>(error, message, innerException)
 {
-    public ParserException(string message) : this(message, null)
+    public ParserException(ParserErrors error, string message) : this(error, message, null)
     {
+    }
 
+    public ParserException(ParserErrors error, Exception ex) : this(error, error.ToString(), ex)
+    {
+    }
+
+    public ParserException(ParserErrors error) : this(error, error.ToString(), null)
+    {
     }
 }

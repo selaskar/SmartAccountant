@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using SmartAccountant.Abstractions.Exceptions;
 using SmartAccountant.Abstractions.Interfaces;
-using SmartAccountant.Identity.Resources;
+using SmartAccountant.Shared.Enums.Errors;
 
 namespace SmartAccountant.Identity;
 
@@ -16,12 +16,12 @@ internal sealed class AuthorizationService(IHttpContextAccessor httpContextAcces
             IIdentity? identity = httpContextAccessor.HttpContext.User.Identity;
 
             if (identity?.IsAuthenticated != true)
-                throw new AuthenticationException(Messages.UserNotAuthenticated);
+                throw new AuthenticationException(AuthenticationErrors.UserNotAuthenticated);
 
             string? objectId = httpContextAccessor.HttpContext.User.FindFirst("oid")?.Value;
 
             return objectId is not null ? Guid.Parse(objectId)
-                : throw new AuthenticationException(Messages.UserNotAuthenticated);
+                : throw new AuthenticationException(AuthenticationErrors.UserNotAuthenticated);
         }
     }
 }

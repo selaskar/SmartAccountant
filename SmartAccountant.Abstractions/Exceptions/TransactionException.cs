@@ -5,14 +5,10 @@ public class TransactionException(TransactionErrors error, string message, Excep
 {
     public TransactionException(TransactionErrors error, Exception? innerException) : this(error, error.ToString(), innerException)
     { }
-}
 
-public enum TransactionErrors
-{
-    Unspecified = 0,
-    AccountNotFound = 1,
-    AccountDoesNotBelongToUser = 2,
-    CannotFetchTransactionsOfAccount = 3,
-    CannotUpdateDebitTransaction = 4,
-    CannotUpdateCreditCardTransaction = 5,
+    public TransactionException(TransactionErrors error, string message) : this(error, message, null)
+    { }
+
+    public TransactionException(TransactionErrors error) : this(error, error.ToString(), null)
+    { }
 }

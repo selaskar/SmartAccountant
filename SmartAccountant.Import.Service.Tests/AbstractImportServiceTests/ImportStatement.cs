@@ -5,6 +5,7 @@ using SmartAccountant.Abstractions.Exceptions;
 using SmartAccountant.Abstractions.Models.Request;
 using SmartAccountant.Import.Service.Resources;
 using SmartAccountant.Models;
+using SmartAccountant.Shared.Enums.Errors;
 
 namespace SmartAccountant.Import.Service.Tests.AbstractImportServiceTests;
 
@@ -49,7 +50,7 @@ public class ImportStatement : Base
 
         SetupFileTypeValidator(true);
 
-        authorizationServiceMock.SetupGet(a => a.UserId).Throws(new AuthenticationException("test"));
+        authorizationServiceMock.SetupGet(a => a.UserId).Throws(new AuthenticationException(AuthenticationErrors.UserNotAuthenticated));
 
         // Act, Assert
         await Assert.ThrowsExactlyAsync<AuthenticationException>(() => sut.ImportStatement(model, CancellationToken.None));
@@ -253,7 +254,7 @@ public class ImportStatement : Base
 
         SetupParser(testStatement, bank: null);
 
-        SetupStorageService().Throws(new StorageException("test"));
+        SetupStorageService().Throws(new StorageException(StorageErrors.Unspecified, "test"));
 
         // Act, Assert
         var result = await Assert.ThrowsExactlyAsync<ImportException>(() => sut.ImportStatement(model, CancellationToken.None));

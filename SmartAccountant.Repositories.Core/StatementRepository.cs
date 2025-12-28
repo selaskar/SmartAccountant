@@ -20,7 +20,7 @@ internal sealed class StatementRepository(CoreDbContext dbContext, IMapper mappe
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
-            throw new RepositoryException($"Failed to insert statement ({statement.Id}).", ex);
+            throw new ServerException($"Failed to insert statement ({statement.Id}).", ex);
         }
     }
 }

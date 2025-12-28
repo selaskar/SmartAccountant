@@ -6,6 +6,7 @@ using SmartAccountant.Models;
 using SmartAccountant.Services.Parser.Abstract;
 using SmartAccountant.Services.Parser.Resources;
 using SmartAccountant.Shared.Enums;
+using SmartAccountant.Shared.Enums.Errors;
 
 namespace SmartAccountant.Services.Parser;
 
@@ -28,7 +29,7 @@ internal class ExcelSpreadsheetParserService(
         }
         catch (Exception ex) when (ex is not ParserException)
         {
-            throw new ParserException(Messages.UnexpectedErrorParsingStatement, ex);
+            throw new ParserException(ParserErrors.UnexpectedErrorParsingStatement, ex);
         }
     }
 
@@ -44,7 +45,7 @@ internal class ExcelSpreadsheetParserService(
         }
         catch (Exception ex) when (ex is not ParserException)
         {
-            throw new ParserException(Messages.UnexpectedErrorParsingStatement, ex);
+            throw new ParserException(ParserErrors.UnexpectedErrorParsingStatement, ex);
         }
     }
 
@@ -56,7 +57,7 @@ internal class ExcelSpreadsheetParserService(
             using var document = SpreadsheetDocument.Open(stream, false);
 
             string sheetPartId = document.WorkbookPart?.Workbook?.Descendants<Sheet>().FirstOrDefault()?.Id?.Value
-                ?? throw new ParserException(Messages.UploadedDocumentMissingSheet);
+                ?? throw new ParserException(ParserErrors.UploadedDocumentMissingSheet);
 
             WorksheetPart worksheetPart = (WorksheetPart)document.WorkbookPart!.GetPartById(sheetPartId);
             Worksheet worksheet = worksheetPart.Worksheet;
@@ -67,7 +68,7 @@ internal class ExcelSpreadsheetParserService(
         }
         catch (Exception ex) when (ex is not ParserException)
         {
-            throw new ParserException(Messages.UnexpectedErrorParsingSpreadsheet, ex);
+            throw new ParserException(ParserErrors.UnexpectedErrorParsingSpreadsheet, ex);
         }
     }
 }
