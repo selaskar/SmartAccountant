@@ -2,11 +2,11 @@
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 using SmartAccountant.Abstractions.Interfaces;
-using SmartAccountant.Abstractions.Models.Request;
 using SmartAccountant.Import.Service.Abstract;
 using SmartAccountant.Import.Service.Factories;
 using SmartAccountant.Import.Service.Helpers;
 using SmartAccountant.Import.Service.Validators;
+using SmartAccountant.Models.Request;
 
 namespace SmartAccountant.Import.Service.Extensions;
 

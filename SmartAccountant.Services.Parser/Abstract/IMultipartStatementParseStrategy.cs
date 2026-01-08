@@ -8,7 +8,8 @@ namespace SmartAccountant.Services.Parser.Abstract;
 internal interface IMultipartStatementParseStrategy
 {
     /// <exception cref="ParserException"/>
-    /// <exception cref="RegexMatchTimeoutException"/>
+    /// <exception cref="OverflowException"/>
+    /// <exception cref="FormatException"/>
     /// <exception cref="ArgumentOutOfRangeException"/>
     /// <exception cref="ArgumentNullException"/>
     void ParseMultipartStatement(SharedStatement statement, Worksheet worksheet, SharedStringTable stringTable);

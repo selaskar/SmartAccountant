@@ -1,14 +1,22 @@
-﻿using AutoMapper;
+﻿using System.Text;
+using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using SmartAccountant.Abstractions.Exceptions;
+using SmartAccountant.Core.Helpers;
 using SmartAccountant.Repositories.Core.Abstract;
 using SmartAccountant.Repositories.Core.DataContexts;
 using SmartAccountant.Repositories.Core.Entities;
+using SmartAccountant.Repositories.Core.Resources;
 
 namespace SmartAccountant.Repositories.Core;
 
 internal sealed class AccountRepository(CoreDbContext dbContext, IMapper mapper) : IAccountRepository
 {
+    private static readonly CompositeFormat CannotFetchAccount = CompositeFormat.Parse(Messages.CannotFetchAccount);
+    private static readonly CompositeFormat CannotFetchAccountsOfUser = CompositeFormat.Parse(Messages.CannotFetchAccountsOfUser);
+    private static readonly CompositeFormat CannotFetchCreditCardLimitsForUser = CompositeFormat.Parse(Messages.CannotFetchCreditCardLimitsForUser);
+
+
     /// <inheritdoc/>
     public async Task<Models.Account?> GetAccount(Guid accountId, CancellationToken cancellationToken)
     {
@@ -21,7 +29,7 @@ internal sealed class AccountRepository(CoreDbContext dbContext, IMapper mapper)
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
-            throw new RepositoryException($"Failed to fetch account ({accountId}).", ex);
+            throw new ServerException(CannotFetchAccount.FormatMessage(accountId), ex);
         }
     }
 
@@ -39,7 +47,7 @@ internal sealed class AccountRepository(CoreDbContext dbContext, IMapper mapper)
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
-            throw new RepositoryException($"Failed to fetch accounts of user ({userId}).", ex);
+            throw new ServerException(CannotFetchAccountsOfUser.FormatMessage(userId), ex);
         }
     }
 
@@ -57,7 +65,7 @@ internal sealed class AccountRepository(CoreDbContext dbContext, IMapper mapper)
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
-            throw new RepositoryException($"Failed to fetch credit card limits for user ({userId}).", ex);
+            throw new ServerException(CannotFetchCreditCardLimitsForUser.FormatMessage(userId), ex);
         }
     }
 }

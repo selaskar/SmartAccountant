@@ -6,7 +6,7 @@
 
 ## Development guidelines
 
-* All `ValidationExceptions` and derivatives of `EnumException` (e.g., `ImportException`) are handled by exception filters.
+* All `ValidationExceptions`, `ServerExceptions` and derivatives of `EnumException` (e.g., `ImportException`) are handled by their respective exception filters.
 No need to handle them in controllers.
 
 

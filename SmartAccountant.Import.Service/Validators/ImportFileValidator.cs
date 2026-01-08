@@ -1,5 +1,5 @@
 ﻿using FluentValidation;
-using SmartAccountant.Abstractions.Models.Request;
+using SmartAccountant.Models.Request;
 
 namespace SmartAccountant.Import.Service.Validators;
 

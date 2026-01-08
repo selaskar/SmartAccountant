@@ -5,7 +5,7 @@ namespace SmartAccountant.Repositories.Core.Abstract;
 
 public interface IStatementRepository
 {
-    /// <exception cref="RepositoryException" />
+    /// <exception cref="ServerException" />
     /// <exception cref="OperationCanceledException" />
     Task Insert(Statement statement, CancellationToken cancellationToken);
 }

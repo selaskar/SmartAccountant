@@ -6,6 +6,7 @@ namespace SmartAccountant.Abstractions.Interfaces;
 public interface IAccountService
 {
     /// <exception cref="AccountException"/>
+    /// <exception cref="ServerException"/>
     /// <exception cref="AuthenticationException"/>
     /// <exception cref="OperationCanceledException"/>
     Task<Account[]> GetAccountsOfUser(CancellationToken cancellationToken);

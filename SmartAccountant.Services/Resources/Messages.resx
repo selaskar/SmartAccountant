@@ -117,25 +117,10 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="AccountDoesNotBelongToUser" xml:space="preserve">
-    <value>Account does not belong to user.</value>
-  </data>
   <data name="AccountNotFound" xml:space="preserve">
-    <value>Account ({0}) not found</value>
+    <value>Account ({0}) not found.</value>
   </data>
   <data name="CannotCalculateSummary" xml:space="preserve">
-    <value>An error occurred while calculating the summary.</value>
-  </data>
-  <data name="CannotFetchAccountsOfUser" xml:space="preserve">
-    <value>An error occurred while fetching accounts of the user.</value>
-  </data>
-  <data name="CannotFetchTransactionsOfAccount" xml:space="preserve">
-    <value>An error occurred while fetching transactions of the account.</value>
-  </data>
-  <data name="CannotUpdateCreditCardTransaction" xml:space="preserve">
-    <value>An error occurred while updating the credit card transaction.</value>
-  </data>
-  <data name="CannotUpdateDebitTransaction" xml:space="preserve">
-    <value>An error occurred while updating the debit transaction.</value>
+    <value>An error occurred while calculating the summary for month ({0}) and account ({1}).</value>
   </data>
 </root>

@@ -1,7 +1,7 @@
-﻿using System.Net;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using SmartAccountant.Abstractions.Exceptions;
+using SmartAccountant.Core.Helpers;
 using SmartAccountant.Dtos.Response;
 
 namespace SmartAccountant.API.Filters;
@@ -24,7 +24,8 @@ internal sealed class EnumExceptionFilter : IExceptionFilter
         {
             Code = enumIndex,
             Error = context.Exception.Message,
-            Category = ErrorCategory.EnumException
+            Category = ErrorCategory.EnumException,
+            Detail = context.Exception.GetAllMessages()
         });
     }
 }

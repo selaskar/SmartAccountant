@@ -1,4 +1,4 @@
-﻿namespace SmartAccountant.Abstractions.Models.Request;
+﻿namespace SmartAccountant.Models.Request;
 
 public abstract record class AbstractStatementImportModel
 {

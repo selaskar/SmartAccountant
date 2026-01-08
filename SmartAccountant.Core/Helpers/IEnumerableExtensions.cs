@@ -5,11 +5,15 @@ namespace SmartAccountant.Core.Helpers;
 public static class IEnumerableExtensions
 {
     //TODO: unit test
+    /// <exception cref="OverflowException"/>
+    /// <exception cref="ArgumentNullException"/>
     public static MonetaryValue Sum(this IEnumerable<MonetaryValue> values)
     {
-        if (values == null || !values.Any())
+        var list = values?.ToList();
+
+        if (list == null || list.Count == 0)
             return default;
 
-        return new MonetaryValue(values.Sum(v => v.Amount), values.First().Currency);
+        return new MonetaryValue(list.Sum(v => v.Amount), list.First().Currency);
     }
 }

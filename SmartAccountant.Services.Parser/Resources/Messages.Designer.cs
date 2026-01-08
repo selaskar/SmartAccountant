@@ -19,7 +19,7 @@ namespace SmartAccountant.Services.Parser.Resources {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "17.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "18.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     internal class Messages {
@@ -79,24 +79,6 @@ namespace SmartAccountant.Services.Parser.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Total amount of transactions and the remaining balance do not match..
-        /// </summary>
-        internal static string TransactionAmountAndBalanceDontMatch {
-            get {
-                return ResourceManager.GetString("TransactionAmountAndBalanceDontMatch", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Total amount of transactions and the due amount do not match..
-        /// </summary>
-        internal static string TransactionAmountAndTotalExpensesDontMatch {
-            get {
-                return ResourceManager.GetString("TransactionAmountAndTotalExpensesDontMatch", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Unrecognized file format. Expected to have transaction date at column A (item: {0})..
         /// </summary>
         internal static string TransactionDateColumnMissing {
@@ -142,6 +124,24 @@ namespace SmartAccountant.Services.Parser.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to An unexpected error occurred while reading the multipart statement..
+        /// </summary>
+        internal static string UnexpectedErrorReadingMultipartStatement {
+            get {
+                return ResourceManager.GetString("UnexpectedErrorReadingMultipartStatement", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to An unexpected error occurred while reading the statement..
+        /// </summary>
+        internal static string UnexpectedErrorReadingStatement {
+            get {
+                return ResourceManager.GetString("UnexpectedErrorReadingStatement", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Statement was expected to be consist of 2 parts. Found: {0}..
         /// </summary>
         internal static string UnexpectedPartCount {
@@ -156,15 +156,6 @@ namespace SmartAccountant.Services.Parser.Resources {
         internal static string UnexpectedRemainingAmountFormat {
             get {
                 return ResourceManager.GetString("UnexpectedRemainingAmountFormat", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Could not find a sheet in the document..
-        /// </summary>
-        internal static string UploadedDocumentMissingSheet {
-            get {
-                return ResourceManager.GetString("UploadedDocumentMissingSheet", resourceCulture);
             }
         }
     }

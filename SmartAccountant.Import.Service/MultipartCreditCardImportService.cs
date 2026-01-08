@@ -3,13 +3,14 @@ using FluentValidation;
 using Microsoft.Extensions.Logging;
 using SmartAccountant.Abstractions.Exceptions;
 using SmartAccountant.Abstractions.Interfaces;
-using SmartAccountant.Abstractions.Models.Request;
 using SmartAccountant.Core.Helpers;
 using SmartAccountant.Import.Service.Abstract;
 using SmartAccountant.Import.Service.Helpers;
 using SmartAccountant.Import.Service.Resources;
 using SmartAccountant.Models;
+using SmartAccountant.Models.Request;
 using SmartAccountant.Repositories.Core.Abstract;
+using SmartAccountant.Shared.Enums.Errors;
 
 namespace SmartAccountant.Import.Service;
 
@@ -50,11 +51,13 @@ internal sealed class MultipartCreditCardImportService(
 
             return statement;
         }
-        catch (Exception ex) when (ex is not OperationCanceledException and not ImportException)
+        catch (ParserException ex)
         {
-            ParseFailed(ex, account.Id);
-
             throw new ImportException(ImportErrors.CannotParseUploadedStatementFile, ex);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException and not ServerException and not ImportException)
+        {
+            throw new ServerException(CannotParseUploadedStatementFile.FormatMessage(account.Id), ex);
         }
     }
 
@@ -69,9 +72,9 @@ internal sealed class MultipartCreditCardImportService(
             Transaction[] existingSecondaryTransactions = await TransactionRepository.GetTransactionsOfAccount(sharedStatement.DependentAccountId!.Value, cancellationToken);
             return existingPrimaryTransactions.Union(existingSecondaryTransactions).ToArray();
         }
-        catch (RepositoryException ex)
+        catch (Exception ex) when (ex is not OperationCanceledException and not ServerException)
         {
-            throw new ImportException(ImportErrors.CannotCheckExistingTransactions, CannotCheckExistingTransactions.FormatMessage(statement.AccountId), ex);
+            throw new ServerException(CannotCheckExistingTransactions.FormatMessage(statement.AccountId), ex);
         }
     }
 
@@ -94,8 +97,10 @@ internal sealed class MultipartCreditCardImportService(
 
 
     /// <exception cref="ImportException"/>
-    /// <exception cref="RepositoryException" />
+    /// <exception cref="ServerException"/>
     /// <exception cref="OperationCanceledException"/>
+    /// <exception cref="ArgumentException"/>
+    /// <exception cref="ArgumentNullException"/>
     private async Task AssignAccountIds(SharedStatement statement, Account primaryAccount, CancellationToken cancellationToken)
     {
         var abstractPrimaryCreditCard = primaryAccount as AbstractCreditCard

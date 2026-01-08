@@ -1,19 +1,27 @@
-﻿using AutoMapper;
+﻿using System.Text;
+using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using SmartAccountant.Abstractions.Exceptions;
+using SmartAccountant.Core.Helpers;
 using SmartAccountant.Repositories.Core.Abstract;
 using SmartAccountant.Repositories.Core.DataContexts;
+using SmartAccountant.Repositories.Core.Resources;
 
 namespace SmartAccountant.Repositories.Core;
 
 internal sealed class TransactionRepository(CoreDbContext dbContext, IMapper mapper) : ITransactionRepository
 {
+    private static readonly CompositeFormat CannotFetchTransactionsOfUser = CompositeFormat.Parse(Messages.CannotFetchTransactionsOfUser);
+    private static readonly CompositeFormat CannotFetchTransactionsOfUserForMonth = CompositeFormat.Parse(Messages.CannotFetchTransactionsOfUserForMonth);
+    private static readonly CompositeFormat CannotUpdateDebitTransaction = CompositeFormat.Parse(Messages.CannotUpdateDebitTransaction);
+    private static readonly CompositeFormat CannotUpdateCreditCardTransaction = CompositeFormat.Parse(Messages.CannotUpdateCreditCardTransaction);
+
+
     /// <inheritdoc/>
     public async Task<Models.Transaction[]> GetTransactionsOfAccount(Guid accountId, CancellationToken cancellationToken)
     {
         try
         {
-            //TODO: take period as filter parameter.
             var transactions = await dbContext.Transactions.AsNoTracking()
                 .Include(x => x.Account)
                 .Where(x => x.AccountId == accountId)
@@ -24,7 +32,7 @@ internal sealed class TransactionRepository(CoreDbContext dbContext, IMapper map
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
-            throw new RepositoryException($"Failed to fetch transactions of account ({accountId}).", ex);
+            throw new ServerException(CannotFetchTransactionsOfUser.FormatMessage(accountId), ex);
         }
     }
 
@@ -45,7 +53,7 @@ internal sealed class TransactionRepository(CoreDbContext dbContext, IMapper map
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
-            throw new RepositoryException($"Failed to fetch transactions of user ({holderId}).", ex);
+            throw new ServerException(CannotFetchTransactionsOfUserForMonth.FormatMessage(holderId, month), ex);
         }
     }
 
@@ -62,7 +70,7 @@ internal sealed class TransactionRepository(CoreDbContext dbContext, IMapper map
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
-            throw new RepositoryException("Failed to insert transactions.", ex);
+            throw new ServerException(Messages.CannotInsertTransactions, ex);
         }
     }
 
@@ -79,7 +87,7 @@ internal sealed class TransactionRepository(CoreDbContext dbContext, IMapper map
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
-            throw new RepositoryException($"Failed to remove transactions.", ex);
+            throw new ServerException(Messages.CannotDeleteTransactions, ex);
         }
     }
 
@@ -95,7 +103,7 @@ internal sealed class TransactionRepository(CoreDbContext dbContext, IMapper map
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
-            throw new RepositoryException($"Failed to update debit transaction ({debitTransaction.Id}).", ex);
+            throw new ServerException(CannotUpdateDebitTransaction.FormatMessage(debitTransaction.Id), ex);
         }
     }
 
@@ -111,9 +119,7 @@ internal sealed class TransactionRepository(CoreDbContext dbContext, IMapper map
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
-            throw new RepositoryException($"Failed to update credit card transaction ({creditCardTransaction.Id}).", ex);
+            throw new ServerException(CannotUpdateCreditCardTransaction.FormatMessage(creditCardTransaction.Id), ex);
         }
     }
 }
-
-

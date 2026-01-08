@@ -1,4 +1,4 @@
-﻿using SmartAccountant.Abstractions.Models.Request;
+﻿using SmartAccountant.Models.Request;
 
 namespace SmartAccountant.Abstractions.Tests.Models.Request.ImportFileTests;
 

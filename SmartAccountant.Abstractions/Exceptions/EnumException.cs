@@ -1,5 +1,6 @@
 ﻿namespace SmartAccountant.Abstractions.Exceptions;
 
+//TODO: move to library
 public class EnumException<T>(T error, string message, Exception? inner) : Exception(message, inner)
     where T : Enum
 {

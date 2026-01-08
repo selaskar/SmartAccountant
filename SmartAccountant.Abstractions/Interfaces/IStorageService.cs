@@ -5,6 +5,7 @@ namespace SmartAccountant.Abstractions.Interfaces;
 public interface IStorageService
 {
     /// <exception cref="StorageException"/>
+    /// <exception cref="ServerException"/>
     /// <exception cref="OperationCanceledException"/>
     Task WriteToFile(string container, string filePath, Stream stream, CancellationToken cancellationToken);
 }

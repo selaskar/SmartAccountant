@@ -19,7 +19,7 @@ namespace SmartAccountant.Services.Resources {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "17.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "18.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     internal class Messages {
@@ -61,16 +61,7 @@ namespace SmartAccountant.Services.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Account does not belong to user..
-        /// </summary>
-        internal static string AccountDoesNotBelongToUser {
-            get {
-                return ResourceManager.GetString("AccountDoesNotBelongToUser", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Account ({0}) not found.
+        ///   Looks up a localized string similar to Account ({0}) not found..
         /// </summary>
         internal static string AccountNotFound {
             get {
@@ -79,47 +70,11 @@ namespace SmartAccountant.Services.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to An error occurred while calculating the summary..
+        ///   Looks up a localized string similar to An error occurred while calculating the summary for month ({0}) and account ({1})..
         /// </summary>
         internal static string CannotCalculateSummary {
             get {
                 return ResourceManager.GetString("CannotCalculateSummary", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to An error occurred while fetching accounts of the user..
-        /// </summary>
-        internal static string CannotFetchAccountsOfUser {
-            get {
-                return ResourceManager.GetString("CannotFetchAccountsOfUser", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to An error occurred while fetching transactions of the account..
-        /// </summary>
-        internal static string CannotFetchTransactionsOfAccount {
-            get {
-                return ResourceManager.GetString("CannotFetchTransactionsOfAccount", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to An error occurred while updating the credit card transaction..
-        /// </summary>
-        internal static string CannotUpdateCreditCardTransaction {
-            get {
-                return ResourceManager.GetString("CannotUpdateCreditCardTransaction", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to An error occurred while updating the debit transaction..
-        /// </summary>
-        internal static string CannotUpdateDebitTransaction {
-            get {
-                return ResourceManager.GetString("CannotUpdateDebitTransaction", resourceCulture);
             }
         }
     }

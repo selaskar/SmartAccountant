@@ -1,8 +1,8 @@
 ﻿using AutoMapper;
-using SmartAccountant.Abstractions.Models.Request;
 using SmartAccountant.Dtos.Request;
 using SmartAccountant.Dtos.Response;
 using SmartAccountant.Models;
+using SmartAccountant.Models.Request;
 
 namespace SmartAccountant.API.Mappers;
 

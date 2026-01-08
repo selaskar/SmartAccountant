@@ -2,13 +2,13 @@
 using Microsoft.Extensions.Logging;
 using SmartAccountant.Abstractions.Exceptions;
 using SmartAccountant.Abstractions.Interfaces;
-using SmartAccountant.Abstractions.Models.Request;
 using SmartAccountant.Core.Helpers;
 using SmartAccountant.Import.Service.Abstract;
-using SmartAccountant.Import.Service.Resources;
 using SmartAccountant.Models;
+using SmartAccountant.Models.Request;
 using SmartAccountant.Repositories.Core.Abstract;
 using SmartAccountant.Shared.Enums;
+using SmartAccountant.Shared.Enums.Errors;
 
 namespace SmartAccountant.Import.Service;
 
@@ -44,11 +44,13 @@ internal sealed class CreditCardImportService(
 
             return Task.FromResult<Statement>(statement);
         }
+        catch (ParserException ex)
+        {
+            throw new ImportException(ImportErrors.CannotParseUploadedStatementFile, ex);
+        }
         catch (Exception ex) when (ex is not ImportException)
         {
-            ParseFailed(ex, account.Id);
-
-            throw new ImportException(ImportErrors.CannotParseUploadedStatementFile, ex);
+            throw new ServerException(CannotParseUploadedStatementFile.FormatMessage(account.Id), ex);
         }
     }
 

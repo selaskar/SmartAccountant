@@ -5,6 +5,7 @@ using SmartAccountant.Models;
 using SmartAccountant.Services.Parser.Abstract;
 using SmartAccountant.Services.Parser.Resources;
 using SmartAccountant.Shared.Enums;
+using SmartAccountant.Shared.Enums.Errors;
 
 namespace SmartAccountant.Services.Parser.Tests.ExcelSpreadsheetParserServiceTests;
 
@@ -45,12 +46,12 @@ public class ReadMultipartStatement : Base
 
         using MemoryStream stream = GetValidSpreadsheet();
 
-        mockParseStrategy.Setup(x => x.CrossCheck(statement)).Throws(() => new ParserException("test"));
+        mockParseStrategy.Setup(x => x.CrossCheck(statement)).Throws(() => new ParserException(ParserErrors.DeflectionTooLarge));
 
         // Act, Assert
         var result = Assert.ThrowsExactly<ParserException>(() => sut.ReadMultipartStatement(statement, stream, Bank.GarantiBBVA));
 
-        Assert.AreEqual("test", result.Message);
+        Assert.AreEqual(ParserErrors.DeflectionTooLarge, result.Error);
     }
 
     [TestMethod]

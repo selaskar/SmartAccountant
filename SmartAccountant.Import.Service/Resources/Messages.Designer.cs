@@ -61,15 +61,6 @@ namespace SmartAccountant.Import.Service.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Account does not belong to the authenticated user..
-        /// </summary>
-        internal static string AccountDoesNotBelongToUser {
-            get {
-                return ResourceManager.GetString("AccountDoesNotBelongToUser", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to An error occurred while checking the existing transactions of the account ({0})..
         /// </summary>
         internal static string CannotCheckExistingTransactions {
@@ -88,7 +79,16 @@ namespace SmartAccountant.Import.Service.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to An error occurred while parsing the uploaded statement document..
+        ///   Looks up a localized string similar to An error occurred while importing the statement ({0}) to account ({1})..
+        /// </summary>
+        internal static string CannotImportStatement {
+            get {
+                return ResourceManager.GetString("CannotImportStatement", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to An error occurred while parsing the uploaded statement document for account ({0})..
         /// </summary>
         internal static string CannotParseUploadedStatementFile {
             get {
@@ -97,16 +97,16 @@ namespace SmartAccountant.Import.Service.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to An error occurred while persisting the imported statement..
+        ///   Looks up a localized string similar to An error occurred while persisting the statement being imported for account ({0})..
         /// </summary>
-        internal static string CannotSaveImportedStatement {
+        internal static string CannotSaveImportingStatement {
             get {
-                return ResourceManager.GetString("CannotSaveImportedStatement", resourceCulture);
+                return ResourceManager.GetString("CannotSaveImportingStatement", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to An error occurred while saving the uploaded document..
+        ///   Looks up a localized string similar to An error occurred while saving the uploaded document (AccountId: {0})..
         /// </summary>
         internal static string CannotSaveUploadedStatementFile {
             get {
@@ -115,7 +115,7 @@ namespace SmartAccountant.Import.Service.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to An error occurred while validating the account holder information..
+        ///   Looks up a localized string similar to An error occurred while verifying the holder of account ({0})..
         /// </summary>
         internal static string CannotValidateAccountHolder {
             get {
@@ -129,69 +129,6 @@ namespace SmartAccountant.Import.Service.Resources {
         internal static string DiscoveredCardNumbersMismatch {
             get {
                 return ResourceManager.GetString("DiscoveredCardNumbersMismatch", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Period start date should be earlier than end date..
-        /// </summary>
-        internal static string PeriodStartNotEarlierThanPeriodEnd {
-            get {
-                return ResourceManager.GetString("PeriodStartNotEarlierThanPeriodEnd", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Primary card number was expected to be discovered by parser..
-        /// </summary>
-        internal static string PrimaryCardNumberNotDetermined {
-            get {
-                return ResourceManager.GetString("PrimaryCardNumberNotDetermined", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Secondary card number was expected to be discovered by parser..
-        /// </summary>
-        internal static string SecondaryCardNumberNotDetermined {
-            get {
-                return ResourceManager.GetString("SecondaryCardNumberNotDetermined", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Sum of rollover amount, total expenses, fees and debt payments must be equal to total due amount..
-        /// </summary>
-        internal static string TotalDueAmountMismatch {
-            get {
-                return ResourceManager.GetString("TotalDueAmountMismatch", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Statement file shouldn&apos;t be empty..
-        /// </summary>
-        internal static string UploadedStatementFileEmpty {
-            get {
-                return ResourceManager.GetString("UploadedStatementFileEmpty", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Statement file size shouldn&apos;t exceed 1 MB..
-        /// </summary>
-        internal static string UploadedStatementFileTooBig {
-            get {
-                return ResourceManager.GetString("UploadedStatementFileTooBig", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Only Microsoft Excel workbooks are accepted..
-        /// </summary>
-        internal static string UploadedStatementFileTypeNotSupported {
-            get {
-                return ResourceManager.GetString("UploadedStatementFileTypeNotSupported", resourceCulture);
             }
         }
     }

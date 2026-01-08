@@ -33,6 +33,7 @@ internal sealed class Program
                 options.Filters.Add<AuthenticationExceptionFilter>();
                 options.Filters.Add<ValidationExceptionFilter>();
                 options.Filters.Add<EnumExceptionFilter>();
+                options.Filters.Add<ServerExceptionFilter>();
             })
             .AddJsonOptions(options => options.JsonSerializerOptions.AllowTrailingCommas = true);
 

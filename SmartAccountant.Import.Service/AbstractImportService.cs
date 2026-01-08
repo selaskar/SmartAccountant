@@ -4,12 +4,13 @@ using FluentValidation;
 using Microsoft.Extensions.Logging;
 using SmartAccountant.Abstractions.Exceptions;
 using SmartAccountant.Abstractions.Interfaces;
-using SmartAccountant.Abstractions.Models.Request;
 using SmartAccountant.Core.Helpers;
 using SmartAccountant.Import.Service.Abstract;
 using SmartAccountant.Import.Service.Resources;
 using SmartAccountant.Models;
+using SmartAccountant.Models.Request;
 using SmartAccountant.Repositories.Core.Abstract;
+using SmartAccountant.Shared.Enums.Errors;
 
 namespace SmartAccountant.Import.Service;
 
@@ -31,7 +32,12 @@ internal abstract partial class AbstractImportService(
     private const string UploadsContainerName = "uploads";
     private const string AccountsFolderName = "accounts";
 
+    private static readonly CompositeFormat CannotImportStatement = CompositeFormat.Parse(Messages.CannotImportStatement);
+    private static readonly CompositeFormat CannotValidateAccountHolder = CompositeFormat.Parse(Messages.CannotValidateAccountHolder);
+    private static readonly CompositeFormat CannotSaveUploadedStatementFile = CompositeFormat.Parse(Messages.CannotSaveUploadedStatementFile);
+    private static readonly CompositeFormat CannotSaveImportingStatement = CompositeFormat.Parse(Messages.CannotSaveImportingStatement);
     private protected static readonly CompositeFormat CannotCheckExistingTransactions = CompositeFormat.Parse(Messages.CannotCheckExistingTransactions);
+    private protected static readonly CompositeFormat CannotParseUploadedStatementFile = CompositeFormat.Parse(Messages.CannotParseUploadedStatementFile);
 
     private protected IAccountRepository AccountRepository { get; } = accountRepository;
     private protected ITransactionRepository TransactionRepository { get; } = transactionRepository;
@@ -39,24 +45,33 @@ internal abstract partial class AbstractImportService(
     /// <inheritdoc/>
     public async Task<Statement> ImportStatement(AbstractStatementImportModel model, CancellationToken cancellationToken)
     {
-        Validate(model);
+        Statement? statement = null;
 
-        if (!await fileTypeValidator.IsValidFile(model.File, cancellationToken))
-            throw new ImportException(ImportErrors.UploadedStatementFileTypeNotSupported);
+        Validate(model);
 
         Guid userId = authorizationService.UserId;
 
-        Account account = await ValidateAccountHolder(userId, model.AccountId, cancellationToken);
+        try
+        {
+            if (!await fileTypeValidator.IsValidFile(model.File, cancellationToken))
+                throw new ImportException(ImportErrors.UploadedStatementFileTypeNotSupported);
 
-        Statement statement = await Parse(model, account, cancellationToken);
+            Account account = await ValidateAccountHolder(userId, model.AccountId, cancellationToken);
 
-        await SaveFile(statement, model.File, cancellationToken);
+            statement = await Parse(model, account, cancellationToken);
 
-        (Transaction[] newTransactions, Transaction[] finalizedProvisions) = await Collide(statement, cancellationToken);
+            await SaveFile(statement, model.File, cancellationToken);
 
-        await PersistStatement(statement, newTransactions, finalizedProvisions, cancellationToken);
+            (Transaction[] newTransactions, Transaction[] finalizedProvisions) = await Collide(statement, cancellationToken);
 
-        return statement;
+            await PersistStatement(statement, newTransactions, finalizedProvisions, cancellationToken);
+
+            return statement;
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException and not ServerException and not ImportException)
+        {
+            throw new ServerException(CannotImportStatement.FormatMessage(statement?.Id, model.AccountId), ex);
+        }
     }
 
 
@@ -64,10 +79,12 @@ internal abstract partial class AbstractImportService(
     protected internal abstract void Validate(AbstractStatementImportModel model);
 
     /// <exception cref="ImportException"/>
+    /// <exception cref="ServerException"/>
     /// <exception cref="OperationCanceledException"/>
     protected internal abstract Task<Statement> Parse(AbstractStatementImportModel model, Account account, CancellationToken cancellationToken);
 
     /// <exception cref="ImportException"/>
+    /// <exception cref="ServerException"/>
     /// <exception cref="OperationCanceledException"/>
     protected internal virtual async Task<Transaction[]> FetchExistingTransactions(Statement statement, CancellationToken cancellationToken)
     {
@@ -76,21 +93,28 @@ internal abstract partial class AbstractImportService(
             Transaction[] existingTransactions = await TransactionRepository.GetTransactionsOfAccount(statement.AccountId, cancellationToken);
             return existingTransactions;
         }
-        catch (RepositoryException ex)
+        catch (Exception ex) when (ex is not OperationCanceledException and not ServerException)
         {
-            throw new ImportException(ImportErrors.CannotCheckExistingTransactions, CannotCheckExistingTransactions.FormatMessage(statement.AccountId), ex);
+            throw new ServerException(CannotCheckExistingTransactions.FormatMessage(statement.AccountId), ex);
         }
     }
 
     /// <returns>Unique transactions</returns>
     /// <exception cref="ImportException"/>
+    /// <exception cref="ArgumentOutOfRangeException"/>
+    /// <exception cref="ArgumentException"/>
+    /// <exception cref="ArgumentNullException"/>
     protected internal abstract Transaction[] DetectNew(Statement statement, Transaction[] existingTransactions);
 
     /// <returns>Returns the transactions that previously existed as open provisions, but became finalized since then.</returns>
     /// <exception cref="ImportException"/>
+    /// <exception cref="ArgumentOutOfRangeException"/>
+    /// <exception cref="ArgumentException"/>
+    /// <exception cref="ArgumentNullException"/>
     protected internal abstract Transaction[] DetectFinalized(Statement statement, Transaction[] existingTransactions);
 
     /// <exception cref="ImportException" />
+    /// <exception cref="ServerException" />
     /// <exception cref="OperationCanceledException" />
     private async Task<Account> ValidateAccountHolder(Guid userId, Guid accountId, CancellationToken cancellationToken)
     {
@@ -101,15 +125,14 @@ internal abstract partial class AbstractImportService(
             return accounts.FirstOrDefault(x => x.Id == accountId)
                ?? throw new ImportException(ImportErrors.AccountDoesNotBelongToUser); // or does not exist
         }
-        catch (Exception ex) when (ex is not OperationCanceledException and not ImportException)
+        catch (Exception ex) when (ex is not OperationCanceledException and not ServerException and not ImportException)
         {
-            AccountHolderVerificationFailed(ex, accountId);
-
-            throw new ImportException(ImportErrors.CannotValidateAccountHolder, ex);
+            throw new ServerException(CannotValidateAccountHolder.FormatMessage(accountId), ex);
         }
     }
 
     /// <exception cref="ImportException"/>
+    /// <exception cref="ServerException"/>
     /// <exception cref="OperationCanceledException"/>
     private async Task SaveFile(Statement statement, ImportFile file, CancellationToken cancellationToken)
     {
@@ -133,16 +156,22 @@ internal abstract partial class AbstractImportService(
                 FilePath = path
             });
         }
-        catch (Exception ex) when (ex is not OperationCanceledException)
+        catch (StorageException ex)
         {
-            UploadFailed(ex, statement.AccountId);
-
             throw new ImportException(ImportErrors.CannotSaveUploadedStatementFile, ex);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException and not ServerException)
+        {
+            throw new ServerException(CannotSaveUploadedStatementFile.FormatMessage(statement.AccountId), ex);
         }
     }
 
     /// <exception cref="ImportException"/>
+    /// <exception cref="ServerException"/>
     /// <exception cref="OperationCanceledException"/>
+    /// <exception cref="ArgumentOutOfRangeException"/>
+    /// <exception cref="ArgumentException"/>
+    /// <exception cref="ArgumentNullException"/>
     private async Task<(Transaction[], Transaction[])> Collide(Statement statement, CancellationToken cancellationToken)
     {
         Transaction[] existingTransactions = await FetchExistingTransactions(statement, cancellationToken);
@@ -154,7 +183,7 @@ internal abstract partial class AbstractImportService(
         return (newTransactions, finalizedProvisions);
     }
 
-    /// <exception cref="ImportException"/>
+    /// <exception cref="ServerException"/>
     /// <exception cref="OperationCanceledException"/>
     private async Task PersistStatement(Statement statement, Transaction[] newTransactions, Transaction[] finalizedTransactions, CancellationToken cancellationToken)
     {
@@ -176,11 +205,9 @@ internal abstract partial class AbstractImportService(
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
-            PersistFailed(ex, statement.AccountId);
-
             await unitOfWork.RollbackAsync(cancellationToken);
 
-            throw new ImportException(ImportErrors.CannotSaveImportedStatement, ex);
+            throw new ServerException(CannotSaveImportingStatement.FormatMessage(statement.AccountId), ex);
         }
     }
 
@@ -193,11 +220,6 @@ internal abstract partial class AbstractImportService(
             throw new ImportException(ImportErrors.StatementTypeMismatch, $"Statement (type: {statement.GetType().Name}) was expected to be type of {typeof(TStatement).Name}");
     }
 
-    [LoggerMessage(Level = LogLevel.Error, Message = "An error occurred while verifying the holder of account ({AccountId}).")]
-    private partial void AccountHolderVerificationFailed(Exception ex, Guid accountId);
-
-    [LoggerMessage(Level = LogLevel.Error, Message = "Parsing of statement document failed for account ({AccountId}).")]
-    private protected partial void ParseFailed(Exception ex, Guid accountId);
 
     [LoggerMessage(Level = LogLevel.Trace, Message = "Starting to save the uploaded document.")]
     private partial void UploadStarting();
@@ -205,12 +227,6 @@ internal abstract partial class AbstractImportService(
     [LoggerMessage(Level = LogLevel.Trace, Message = "Statement document successfully uploaded.")]
     private partial void UploadSucceeded();
 
-    [LoggerMessage(Level = LogLevel.Error, Message = "An error occurred while saving the uploaded document for account ({AccountId}).")]
-    private protected partial void UploadFailed(Exception ex, Guid accountId);
-
     [LoggerMessage(Level = LogLevel.Trace, Message = "The uploaded statement successfully persisted.")]
     private partial void PersistSucceeded();
-
-    [LoggerMessage(Level = LogLevel.Error, Message = "Persisting of uploaded statement failed for account ({AccountId}).")]
-    private partial void PersistFailed(Exception ex, Guid accountId);
 }

@@ -3,6 +3,7 @@ using SmartAccountant.Models;
 using SmartAccountant.Services.Parser.ParseStrategies;
 using SmartAccountant.Services.Parser.Resources;
 using SmartAccountant.Shared.Enums;
+using SmartAccountant.Shared.Enums.Errors;
 using SmartAccountant.Shared.Structs;
 
 namespace SmartAccountant.Services.Parser.Tests.ParseStrategies.GarantiDebitStatementParseStrategyTests;
@@ -73,7 +74,7 @@ public class CrossCheck
         // Act, Assert
         var result = Assert.ThrowsExactly<ParserException>(() => sut.CrossCheck(statement));
 
-        Assert.AreEqual(Messages.TransactionAmountAndBalanceDontMatch, result.Message);
+        Assert.AreEqual(ParserErrors.TransactionAmountAndBalanceMismatch, result.Error);
     }
 
     [TestMethod]

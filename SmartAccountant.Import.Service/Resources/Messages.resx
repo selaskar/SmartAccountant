@@ -117,49 +117,28 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="AccountDoesNotBelongToUser" xml:space="preserve">
-    <value>Account does not belong to the authenticated user.</value>
-  </data>
-  <data name="CannotParseUploadedStatementFile" xml:space="preserve">
-    <value>An error occurred while parsing the uploaded statement document.</value>
-  </data>
-  <data name="CannotSaveImportedStatement" xml:space="preserve">
-    <value>An error occurred while persisting the imported statement.</value>
-  </data>
-  <data name="CannotSaveUploadedStatementFile" xml:space="preserve">
-    <value>An error occurred while saving the uploaded document.</value>
-  </data>
-  <data name="CannotValidateAccountHolder" xml:space="preserve">
-    <value>An error occurred while validating the account holder information.</value>
-  </data>
-  <data name="PeriodStartNotEarlierThanPeriodEnd" xml:space="preserve">
-    <value>Period start date should be earlier than end date.</value>
-  </data>
-  <data name="UploadedStatementFileEmpty" xml:space="preserve">
-    <value>Statement file shouldn't be empty.</value>
-  </data>
-  <data name="UploadedStatementFileTooBig" xml:space="preserve">
-    <value>Statement file size shouldn't exceed 1 MB.</value>
-  </data>
-  <data name="UploadedStatementFileTypeNotSupported" xml:space="preserve">
-    <value>Only Microsoft Excel workbooks are accepted.</value>
-  </data>
   <data name="CannotCheckExistingTransactions" xml:space="preserve">
     <value>An error occurred while checking the existing transactions of the account ({0}).</value>
-  </data>
-  <data name="TotalDueAmountMismatch" xml:space="preserve">
-    <value>Sum of rollover amount, total expenses, fees and debt payments must be equal to total due amount.</value>
-  </data>
-  <data name="SecondaryCardNumberNotDetermined" xml:space="preserve">
-    <value>Secondary card number was expected to be discovered by parser.</value>
-  </data>
-  <data name="PrimaryCardNumberNotDetermined" xml:space="preserve">
-    <value>Primary card number was expected to be discovered by parser.</value>
   </data>
   <data name="DiscoveredCardNumbersMismatch" xml:space="preserve">
     <value>Neither of discovered card numbers ({0}, {1}) match primary card number ({2}).</value>
   </data>
+  <data name="CannotImportStatement" xml:space="preserve">
+    <value>An error occurred while importing the statement ({0}) to account ({1}).</value>
+  </data>
+  <data name="CannotValidateAccountHolder" xml:space="preserve">
+    <value>An error occurred while verifying the holder of account ({0}).</value>
+  </data>
   <data name="CannotDetermineSecondaryAccount" xml:space="preserve">
     <value>Secondary account ID could not be determined for discovered card number ({0}).</value>
+  </data>
+  <data name="CannotSaveUploadedStatementFile" xml:space="preserve">
+    <value>An error occurred while saving the uploaded document (AccountId: {0}).</value>
+  </data>
+  <data name="CannotSaveImportingStatement" xml:space="preserve">
+    <value>An error occurred while persisting the statement being imported for account ({0}).</value>
+  </data>
+  <data name="CannotParseUploadedStatementFile" xml:space="preserve">
+    <value>An error occurred while parsing the uploaded statement document for account ({0}).</value>
   </data>
 </root>

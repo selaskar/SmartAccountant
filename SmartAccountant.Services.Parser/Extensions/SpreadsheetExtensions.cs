@@ -7,6 +7,7 @@ namespace SmartAccountant.Services.Parser.Extensions;
 internal static class SpreadsheetExtensions
 {
     /// <exception cref="ArgumentOutOfRangeException"/>
+    /// <exception cref="ArgumentNullException"/>
     internal static Cell GetCell(this Row row, int index)
     {
         return row.Descendants<Cell>().ElementAt(index);
@@ -14,6 +15,9 @@ internal static class SpreadsheetExtensions
 
     /// <summary>When <see cref="CellType.DataType"/> is <see cref="CellValues.SharedString"/>, 
     /// a valid <paramref name="stringTable"/> must be supplied.</summary>
+    /// <exception cref="OverflowException"/>
+    /// <exception cref="FormatException"/>
+    /// <exception cref="ArgumentOutOfRangeException"/>
     /// <exception cref="ArgumentNullException" />
     internal static string GetCellValue(this Cell cell, SharedStringTable? stringTable)
     {
@@ -67,7 +71,16 @@ internal static class SpreadsheetExtensions
             return false;
         }
 
-        string amountString = cell.GetCellValue(stringTable);
+        string amountString;
+        try
+        {
+            amountString = cell.GetCellValue(stringTable);
+        }
+        catch (Exception ex) when (ex is not ArgumentNullException)
+        {
+            value = null;
+            return false;
+        }
 
         if (string.IsNullOrWhiteSpace(amountString))
         {

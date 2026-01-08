@@ -6,6 +6,7 @@ using SmartAccountant.Models;
 using SmartAccountant.Services.Parser.Abstract;
 using SmartAccountant.Services.Parser.Resources;
 using SmartAccountant.Shared.Enums;
+using SmartAccountant.Shared.Enums.Errors;
 
 namespace SmartAccountant.Services.Parser;
 
@@ -26,9 +27,13 @@ internal class ExcelSpreadsheetParserService(
             statementParseStrategy.ParseStatement(statement, worksheet, sharedStringTable);
             statementParseStrategy.CrossCheck(statement);
         }
-        catch (Exception ex) when (ex is not ParserException)
+        catch (ArgumentNullException ex)
         {
-            throw new ParserException(Messages.UnexpectedErrorParsingStatement, ex);
+            throw new ParserException(ParserErrors.CouldNotReadStatement, ex);
+        }
+        catch (Exception ex) when (ex is not ServerException and not ParserException)
+        {
+            throw new ServerException(Messages.UnexpectedErrorReadingStatement, ex);
         }
     }
 
@@ -42,13 +47,18 @@ internal class ExcelSpreadsheetParserService(
             multipartStatementParseStrategy.ParseMultipartStatement(statement, worksheet, sharedStringTable);
             multipartStatementParseStrategy.CrossCheck(statement);
         }
-        catch (Exception ex) when (ex is not ParserException)
+        catch (Exception ex) when (ex is ArgumentNullException or ArgumentOutOfRangeException or FormatException or OverflowException)
         {
-            throw new ParserException(Messages.UnexpectedErrorParsingStatement, ex);
+            throw new ParserException(ParserErrors.CouldNotReadMultipartStatement, ex);
+        }
+        catch (Exception ex) when (ex is not ParserException and not ServerException)
+        {
+            throw new ServerException(Messages.UnexpectedErrorReadingMultipartStatement, ex);
         }
     }
 
     /// <exception cref="ParserException"/>
+    /// <exception cref="ServerException"/>
     private static (Worksheet, SharedStringTable) ParseCommon(Stream stream)
     {
         try
@@ -56,7 +66,7 @@ internal class ExcelSpreadsheetParserService(
             using var document = SpreadsheetDocument.Open(stream, false);
 
             string sheetPartId = document.WorkbookPart?.Workbook?.Descendants<Sheet>().FirstOrDefault()?.Id?.Value
-                ?? throw new ParserException(Messages.UploadedDocumentMissingSheet);
+                ?? throw new ParserException(ParserErrors.UploadedDocumentMissingSheet);
 
             WorksheetPart worksheetPart = (WorksheetPart)document.WorkbookPart!.GetPartById(sheetPartId);
             Worksheet worksheet = worksheetPart.Worksheet;
@@ -65,9 +75,13 @@ internal class ExcelSpreadsheetParserService(
 
             return (worksheet, sharedStringTable);
         }
+        catch (Exception ex) when (ex is ArgumentNullException or ArgumentOutOfRangeException)
+        {
+            throw new ParserException(ParserErrors.CouldNotReadStatement, ex);
+        }
         catch (Exception ex) when (ex is not ParserException)
         {
-            throw new ParserException(Messages.UnexpectedErrorParsingSpreadsheet, ex);
+            throw new ServerException(Messages.UnexpectedErrorParsingSpreadsheet, ex);
         }
     }
 }

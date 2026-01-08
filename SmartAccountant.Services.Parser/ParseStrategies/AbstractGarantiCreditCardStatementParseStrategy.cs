@@ -6,6 +6,7 @@ using SmartAccountant.Models;
 using SmartAccountant.Services.Parser.Extensions;
 using SmartAccountant.Services.Parser.Resources;
 using SmartAccountant.Shared.Enums;
+using SmartAccountant.Shared.Enums.Errors;
 using SmartAccountant.Shared.Structs;
 
 namespace SmartAccountant.Services.Parser.ParseStrategies;
@@ -15,6 +16,7 @@ internal class AbstractGarantiCreditCardStatementParseStrategy : AbstractGaranti
     private static readonly CultureInfo parseCulture = CultureInfo.GetCultureInfo("tr-TR");
 
     /// <exception cref="ParserException"/>
+    /// <exception cref="ServerException"/>
     protected internal static void ParseSpan(ReadOnlySpan<Row> rowsSpan, Guid? accountId, IList<CreditCardTransaction> transactions, ProvisionState provisionState, SharedStringTable stringTable)
     {
         try
@@ -26,13 +28,19 @@ internal class AbstractGarantiCreditCardStatementParseStrategy : AbstractGaranti
                 transactions.Add(transaction);
             }
         }
+        catch (Exception ex) when (ex is ArgumentNullException or ArgumentOutOfRangeException or FormatException or OverflowException)
+        {
+            throw new ParserException(ParserErrors.UnexpectedCreditCardStatementFormat, ex);
+        }
         catch (Exception ex) when (ex is not ParserException)
         {
-            throw new ParserException(Messages.UnexpectedErrorParsingStatement, ex);
+            throw new ServerException(Messages.UnexpectedErrorParsingStatement, ex);
         }
     }
 
     /// <exception cref="ParserException"/>
+    /// <exception cref="OverflowException"/>
+    /// <exception cref="FormatException"/>
     /// <exception cref="ArgumentOutOfRangeException"/>
     /// <exception cref="ArgumentNullException"/>
     private static CreditCardTransaction ParseCreditCardTransaction(
@@ -49,7 +57,7 @@ internal class AbstractGarantiCreditCardStatementParseStrategy : AbstractGaranti
         DateTimeOffset date = ParseDate(row, column: 0, stringTable, rowNumber);
 
         if (!ParseMoney(row, column: 4, Currency.TRY, defaultIfEmpty: 0, stringTable, parseCulture, out MonetaryValue? amount))
-            throw new ParserException(UnexpectedAmountFormat.FormatMessage(rowNumber + 1));
+            throw new ParserException(ParserErrors.UnexpectedAmountFormat, UnexpectedAmountFormat.FormatMessage(rowNumber + 1));
 
         return new CreditCardTransaction()
         {

@@ -1,6 +1,6 @@
 ﻿using FluentValidation.TestHelper;
-using SmartAccountant.Abstractions.Models.Request;
 using SmartAccountant.Import.Service.Validators;
+using SmartAccountant.Models.Request;
 
 namespace SmartAccountant.Import.Service.Tests.Validators;
 

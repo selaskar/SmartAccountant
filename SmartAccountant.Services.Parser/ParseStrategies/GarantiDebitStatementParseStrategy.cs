@@ -6,6 +6,7 @@ using SmartAccountant.Models;
 using SmartAccountant.Services.Parser.Abstract;
 using SmartAccountant.Services.Parser.Extensions;
 using SmartAccountant.Services.Parser.Resources;
+using SmartAccountant.Shared.Enums.Errors;
 using SmartAccountant.Shared.Structs;
 
 namespace SmartAccountant.Services.Parser.ParseStrategies;
@@ -31,9 +32,13 @@ internal sealed class GarantiDebitStatementParseStrategy : AbstractGarantiStatem
                 statement.Transactions.Add(transaction);
             }
         }
+        catch (Exception ex) when (ex is ArgumentNullException or ArgumentOutOfRangeException or FormatException or OverflowException)
+        {
+            throw new ParserException(ParserErrors.UnexpectedDebitStatementFormat, ex);
+        }
         catch (Exception ex) when (ex is not ParserException)
         {
-            throw new ParserException(Messages.UnexpectedErrorParsingStatement, ex);
+            throw new ServerException(Messages.UnexpectedErrorParsingStatement, ex);
         }
     }
 
@@ -50,10 +55,12 @@ internal sealed class GarantiDebitStatementParseStrategy : AbstractGarantiStatem
         decimal closingBalance = statement.Transactions.Last().RemainingBalance.Amount;
 
         if (initialBalance + totalAmount != closingBalance)
-            throw new ParserException(Messages.TransactionAmountAndBalanceDontMatch);
+            throw new ParserException(ParserErrors.TransactionAmountAndBalanceMismatch);
     }
 
     /// <exception cref="ParserException"/>
+    /// <exception cref="OverflowException"/>
+    /// <exception cref="FormatException"/>
     /// <exception cref="ArgumentOutOfRangeException"/>
     /// <exception cref="ArgumentNullException"/>
     private static DebitTransaction ParseDebitTransaction(DebitStatement statement, short rowNumber, Row row, SharedStringTable stringTable)
@@ -65,10 +72,10 @@ internal sealed class GarantiDebitStatementParseStrategy : AbstractGarantiStatem
         DateTimeOffset date = ParseDate(row, column: 0, stringTable, rowNumber);
 
         if (!ParseMoney(row, column: 2, statement.Currency, out MonetaryValue? amount))
-            throw new ParserException(UnexpectedAmountFormat.FormatMessage(rowNumber + 1));
+            throw new ParserException(ParserErrors.UnexpectedAmountFormat, UnexpectedAmountFormat.FormatMessage(rowNumber + 1));
 
         if (!ParseMoney(row, column: 3, statement.Currency, out MonetaryValue? remainingBalance))
-            throw new ParserException(UnexpectedRemainingAmountFormat.FormatMessage(rowNumber + 1));
+            throw new ParserException(ParserErrors.UnexpectedRemainingAmountFormat, UnexpectedRemainingAmountFormat.FormatMessage(rowNumber + 1));
 
         return new DebitTransaction
         {
