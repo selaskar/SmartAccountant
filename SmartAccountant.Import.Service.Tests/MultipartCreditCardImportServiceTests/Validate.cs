@@ -1,7 +1,7 @@
 ﻿using FluentValidation;
 using Microsoft.Extensions.Logging;
 using Moq;
-using SmartAccountant.Abstractions.Models.Request;
+using SmartAccountant.Models.Request;
 
 namespace SmartAccountant.Import.Service.Tests.MultipartCreditCardImportServiceTests;
 

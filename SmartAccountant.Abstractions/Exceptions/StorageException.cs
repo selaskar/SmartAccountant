@@ -1,4 +1,6 @@
-﻿namespace SmartAccountant.Abstractions.Exceptions;
+﻿using SmartAccountant.Shared.Enums.Errors;
+
+namespace SmartAccountant.Abstractions.Exceptions;
 
 public class StorageException(StorageErrors error, string message, Exception? innerException)
     : EnumException<StorageErrors>(error, message, innerException)

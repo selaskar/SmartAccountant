@@ -61,6 +61,15 @@ namespace FileStorage.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to An error occurred while persisting to a file ({0}) in ({1})..
+        /// </summary>
+        internal static string CannotWriteToFile {
+            get {
+                return ResourceManager.GetString("CannotWriteToFile", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The file ({0}) already exists in the container ({1})..
         /// </summary>
         internal static string FileAlreadyExists {

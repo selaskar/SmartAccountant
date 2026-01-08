@@ -120,10 +120,25 @@
   <data name="CannotCheckExistingTransactions" xml:space="preserve">
     <value>An error occurred while checking the existing transactions of the account ({0}).</value>
   </data>
+  <data name="DiscoveredCardNumbersMismatch" xml:space="preserve">
+    <value>Neither of discovered card numbers ({0}, {1}) match primary card number ({2}).</value>
+  </data>
+  <data name="CannotImportStatement" xml:space="preserve">
+    <value>An error occurred while importing the statement ({0}) to account ({1}).</value>
+  </data>
+  <data name="CannotValidateAccountHolder" xml:space="preserve">
+    <value>An error occurred while verifying the holder of account ({0}).</value>
+  </data>
   <data name="CannotDetermineSecondaryAccount" xml:space="preserve">
     <value>Secondary account ID could not be determined for discovered card number ({0}).</value>
   </data>
-  <data name="DiscoveredCardNumbersMismatch" xml:space="preserve">
-    <value>Neither of discovered card numbers ({0}, {1}) match primary card number ({2}).</value>
+  <data name="CannotSaveUploadedStatementFile" xml:space="preserve">
+    <value>An error occurred while saving the uploaded document (AccountId: {0}).</value>
+  </data>
+  <data name="CannotSaveImportingStatement" xml:space="preserve">
+    <value>An error occurred while persisting the statement being imported for account ({0}).</value>
+  </data>
+  <data name="CannotParseUploadedStatementFile" xml:space="preserve">
+    <value>An error occurred while parsing the uploaded statement document for account ({0}).</value>
   </data>
 </root>

@@ -40,8 +40,15 @@ internal sealed partial class GarantiMultipartStatementParseStrategy : AbstractG
         if (sectionHeaders.Length != 2)
             throw new ParserException(ParserErrors.UnexpectedPartCount, UnexpectedPartCount.FormatMessage(sectionHeaders.Length));
 
-        statement.CardNumber1 = regex.Match(sectionHeaders[0].GetCell(0).GetCellValue(stringTable)).Value;
-        statement.CardNumber2 = regex.Match(sectionHeaders[1].GetCell(0).GetCellValue(stringTable)).Value;
+        try
+        {
+            statement.CardNumber1 = regex.Match(sectionHeaders[0].GetCell(0).GetCellValue(stringTable)).Value;
+            statement.CardNumber2 = regex.Match(sectionHeaders[1].GetCell(0).GetCellValue(stringTable)).Value;
+        }
+        catch (RegexMatchTimeoutException ex)
+        {
+            throw new ParserException(ParserErrors.CardNumbersInUnexpectedFormat, ex);
+        }
 
         int section1StartIndex = Array.IndexOf(rows, sectionHeaders[0]);
         int section2StartIndex = Array.IndexOf(rows, sectionHeaders[1]);

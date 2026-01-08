@@ -144,4 +144,10 @@
   <data name="DeflectionTooLarge" xml:space="preserve">
     <value>Calculated deflection amount ({0}) is larger than allowed absolute threshold ({1}).</value>
   </data>
+  <data name="UnexpectedErrorReadingStatement" xml:space="preserve">
+    <value>An unexpected error occurred while reading the statement.</value>
+  </data>
+  <data name="UnexpectedErrorReadingMultipartStatement" xml:space="preserve">
+    <value>An unexpected error occurred while reading the multipart statement.</value>
+  </data>
 </root>

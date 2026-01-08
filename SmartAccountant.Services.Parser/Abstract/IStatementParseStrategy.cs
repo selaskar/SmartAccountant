@@ -7,6 +7,7 @@ namespace SmartAccountant.Services.Parser.Abstract;
 internal interface IStatementParseStrategy<TTransaction> where TTransaction : Transaction
 {
     /// <exception cref="ParserException"/>
+    /// <exception cref="ServerException"/>
     /// <exception cref="InvalidCastException"/>
     /// <exception cref="ArgumentNullException"/>
     void ParseStatement(Statement<TTransaction> statement, Worksheet worksheet, SharedStringTable stringTable);

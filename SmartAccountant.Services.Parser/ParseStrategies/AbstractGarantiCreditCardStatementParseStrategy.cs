@@ -16,6 +16,7 @@ internal class AbstractGarantiCreditCardStatementParseStrategy : AbstractGaranti
     private static readonly CultureInfo parseCulture = CultureInfo.GetCultureInfo("tr-TR");
 
     /// <exception cref="ParserException"/>
+    /// <exception cref="ServerException"/>
     protected internal static void ParseSpan(ReadOnlySpan<Row> rowsSpan, Guid? accountId, IList<CreditCardTransaction> transactions, ProvisionState provisionState, SharedStringTable stringTable)
     {
         try
@@ -27,13 +28,19 @@ internal class AbstractGarantiCreditCardStatementParseStrategy : AbstractGaranti
                 transactions.Add(transaction);
             }
         }
+        catch (Exception ex) when (ex is ArgumentNullException or ArgumentOutOfRangeException or FormatException or OverflowException)
+        {
+            throw new ParserException(ParserErrors.UnexpectedCreditCardStatementFormat, ex);
+        }
         catch (Exception ex) when (ex is not ParserException)
         {
-            throw new ParserException(ParserErrors.UnexpectedErrorParsingStatement, ex);
+            throw new ServerException(Messages.UnexpectedErrorParsingStatement, ex);
         }
     }
 
     /// <exception cref="ParserException"/>
+    /// <exception cref="OverflowException"/>
+    /// <exception cref="FormatException"/>
     /// <exception cref="ArgumentOutOfRangeException"/>
     /// <exception cref="ArgumentNullException"/>
     private static CreditCardTransaction ParseCreditCardTransaction(

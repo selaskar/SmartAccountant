@@ -1,12 +1,12 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Security.AccessControl;
+using System.Xml.Linq;
 using SmartAccountant.Shared.Resources;
 
 namespace SmartAccountant.Shared.Enums.Errors;
 
 public enum ParserErrors
 {
-    [Display(Name = nameof(ModelStrings.ParserErrors_Unspecified), ResourceType = typeof(ModelStrings))]
-    Unspecified = 0,
     [Display(Name = nameof(ModelStrings.ParserErrors_UploadedDocumentMissingSheet), ResourceType = typeof(ModelStrings))]
     UploadedDocumentMissingSheet = 1,
     [Display(Name = nameof(ModelStrings.ParserErrors_UnexpectedAmountFormat), ResourceType = typeof(ModelStrings))]
@@ -27,8 +27,14 @@ public enum ParserErrors
     UnexpectedPartCount = 9,
     [Display(Name = nameof(ModelStrings.ParserErrors_DeflectionTooLarge), ResourceType = typeof(ModelStrings))]
     DeflectionTooLarge = 10,
-    [Display(Name = nameof(ModelStrings.ParserErrors_UnexpectedErrorParsingStatement), ResourceType = typeof(ModelStrings))] 
-    UnexpectedErrorParsingStatement = 11,
-    [Display(Name = nameof(ModelStrings.ParserErrors_UnexpectedErrorParsingSpreadsheet), ResourceType = typeof(ModelStrings))]
-    UnexpectedErrorParsingSpreadsheet = 12
+    [Display(Name = nameof(ModelStrings.ParserErrors_UnexpectedCreditCardStatementFormat), ResourceType = typeof(ModelStrings))]
+    UnexpectedCreditCardStatementFormat = 11,
+    [Display(Name = nameof(ModelStrings.ParserErrors_UnexpectedDebitStatementFormat), ResourceType = typeof(ModelStrings))]
+    UnexpectedDebitStatementFormat = 12,
+    [Display(Name = nameof(ModelStrings.ParserErrors_CouldNotReadStatement), ResourceType = typeof(ModelStrings))]
+    CouldNotReadStatement = 13,
+    [Display(Name = nameof(ModelStrings.ParserErrors_CardNumbersInUnexpectedFormat), ResourceType = typeof(ModelStrings))]
+    CardNumbersInUnexpectedFormat = 14,
+    [Display(Name = nameof(ModelStrings.ParserErrors_CouldNotReadMultipartStatement), ResourceType = typeof(ModelStrings))]
+    CouldNotReadMultipartStatement = 15,
 }

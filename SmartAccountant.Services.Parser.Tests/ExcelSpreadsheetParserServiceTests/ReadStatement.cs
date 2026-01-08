@@ -117,12 +117,12 @@ public class ReadStatement : Base
 
         Mock<IStatementParseStrategy<DebitTransaction>> mockStrategy = MockStatementFactory();
 
-        mockStrategy.Setup(x => x.CrossCheck(statement)).Throws(() => new ParserException(ParserErrors.Unspecified));
+        mockStrategy.Setup(x => x.CrossCheck(statement)).Throws(() => new ParserException(ParserErrors.DeflectionTooLarge));
 
         // Act, Assert
         var result = Assert.ThrowsExactly<ParserException>(() => sut.ReadStatement(statement, stream, Bank.GarantiBBVA));
 
-        Assert.AreEqual("test", result.Message);
+        Assert.AreEqual(ParserErrors.DeflectionTooLarge, result.Error);
     }
 
 

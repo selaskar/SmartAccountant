@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
-using SmartAccountant.Abstractions.Models.Request;
-using SmartAccountant.Import.Service.Extensions;
+using SmartAccountant.Core.Helpers;
+using SmartAccountant.Models.Request;
 using SmartAccountant.Shared;
 using SmartAccountant.Shared.Enums.Errors;
 

@@ -6,6 +6,7 @@ using SmartAccountant.Core.Helpers;
 using SmartAccountant.Models;
 using SmartAccountant.Repositories.Core.Abstract;
 using SmartAccountant.Services.Resources;
+using SmartAccountant.Shared.Enums.Errors;
 
 namespace SmartAccountant.Services;
 
@@ -71,6 +72,7 @@ internal class TransactionService(
 
     /// <exception cref="TransactionException"/>
     /// <exception cref="ServerException"/>
+    /// <exception cref="AuthenticationException"/>
     /// <exception cref="OperationCanceledException"/>
     private async Task VerifyAccountHolder(Guid accountId, CancellationToken cancellationToken)
     {

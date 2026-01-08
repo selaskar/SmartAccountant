@@ -1,8 +1,8 @@
 ﻿using Moq;
 using SmartAccountant.Abstractions.Exceptions;
-using SmartAccountant.Abstractions.Models.Request;
 using SmartAccountant.Import.Service.Factories;
 using SmartAccountant.Models;
+using SmartAccountant.Models.Request;
 using SmartAccountant.Shared.Enums;
 
 namespace SmartAccountant.Import.Service.Tests.Factories.StatementFactoryTests;

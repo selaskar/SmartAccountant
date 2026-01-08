@@ -68,5 +68,14 @@ namespace SmartAccountant.Services.Resources {
                 return ResourceManager.GetString("AccountNotFound", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to An error occurred while calculating the summary for month ({0}) and account ({1})..
+        /// </summary>
+        internal static string CannotCalculateSummary {
+            get {
+                return ResourceManager.GetString("CannotCalculateSummary", resourceCulture);
+            }
+        }
     }
 }

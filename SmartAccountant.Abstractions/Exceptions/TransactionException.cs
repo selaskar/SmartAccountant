@@ -1,4 +1,6 @@
-﻿namespace SmartAccountant.Abstractions.Exceptions;
+﻿using SmartAccountant.Shared.Enums.Errors;
+
+namespace SmartAccountant.Abstractions.Exceptions;
 
 public class TransactionException(TransactionErrors error, string message, Exception? innerException)
     : EnumException<TransactionErrors>(error, message, innerException)

@@ -18,7 +18,7 @@ public class FetchExistingTransactions : Base
             AccountId = accountId,
         };
 
-        SetupTransactionRepository(accountId).Throws(new RepositoryException("test", null!));
+        SetupTransactionRepository(accountId).Throws(new ServerException("test", null!));
 
         // Act, Assert
         await Assert.ThrowsExactlyAsync<ImportException>(async () => await sut.FetchExistingTransactions(statement, CancellationToken.None));

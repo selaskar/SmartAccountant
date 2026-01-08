@@ -6,6 +6,7 @@ using FileStorage.Resources;
 using SmartAccountant.Abstractions.Exceptions;
 using SmartAccountant.Abstractions.Interfaces;
 using SmartAccountant.Core.Helpers;
+using SmartAccountant.Shared.Enums.Errors;
 
 namespace FileStorage;
 
@@ -13,6 +14,7 @@ internal sealed class StorageService(BlobServiceClient client) : IStorageService
 {
     private static readonly CompositeFormat UploadFailed = CompositeFormat.Parse(Messages.UploadFailed);
     private static readonly CompositeFormat FileAlreadyExists = CompositeFormat.Parse(Messages.FileAlreadyExists);
+    private static readonly CompositeFormat CannotWriteToFile = CompositeFormat.Parse(Messages.CannotWriteToFile);
   
     /// <inheritdoc/>
     public async Task WriteToFile(string container, string filePath, Stream stream, CancellationToken cancellationToken)
@@ -38,7 +40,7 @@ internal sealed class StorageService(BlobServiceClient client) : IStorageService
         }
         catch (Exception ex) when (ex is not OperationCanceledException and not StorageException)
         {
-            throw new StorageException(StorageErrors.Unspecified, ex);
+            throw new ServerException(CannotWriteToFile.FormatMessage(filePath, container), ex);
         }
     }
 }

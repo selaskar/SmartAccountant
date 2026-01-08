@@ -1,6 +1,6 @@
 using Moq;
-using SmartAccountant.Abstractions.Models.Request;
 using SmartAccountant.Import.Service.Helpers;
+using SmartAccountant.Models.Request;
 
 namespace SmartAccountant.Import.Service.Tests.Helpers.FileTypeValidatorTests;
 

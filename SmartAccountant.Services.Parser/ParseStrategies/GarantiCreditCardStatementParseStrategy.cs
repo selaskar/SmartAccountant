@@ -46,6 +46,7 @@ internal sealed partial class GarantiCreditCardStatementParseStrategy : Abstract
     }
 
     /// <exception cref="ParserException"/>
+    /// <exception cref="ServerException"/>
     private static void Parse(CreditCardStatement statement, Row[] rows, SharedStringTable stringTable)
     {
         try
@@ -79,9 +80,9 @@ internal sealed partial class GarantiCreditCardStatementParseStrategy : Abstract
                 ParseSpan(rows.AsSpan()[HeaderRowCount..^FooterRowCount], statement.AccountId, statement.Transactions, ProvisionState.Finalized, stringTable);
             }
         }
-        catch (Exception ex) when (ex is not ParserException)
+        catch (Exception ex) when (ex is not ParserException and not ServerException)
         {
-            throw new ParserException(ParserErrors.UnexpectedErrorParsingStatement, ex);
+            throw new ServerException(Messages.UnexpectedErrorParsingStatement, ex);
         }
     }
 }

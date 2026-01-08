@@ -70,24 +70,6 @@ namespace SmartAccountant.Shared.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to An unexpected error occurred..
-        /// </summary>
-        public static string AccountErrors_Unspecified {
-            get {
-                return ResourceManager.GetString("AccountErrors_Unspecified", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to An authentication error occurred..
-        /// </summary>
-        public static string AuthenticationErrors_Unspecified {
-            get {
-                return ResourceManager.GetString("AuthenticationErrors_Unspecified", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to User not authenticated..
         /// </summary>
         public static string AuthenticationErrors_UserNotAuthenticated {
@@ -241,15 +223,6 @@ namespace SmartAccountant.Shared.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to An error occurred while checking the existing transactions of the account..
-        /// </summary>
-        public static string ImportErrors_CannotCheckExistingTransactions {
-            get {
-                return ResourceManager.GetString("ImportErrors_CannotCheckExistingTransactions", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Secondary account ID could not be determined for discovered card number..
         /// </summary>
         public static string ImportErrors_CannotDetermineSecondaryAccount {
@@ -268,29 +241,11 @@ namespace SmartAccountant.Shared.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to An error occurred while persisting the imported statement..
-        /// </summary>
-        public static string ImportErrors_CannotSaveImportedStatement {
-            get {
-                return ResourceManager.GetString("ImportErrors_CannotSaveImportedStatement", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to An error occurred while saving the uploaded document..
         /// </summary>
         public static string ImportErrors_CannotSaveUploadedStatementFile {
             get {
                 return ResourceManager.GetString("ImportErrors_CannotSaveUploadedStatementFile", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to An error occurred while validating the account holder information..
-        /// </summary>
-        public static string ImportErrors_CannotValidateAccountHolder {
-            get {
-                return ResourceManager.GetString("ImportErrors_CannotValidateAccountHolder", resourceCulture);
             }
         }
         
@@ -345,15 +300,6 @@ namespace SmartAccountant.Shared.Resources {
         public static string ImportErrors_TotalDueAmountMismatch {
             get {
                 return ResourceManager.GetString("ImportErrors_TotalDueAmountMismatch", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to An error occurred while importing the statement..
-        /// </summary>
-        public static string ImportErrors_Unspecified {
-            get {
-                return ResourceManager.GetString("ImportErrors_Unspecified", resourceCulture);
             }
         }
         
@@ -439,6 +385,33 @@ namespace SmartAccountant.Shared.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Card numbers are in unexpected format..
+        /// </summary>
+        public static string ParserErrors_CardNumbersInUnexpectedFormat {
+            get {
+                return ResourceManager.GetString("ParserErrors_CardNumbersInUnexpectedFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Multipart statement couldn&apos;t be read..
+        /// </summary>
+        public static string ParserErrors_CouldNotReadMultipartStatement {
+            get {
+                return ResourceManager.GetString("ParserErrors_CouldNotReadMultipartStatement", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Statement couldn&apos;t be read..
+        /// </summary>
+        public static string ParserErrors_CouldNotReadStatement {
+            get {
+                return ResourceManager.GetString("ParserErrors_CouldNotReadStatement", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Calculated deflection amount is larger than allowed absolute threshold..
         /// </summary>
         public static string ParserErrors_DeflectionTooLarge {
@@ -493,6 +466,15 @@ namespace SmartAccountant.Shared.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Credit card statement has an unexpected format..
+        /// </summary>
+        public static string ParserErrors_UnexpectedCreditCardStatementFormat {
+            get {
+                return ResourceManager.GetString("ParserErrors_UnexpectedCreditCardStatementFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Unrecognized date format. Could not parse transaction date..
         /// </summary>
         public static string ParserErrors_UnexpectedDateFormat {
@@ -502,20 +484,11 @@ namespace SmartAccountant.Shared.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to An unexpected error occurred while parsing the spreadsheet..
+        ///   Looks up a localized string similar to Debit statement has an unexpected format..
         /// </summary>
-        public static string ParserErrors_UnexpectedErrorParsingSpreadsheet {
+        public static string ParserErrors_UnexpectedDebitStatementFormat {
             get {
-                return ResourceManager.GetString("ParserErrors_UnexpectedErrorParsingSpreadsheet", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to An unexpected error occurred while parsing the statement..
-        /// </summary>
-        public static string ParserErrors_UnexpectedErrorParsingStatement {
-            get {
-                return ResourceManager.GetString("ParserErrors_UnexpectedErrorParsingStatement", resourceCulture);
+                return ResourceManager.GetString("ParserErrors_UnexpectedDebitStatementFormat", resourceCulture);
             }
         }
         
@@ -534,15 +507,6 @@ namespace SmartAccountant.Shared.Resources {
         public static string ParserErrors_UnexpectedRemainingAmountFormat {
             get {
                 return ResourceManager.GetString("ParserErrors_UnexpectedRemainingAmountFormat", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to An unexpected error occurred during parse..
-        /// </summary>
-        public static string ParserErrors_Unspecified {
-            get {
-                return ResourceManager.GetString("ParserErrors_Unspecified", resourceCulture);
             }
         }
         
@@ -592,38 +556,11 @@ namespace SmartAccountant.Shared.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to An unexpected error occurred..
-        /// </summary>
-        public static string StorageErrors_Unspecified {
-            get {
-                return ResourceManager.GetString("StorageErrors_Unspecified", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to File upload failed..
         /// </summary>
         public static string StorageErrors_UploadFailed {
             get {
                 return ResourceManager.GetString("StorageErrors_UploadFailed", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to An error occurred while calculating the summary..
-        /// </summary>
-        public static string SummaryErrors_CannotCalculateSummary {
-            get {
-                return ResourceManager.GetString("SummaryErrors_CannotCalculateSummary", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Summary couldn&apos;t be calculated..
-        /// </summary>
-        public static string SummaryErrors_Unspecified {
-            get {
-                return ResourceManager.GetString("SummaryErrors_Unspecified", resourceCulture);
             }
         }
         
@@ -669,15 +606,6 @@ namespace SmartAccountant.Shared.Resources {
         public static string TransactionErrors_CannotUpdateDebitTransaction {
             get {
                 return ResourceManager.GetString("TransactionErrors_CannotUpdateDebitTransaction", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to An unexpected error occurred..
-        /// </summary>
-        public static string TransactionErrors_Unspecified {
-            get {
-                return ResourceManager.GetString("TransactionErrors_Unspecified", resourceCulture);
             }
         }
     }

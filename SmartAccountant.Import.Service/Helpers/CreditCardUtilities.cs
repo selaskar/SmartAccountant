@@ -2,6 +2,8 @@
 
 internal class CreditCardUtilities
 {
+    /// <exception cref="ArgumentException"/>
+    /// <exception cref="ArgumentNullException"/>
     internal static bool CompareNumbersWithMasking(string? cardNumberA, string? cardNumberB)
     {
         if (string.IsNullOrWhiteSpace(cardNumberA) || string.IsNullOrEmpty(cardNumberB))
@@ -11,6 +13,8 @@ internal class CreditCardUtilities
         return Mask(cardNumberA) == Mask(cardNumberB);
     }
 
+    /// <exception cref="ArgumentException"/>
+    /// <exception cref="ArgumentNullException"/>
     internal static string Mask(string cardNumber)
     {
         if (string.IsNullOrWhiteSpace(cardNumber))
@@ -20,7 +24,7 @@ internal class CreditCardUtilities
 
         const int unmaskedLength = 4;
 
-        if(cardNumber.Length <= unmaskedLength * 2)
+        if (cardNumber.Length <= unmaskedLength * 2)
             return cardNumber;
 
         int maskedLength = cardNumber.Length - (unmaskedLength * 2);

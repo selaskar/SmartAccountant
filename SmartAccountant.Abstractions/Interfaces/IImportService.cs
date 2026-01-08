@@ -1,7 +1,7 @@
 ﻿using FluentValidation;
 using SmartAccountant.Abstractions.Exceptions;
-using SmartAccountant.Abstractions.Models.Request;
 using SmartAccountant.Models;
+using SmartAccountant.Models.Request;
 
 namespace SmartAccountant.Abstractions.Interfaces;
 

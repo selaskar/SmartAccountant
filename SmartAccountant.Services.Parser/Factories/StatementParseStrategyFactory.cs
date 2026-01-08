@@ -7,6 +7,7 @@ namespace SmartAccountant.Services.Parser.Factories;
 
 internal class StatementParseStrategyFactory : IStatementParseStrategyFactory
 {
+    /// <inheritdoc/>
     public IStatementParseStrategy<TTransaction> Create<TTransaction>(Bank bank)
          where TTransaction : Transaction
     {

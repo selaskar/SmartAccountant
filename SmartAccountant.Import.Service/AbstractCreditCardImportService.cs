@@ -18,6 +18,9 @@ internal abstract class AbstractCreditCardImportService(
     IDateTimeService dateTimeService)
     : AbstractImportService(logger, fileTypeValidator, authorizationService, accountRepository, storageService, unitOfWork, transactionRepository, statementRepository, dateTimeService)
 {
+    /// <exception cref="ArgumentOutOfRangeException"/>
+    /// <exception cref="ArgumentException"/>
+    /// <exception cref="ArgumentNullException"/>
     protected internal static Transaction[] Except(IEnumerable<CreditCardTransaction> news, IEnumerable<CreditCardTransaction> existing)
     {
         var groupedExisting = existing.GroupBy(x => new { x.Timestamp, x.Description, x.Amount, x.ProvisionState })

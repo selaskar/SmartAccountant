@@ -120,4 +120,7 @@
   <data name="AccountNotFound" xml:space="preserve">
     <value>Account ({0}) not found.</value>
   </data>
+  <data name="CannotCalculateSummary" xml:space="preserve">
+    <value>An error occurred while calculating the summary for month ({0}) and account ({1}).</value>
+  </data>
 </root>

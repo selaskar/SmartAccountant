@@ -1,5 +1,5 @@
-﻿using SmartAccountant.Abstractions.Models.Request;
-using SmartAccountant.Import.Service.Abstract;
+﻿using SmartAccountant.Import.Service.Abstract;
+using SmartAccountant.Models.Request;
 
 namespace SmartAccountant.Import.Service.Helpers;
 

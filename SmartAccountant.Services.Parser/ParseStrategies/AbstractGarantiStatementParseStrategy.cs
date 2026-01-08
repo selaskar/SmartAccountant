@@ -30,6 +30,8 @@ internal abstract class AbstractGarantiStatementParseStrategy
     }
 
     /// <exception cref="ParserException"/>
+    /// <exception cref="OverflowException"/>
+    /// <exception cref="FormatException"/>
     /// <exception cref="ArgumentOutOfRangeException"/>
     /// <exception cref="ArgumentNullException"/>
     protected internal static DateTimeOffset ParseDate(Row row, int column, SharedStringTable stringTable, short order)
@@ -46,6 +48,7 @@ internal abstract class AbstractGarantiStatementParseStrategy
     }
 
     /// <exception cref="ArgumentOutOfRangeException"/>
+    /// <exception cref="ArgumentNullException"/>
     protected internal static bool ParseMoney(Row row, int column, Currency currency, [NotNullWhen(true)] out MonetaryValue? value)
     {
         if (!row.GetCell(column).TryGetDecimalValue(out decimal? amountValue))
@@ -59,7 +62,7 @@ internal abstract class AbstractGarantiStatementParseStrategy
         return true;
     }
 
-    /// <exception cref="ArgumentOutOfRangeException"/>
+    /// <exception cref="ArgumentNullException" />
     protected internal static bool ParseMoney(Row row, int column, Currency currency, decimal defaultIfEmpty, SharedStringTable stringTable, IFormatProvider formatProvider, [NotNullWhen(true)] out MonetaryValue? value)
     {
         if (string.IsNullOrWhiteSpace(row.GetCell(column).InnerText))

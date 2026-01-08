@@ -79,6 +79,51 @@ namespace SmartAccountant.Import.Service.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to An error occurred while importing the statement ({0}) to account ({1})..
+        /// </summary>
+        internal static string CannotImportStatement {
+            get {
+                return ResourceManager.GetString("CannotImportStatement", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to An error occurred while parsing the uploaded statement document for account ({0})..
+        /// </summary>
+        internal static string CannotParseUploadedStatementFile {
+            get {
+                return ResourceManager.GetString("CannotParseUploadedStatementFile", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to An error occurred while persisting the statement being imported for account ({0})..
+        /// </summary>
+        internal static string CannotSaveImportingStatement {
+            get {
+                return ResourceManager.GetString("CannotSaveImportingStatement", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to An error occurred while saving the uploaded document (AccountId: {0})..
+        /// </summary>
+        internal static string CannotSaveUploadedStatementFile {
+            get {
+                return ResourceManager.GetString("CannotSaveUploadedStatementFile", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to An error occurred while verifying the holder of account ({0})..
+        /// </summary>
+        internal static string CannotValidateAccountHolder {
+            get {
+                return ResourceManager.GetString("CannotValidateAccountHolder", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Neither of discovered card numbers ({0}, {1}) match primary card number ({2})..
         /// </summary>
         internal static string DiscoveredCardNumbersMismatch {

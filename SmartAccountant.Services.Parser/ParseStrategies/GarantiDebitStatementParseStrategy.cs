@@ -32,9 +32,13 @@ internal sealed class GarantiDebitStatementParseStrategy : AbstractGarantiStatem
                 statement.Transactions.Add(transaction);
             }
         }
+        catch (Exception ex) when (ex is ArgumentNullException or ArgumentOutOfRangeException or FormatException or OverflowException)
+        {
+            throw new ParserException(ParserErrors.UnexpectedDebitStatementFormat, ex);
+        }
         catch (Exception ex) when (ex is not ParserException)
         {
-            throw new ParserException(ParserErrors.UnexpectedErrorParsingStatement, ex);
+            throw new ServerException(Messages.UnexpectedErrorParsingStatement, ex);
         }
     }
 
@@ -55,6 +59,8 @@ internal sealed class GarantiDebitStatementParseStrategy : AbstractGarantiStatem
     }
 
     /// <exception cref="ParserException"/>
+    /// <exception cref="OverflowException"/>
+    /// <exception cref="FormatException"/>
     /// <exception cref="ArgumentOutOfRangeException"/>
     /// <exception cref="ArgumentNullException"/>
     private static DebitTransaction ParseDebitTransaction(DebitStatement statement, short rowNumber, Row row, SharedStringTable stringTable)

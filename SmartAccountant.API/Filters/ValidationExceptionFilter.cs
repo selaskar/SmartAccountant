@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using FluentValidation;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using SmartAccountant.Dtos.Response;
 
@@ -8,7 +9,7 @@ internal sealed class ValidationExceptionFilter : IExceptionFilter
 {
     public void OnException(ExceptionContext context)
     {
-        if (!(context?.Exception is not null and FluentValidation.ValidationException validationException))
+        if (!(context?.Exception is not null and ValidationException validationException))
             return;
 
         var category = ErrorCategory.ValidationException;

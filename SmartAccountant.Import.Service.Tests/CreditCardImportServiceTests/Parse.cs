@@ -1,9 +1,8 @@
 ﻿using Microsoft.Extensions.Logging;
 using Moq;
 using SmartAccountant.Abstractions.Exceptions;
-using SmartAccountant.Abstractions.Models.Request;
-using SmartAccountant.Import.Service.Resources;
 using SmartAccountant.Models;
+using SmartAccountant.Models.Request;
 using SmartAccountant.Shared.Enums.Errors;
 
 namespace SmartAccountant.Import.Service.Tests.CreditCardImportServiceTests;
@@ -12,7 +11,7 @@ namespace SmartAccountant.Import.Service.Tests.CreditCardImportServiceTests;
 public class Parse : Base
 {
     [TestMethod]
-    public async Task ThrowImportExceptionForUnexpectedErrorInStatementFactory()
+    public async Task ThrowServerExceptionForUnexpectedErrorInStatementFactory()
     {
         // Arrange
         CreditCardStatementImportModel model = new()
@@ -31,11 +30,9 @@ public class Parse : Base
             .Throws<NotImplementedException>();
 
         // Act, Assert
-        var result = await Assert.ThrowsExactlyAsync<ImportException>(async () => await sut.Parse(model, account, CancellationToken.None));
+        var result = await Assert.ThrowsExactlyAsync<ServerException>(async () => await sut.Parse(model, account, CancellationToken.None));
 
         loggerMock.Verify(l => l.IsEnabled(LogLevel.Error), Times.Once);
-
-        Assert.AreEqual(ImportErrors.CannotParseUploadedStatementFile, result.Error);
     }
 
     [TestMethod]
@@ -55,7 +52,7 @@ public class Parse : Base
         SetupLogger(LogLevel.Error, true);
 
         statementFactoryMock.Setup(s => s.Create(model, account))
-            .Throws(new ImportException(ImportErrors.Unspecified, "test"));
+            .Throws(new ImportException(ImportErrors.AbstractCreditCardExpected, "test"));
 
         // Act, Assert
         var result = await Assert.ThrowsExactlyAsync<ImportException>(async () => await sut.Parse(model, account, CancellationToken.None));

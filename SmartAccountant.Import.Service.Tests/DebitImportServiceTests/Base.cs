@@ -4,9 +4,9 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using Moq.Language.Flow;
 using SmartAccountant.Abstractions.Interfaces;
-using SmartAccountant.Abstractions.Models.Request;
 using SmartAccountant.Import.Service.Abstract;
 using SmartAccountant.Models;
+using SmartAccountant.Models.Request;
 using SmartAccountant.Repositories.Core.Abstract;
 
 namespace SmartAccountant.Import.Service.Tests.DebitImportServiceTests;

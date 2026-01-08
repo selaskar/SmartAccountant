@@ -16,6 +16,7 @@ public static class ExceptionExtensions
         return flattened;
     }
 
+    /// <exception cref="ArgumentNullException" />
     private static IEnumerable<Exception> GetAllExceptions(this Exception exception)
     {
         yield return exception;

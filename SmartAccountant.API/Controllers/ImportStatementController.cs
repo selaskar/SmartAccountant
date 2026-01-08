@@ -5,10 +5,10 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SmartAccountant.Abstractions.Exceptions;
 using SmartAccountant.Abstractions.Interfaces;
-using SmartAccountant.Abstractions.Models.Request;
 using SmartAccountant.Dtos.Request;
 using SmartAccountant.Dtos.Response;
 using SmartAccountant.Models;
+using SmartAccountant.Models.Request;
 
 namespace SmartAccountant.API.Controllers;
 
@@ -60,19 +60,16 @@ public sealed class ImportStatementController(IMapper mapper) : ControllerBase
     }
 
     /// <exception cref="ImportException"/>
+    /// <exception cref="ServerException"/>
     /// <exception cref="OperationCanceledException"/>
     /// <exception cref="ValidationException"/>
     /// <exception cref="AuthenticationException"/>
-    /// <exception cref="ArgumentNullException"/>
     private async Task<ActionResult<UploadStatementResponse>> ImportInternal<TModel>(
         IImportService importService,
         AbstractUploadStatementRequest request,
         CancellationToken cancellationToken)
         where TModel : AbstractStatementImportModel
     {
-        ArgumentNullException.ThrowIfNull(importService);
-        ArgumentNullException.ThrowIfNull(request);
-
         var requestModel = mapper.Map<TModel>(request);
 
         Statement statement = await importService.ImportStatement(requestModel, cancellationToken);
