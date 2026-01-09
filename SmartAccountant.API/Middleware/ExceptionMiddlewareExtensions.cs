@@ -31,9 +31,9 @@ internal static class ExceptionMiddlewareExtensions
         await httpContext.Response.WriteAsJsonAsync(new ErrorDetail()
         {
             Code = httpContext.Response.StatusCode,
-            Error = "Internal Server Error.",
+            Error = "Internal Server Error",
+            Category = ErrorCategory.ServerError,
             Detail = contextFeature.Error.GetAllMessages(),
-            Category = ErrorCategory.ServerError
         });
     }
 }

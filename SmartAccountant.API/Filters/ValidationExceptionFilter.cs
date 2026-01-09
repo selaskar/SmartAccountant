@@ -20,8 +20,9 @@ internal sealed class ValidationExceptionFilter : IExceptionFilter
         context.Result = new BadRequestObjectResult(new ErrorDetail()
         {
             Code = errorCode,
-            Error = validationException.Message,
-            Category = category
+            Error = "Validation Error",
+            Category = category,
+            Detail = validationException.Message,
         });
     }
 }

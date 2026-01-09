@@ -20,7 +20,7 @@ internal sealed partial class ServerExceptionFilter(ILogger<ServerExceptionFilte
         context.Result = new ObjectResult(new ErrorDetail()
         {
             Code = context.HttpContext.Response.StatusCode,
-            Error = "Internal Server Error.",
+            Error = "Internal Server Error",
             Detail = exception.Message,
             Category = ErrorCategory.ServerError
         });

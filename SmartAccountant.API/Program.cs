@@ -78,6 +78,7 @@ internal sealed class Program
         //Doesn't enforce a role, since it is not straightforward to automatically assign 
         //application roles to new users during self-registration.
         AuthorizationPolicy defaultPolicy = new AuthorizationPolicyBuilder()
+            .RequireAuthenticatedUser()
             .RequireScope(AppScopes.Statement.ToString())
             .Build();
 

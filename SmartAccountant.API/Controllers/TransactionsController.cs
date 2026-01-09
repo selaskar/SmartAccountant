@@ -29,7 +29,7 @@ public sealed class TransactionsController(ITransactionService transactionServic
     [HttpPut("debit")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType<ErrorDetail>(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<Transaction[]>> Update([FromBody] DebitTransaction updateDto, CancellationToken cancellationToken)
+    public async Task<ActionResult> Update([FromBody] DebitTransaction updateDto, CancellationToken cancellationToken)
     {
         var transactionToUpdate = mapper.Map<Models.DebitTransaction>(updateDto);
         await transactionService.UpdateTransaction(transactionToUpdate, cancellationToken);
@@ -40,7 +40,7 @@ public sealed class TransactionsController(ITransactionService transactionServic
     [HttpPut("cc")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType<ErrorDetail>(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<Transaction[]>> Update([FromBody] CreditCardTransaction updateDto, CancellationToken cancellationToken)
+    public async Task<ActionResult> Update([FromBody] CreditCardTransaction updateDto, CancellationToken cancellationToken)
     {
         var transactionToUpdate = mapper.Map<Models.CreditCardTransaction>(updateDto);
         await transactionService.UpdateTransaction(transactionToUpdate, cancellationToken);
