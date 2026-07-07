@@ -6,7 +6,7 @@ public record class StatementDocument : BaseModel
 
     public Guid StatementId { get; init; }
 
-    public Statement? Statement { get; set; }
+    public IStatement<Transaction>? Statement { get; set; }
 
     public required string FilePath { get; set; }
 }

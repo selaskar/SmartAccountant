@@ -13,11 +13,11 @@ internal sealed class StatementRepository(CoreDbContext dbContext, IMapper mappe
     private static readonly CompositeFormat CannotInsertStatement = CompositeFormat.Parse(Messages.CannotInsertStatement);
 
     /// <inheritdoc/>
-    public async Task Insert(Models.Statement statement, CancellationToken cancellationToken)
+    public async Task Insert(Models.IStatement<Models.Transaction> statement, CancellationToken cancellationToken)
     {
         try
         {
-            Entities.Statement entity = mapper.Map<Entities.Statement>(statement);
+            Entities.Statement entity = mapper.Map<Entities.Statement>(statement); //TODO: test
 
             // Adds along statement documents.
             dbContext.Statements.Add(entity);

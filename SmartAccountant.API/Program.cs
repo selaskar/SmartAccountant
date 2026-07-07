@@ -1,4 +1,4 @@
-using System.IdentityModel.Tokens.Jwt;
+﻿using System.IdentityModel.Tokens.Jwt;
 using Azure.Core;
 using Azure.Monitor.OpenTelemetry.AspNetCore;
 using FileStorage.Extensions;
@@ -146,6 +146,7 @@ internal sealed class Program
         return options;
     }
 
+    //TODO: move out
     internal enum AppScopes
     {
         Statement = 0

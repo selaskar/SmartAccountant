@@ -10,7 +10,7 @@ public static class ValidatorExtensions
     /// </summary>
     /// <exception cref="ValidationException"/>
     /// <exception cref="ArgumentNullException"/>
-    public static void ValidateAndThrowSafe<T>(this IValidator<T> validator, [NotNull] T instance)
+    public static void ValidateAndThrowSafe<T>(this IValidator<T> validator, [NotNull] T? instance)
     {
         ArgumentNullException.ThrowIfNull(instance);
 

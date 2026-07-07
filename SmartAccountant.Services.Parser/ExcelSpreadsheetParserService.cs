@@ -16,7 +16,7 @@ internal class ExcelSpreadsheetParserService(
     ISpreadsheetParser, IMultipartStatementParser
 {
     /// <inheritdoc />
-    public void ReadStatement<TTransaction>(Statement<TTransaction> statement, Stream stream, Bank bank)
+    public void ReadStatement<TTransaction>(IStatement<TTransaction> statement, Stream stream, Bank bank)
          where TTransaction : Transaction
     {
         try

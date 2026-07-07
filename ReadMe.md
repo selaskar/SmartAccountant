@@ -1,4 +1,4 @@
-# Smart Accountant API
+﻿# Smart Accountant API
 
 ## Before run
 
@@ -26,6 +26,9 @@ No need to handle them in controllers.
 ```
 
 Also make those classes _internal_, please.
+
+### Output Formats
+Guid: D add link here
 
 ### Test projects
 * Add the following build property to all test projects:

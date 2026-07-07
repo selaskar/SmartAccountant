@@ -14,7 +14,8 @@ namespace SmartAccountant.Services;
 
 internal class SummaryService(IAuthorizationService authorizationService,
     IAccountRepository accountRepository,
-    ITransactionRepository transactionRepository)
+    ITransactionRepository transactionRepository,
+    ISummaryRepository summaryRepository)
     : ISummaryService
 {
     private static readonly CompositeFormat CannotCalculateSummary = CompositeFormat.Parse(Messages.CannotCalculateSummary);
@@ -26,31 +27,17 @@ internal class SummaryService(IAuthorizationService authorizationService,
 
         try
         {
-            Dictionary<Currency, CurrencySummary> currencySummaries = new();
+            MonthlySummary? monthlySummary = await summaryRepository.GetSummary(userId, month, cancellationToken);
 
-            await CalculateOriginalLimits(month, userId, currencySummaries, cancellationToken);
-
-            Transaction[] allTransactions = await transactionRepository.GetTransactionsOfMonth(userId, month, cancellationToken);
-
-            Calculate(currencySummaries, allTransactions, cs => cs.IncomeTotal, BalanceType.Debit, MainCategory.Income);
-            Calculate(currencySummaries, allTransactions, cs => cs.ExpensesTotal, BalanceType.Credit, MainCategory.Expense);
-            Calculate(currencySummaries, allTransactions, cs => cs.LoansTotal, BalanceType.Debit, MainCategory.Loan);
-            Calculate(currencySummaries, allTransactions, cs => cs.SavingsTotal, BalanceType.Debit, MainCategory.Saving);
-            Calculate(currencySummaries, allTransactions, cs => cs.InterestAndFeesTotal, BalanceType.Credit, MainCategory.InterestOrFee);
-
-            CalculateSubExpenses(currencySummaries, allTransactions);
-
-            CalculateRemainingBalances(currencySummaries, allTransactions);
-
-            foreach (var currencySummary in currencySummaries.Values)
-                currencySummary.Net = currencySummary.IncomeTotal - (currencySummary.ExpensesTotal + currencySummary.InterestAndFeesTotal) + currencySummary.LoansTotal + currencySummary.SavingsTotal;
-
-            return new MonthlySummary()
+            if (monthlySummary is null or { State: SummaryState.OutOfDate })
             {
-                Id = Guid.NewGuid(),
-                Month = month,
-                Currencies = currencySummaries.Values.ToList(),
-            };
+                monthlySummary = await CalculateSummary(month, userId, cancellationToken);
+
+                monthlySummary.State = SummaryState.UpToDate;
+                await summaryRepository.UpdateSummary(monthlySummary, cancellationToken);
+            }
+
+            return monthlySummary;
         }
         catch (Exception ex) when (ex is not OperationCanceledException and not ServerException)
         {
@@ -58,26 +45,35 @@ internal class SummaryService(IAuthorizationService authorizationService,
         }
     }
 
-    /// <exception cref="OverflowException"/>
-    /// <exception cref="ArgumentException"/>
-    /// <exception cref="ArgumentNullException"/>
-    private static void CalculateSubExpenses(Dictionary<Currency, CurrencySummary> currencySummaries, Transaction[] allTransactions)
+    private async Task<MonthlySummary> CalculateSummary(DateOnly month, Guid userId, CancellationToken cancellationToken)
     {
-        foreach (IGrouping<Currency, Transaction> item in allTransactions
-            .Where(t => t.Category.Category == MainCategory.Expense)
-            .GroupBy(t => t.Amount.Currency))
-        {
-            if (!currencySummaries.TryGetValue(item.Key, out CurrencySummary? summary))
-            {
-                summary = currencySummaries[item.Key] = new CurrencySummary(item.Key)
-                {
-                    Id = Guid.NewGuid(),
-                };
-            }
+        Dictionary<Currency, CurrencySummary> currencySummaries = new();
 
-            summary.ExpensesBreakdown = item.GroupBy(t => (ExpenseSubCategories)t.Category.SubCategory)
-                 .ToDictionary(t => t.Key, g => g.Select(x => x.NormalizeBalance(BalanceType.Credit)).Sum());
-        }
+        await CalculateOriginalLimits(month, userId, currencySummaries, cancellationToken);
+
+        Transaction[] allTransactions = await transactionRepository.GetTransactionsOfMonth(userId, month, cancellationToken);
+
+        Calculate(currencySummaries, allTransactions, cs => cs.IncomeTotal, BalanceType.Debit, MainCategory.Income);
+        Calculate(currencySummaries, allTransactions, cs => cs.ExpensesTotal, BalanceType.Credit, MainCategory.Expense);
+        Calculate(currencySummaries, allTransactions, cs => cs.LoansTotal, BalanceType.Debit, MainCategory.Loan);
+        Calculate(currencySummaries, allTransactions, cs => cs.SavingsTotal, BalanceType.Debit, MainCategory.Saving);
+        Calculate(currencySummaries, allTransactions, cs => cs.InterestAndFeesTotal, BalanceType.Credit, MainCategory.InterestOrFee);
+
+        CalculateSubExpenses(currencySummaries, allTransactions);
+
+        CalculateRemainingBalances(currencySummaries, allTransactions);
+
+        foreach (var currencySummary in currencySummaries.Values)
+            currencySummary.Net = currencySummary.IncomeTotal - (currencySummary.ExpensesTotal + currencySummary.InterestAndFeesTotal) + currencySummary.LoansTotal + currencySummary.SavingsTotal;
+
+        var monthlySummary = new MonthlySummary()
+        {
+            Id = Guid.NewGuid(),
+            Month = month,
+            Currencies = currencySummaries.Values.ToList(),
+        };
+
+        return monthlySummary;
     }
 
     /// <exception cref="ServerException"/>
@@ -129,6 +125,29 @@ internal class SummaryService(IAuthorizationService authorizationService,
             }
 
             propertyInfo.SetValue(summary, item);
+        }
+    }
+
+
+    /// <exception cref="OverflowException"/>
+    /// <exception cref="ArgumentException"/>
+    /// <exception cref="ArgumentNullException"/>
+    private static void CalculateSubExpenses(Dictionary<Currency, CurrencySummary> currencySummaries, Transaction[] allTransactions)
+    {
+        foreach (IGrouping<Currency, Transaction> item in allTransactions
+            .Where(t => t.Category.Category == MainCategory.Expense)
+            .GroupBy(t => t.Amount.Currency))
+        {
+            if (!currencySummaries.TryGetValue(item.Key, out CurrencySummary? summary))
+            {
+                summary = currencySummaries[item.Key] = new CurrencySummary(item.Key)
+                {
+                    Id = Guid.NewGuid(),
+                };
+            }
+
+            summary.ExpensesBreakdown = item.GroupBy(t => (ExpenseSubCategories)t.Category.SubCategory)
+                 .ToDictionary(t => t.Key, g => g.Select(x => x.NormalizeBalance(BalanceType.Credit)).Sum());
         }
     }
 

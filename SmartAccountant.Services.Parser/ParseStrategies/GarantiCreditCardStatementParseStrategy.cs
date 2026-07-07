@@ -10,7 +10,7 @@ using SmartAccountant.Shared.Enums.Errors;
 namespace SmartAccountant.Services.Parser.ParseStrategies;
 
 internal sealed partial class GarantiCreditCardStatementParseStrategy : AbstractGarantiCreditCardStatementParseStrategy,
-    IStatementParseStrategy<CreditCardTransaction>    
+    IStatementParseStrategy<CreditCardTransaction>
 {
     /// Non-empty rows
     internal const int HeaderRowCount = 3;
@@ -22,9 +22,9 @@ internal sealed partial class GarantiCreditCardStatementParseStrategy : Abstract
     internal const string RegularTransactionsLabel = "Dönemiçi İşlemler - TL";
 
     /// <inheritdoc/>
-    public void ParseStatement(Statement<CreditCardTransaction> statement, Worksheet worksheet, SharedStringTable stringTable)
+    public void ParseStatement(IStatement<CreditCardTransaction> statement, Worksheet worksheet, SharedStringTable stringTable)
     {
-        var creditCardStatement = Cast<CreditCardStatement>(statement);
+        CreditCardStatement creditCardStatement = Cast<CreditCardTransaction, CreditCardStatement>(statement);
 
         Row[] rows = worksheet.Descendants<Row>().ToArray();
 
@@ -32,14 +32,14 @@ internal sealed partial class GarantiCreditCardStatementParseStrategy : Abstract
     }
 
     /// <inheritdoc/>
-    public void CrossCheck(Statement<CreditCardTransaction> statement)
+    public void CrossCheck(IStatement<CreditCardTransaction> statement)
     {
-        var creditCardStatement = Cast<CreditCardStatement>(statement);
-        
         //TODO: will give wrong results when there are cancelled transactions.
-        decimal totalExpenses = creditCardStatement.Transactions.Select(t => t.Amount.Amount)
+        decimal totalExpenses = statement.Transactions.Select(t => t.Amount.Amount)
             .Where(d => d > 0) //debt payments doesn't count toward total transactions.
             .DefaultIfEmpty().Sum();
+
+        CreditCardStatement creditCardStatement = Cast<CreditCardTransaction, CreditCardStatement>(statement);
 
         if (creditCardStatement.TotalExpenses != totalExpenses)
             throw new ParserException(ParserErrors.TransactionAmountAndTotalExpensesMismatch);

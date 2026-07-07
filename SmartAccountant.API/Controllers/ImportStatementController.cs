@@ -72,9 +72,9 @@ public sealed class ImportStatementController(IMapper mapper) : ControllerBase
     {
         var requestModel = mapper.Map<TModel>(request);
 
-        Statement statement = await importService.ImportStatement(requestModel, cancellationToken);
+        IStatement<Transaction> statement = await importService.ImportStatement(requestModel, cancellationToken);
 
-        UploadStatementResponse response = mapper.Map<UploadStatementResponse>(statement) with
+        UploadStatementResponse response = mapper.Map<UploadStatementResponse>(statement) with //TODO: test
         {
             RequestId = request.RequestId
         };

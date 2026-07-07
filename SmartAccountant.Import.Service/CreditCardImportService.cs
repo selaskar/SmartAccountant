@@ -13,7 +13,7 @@ using SmartAccountant.Shared.Enums.Errors;
 namespace SmartAccountant.Import.Service;
 
 internal sealed class CreditCardImportService(
-    ILogger<AbstractImportService> logger,
+    ILogger<CreditCardImportService> logger,
     IFileTypeValidator fileTypeValidator,
     IAuthorizationService authorizationService,
     IAccountRepository accountRepository,
@@ -25,54 +25,43 @@ internal sealed class CreditCardImportService(
     IValidator<CreditCardStatementImportModel> validator,
     IStatementFactory statementFactory,
     IStatementParser parser)
-    : AbstractCreditCardImportService(logger, fileTypeValidator, authorizationService, accountRepository, storageService, unitOfWork, transactionRepository, statementRepository, dateTimeService)
+    : AbstractCreditCardImportService(logger, fileTypeValidator, authorizationService, accountRepository, storageService, unitOfWork, transactionRepository, statementRepository, dateTimeService, statementFactory)
 {
     /// <inheritdoc/>
     protected internal override void Validate(AbstractStatementImportModel model)
     {
-        validator.ValidateAndThrowSafe((CreditCardStatementImportModel)model);
+        validator.ValidateAndThrowSafe(model as CreditCardStatementImportModel);
     }
 
-    /// <inheritdoc/>
-    protected internal override Task<Statement> Parse(AbstractStatementImportModel model, Account account, CancellationToken _)
+    public override void Parse(IStatement<CreditCardTransaction> statement)
     {
-        try
-        {
-            var statement = (CreditCardStatement)statementFactory.Create(model, account);
+        parser.ReadStatement(statement);
+    }
 
-            parser.ReadStatement(statement, model.File.OpenReadStream(), account.Bank);
-
-            return Task.FromResult<Statement>(statement);
-        }
-        catch (ParserException ex)
-        {
-            throw new ImportException(ImportErrors.CannotParseUploadedStatementFile, ex);
-        }
-        catch (Exception ex) when (ex is not ImportException)
-        {
-            throw new ServerException(CannotParseUploadedStatementFile.FormatMessage(account.Id), ex);
-        }
+    //TODO: can be moved to upper class?
+    /// <inheritdoc/>
+    protected internal override Task PostParse(IStatement<CreditCardTransaction> statement, CancellationToken _)
+    {
+        return Task.CompletedTask;
     }
 
     /// <inheritdoc/>
-    protected internal override Transaction[] DetectNew(Statement statement, Transaction[] existingTransactions)
+    public override Transaction[] DetectNew(IStatement<CreditCardTransaction> statement, Transaction[] existingTransactions)
     {
         var creditCardStatement = Cast<CreditCardStatement>(statement);
 
-        return Except(news: creditCardStatement.Transactions, existing: existingTransactions.OfType<CreditCardTransaction>());
+        return Except(newOnes: creditCardStatement.Transactions, existing: existingTransactions.OfType<CreditCardTransaction>());
     }
 
     /// <inheritdoc/>
-    protected internal override Transaction[] DetectFinalized(Statement statement, Transaction[] existingTransactions)
+    public override Transaction[] DetectFinalized(IStatement<CreditCardTransaction> statement, Transaction[] existingTransactions)
     {
-        var creditCardStatement = Cast<CreditCardStatement>(statement);
-
-        var newOpenProvision = creditCardStatement.Transactions.Where(x => x.ProvisionState == ProvisionState.Open);
+        var newOpenProvision = statement.Transactions.Where(x => x.ProvisionState == ProvisionState.Open);
 
         var existingOpenProvision = existingTransactions.OfType<CreditCardTransaction>()
              .Where(x => x.ProvisionState == ProvisionState.Open);
 
         //The transactions which no longer exist as open transactions in new statement.
-        return Except(news: existingOpenProvision, existing: newOpenProvision);
+        return Except(newOnes: existingOpenProvision, existing: newOpenProvision);
     }
 }

@@ -12,7 +12,7 @@ using SmartAccountant.Shared.Enums.Errors;
 namespace SmartAccountant.Import.Service;
 
 internal sealed class DebitImportService(
-    ILogger<AbstractImportService> logger,
+    ILogger<DebitImportService> logger, //TODO: how does this change affect the printed logs?
     IFileTypeValidator fileTypeValidator,
     IAuthorizationService authorizationService,
     IAccountRepository accountRepository,
@@ -21,57 +21,47 @@ internal sealed class DebitImportService(
     ITransactionRepository transactionRepository,
     IStatementRepository statementRepository,
     IDateTimeService dateTimeService,
-    IValidator<DebitStatementImportModel> validator,
-    IStatementFactory statementFactory,
-    IStatementParser parser)
-    : AbstractImportService(logger, fileTypeValidator, authorizationService, accountRepository, storageService, unitOfWork, transactionRepository, statementRepository, dateTimeService)
+    IStatementFactory statementFactory, //TODO: move up?
+    IStatementParser parser,
+    IValidator<DebitStatementImportModel> validator)
+    : AbstractImportService<DebitTransaction>(logger, fileTypeValidator, authorizationService, accountRepository, storageService, unitOfWork, transactionRepository, statementRepository, dateTimeService, statementFactory)
 {
     /// <inheritdoc/>
     protected internal override void Validate(AbstractStatementImportModel model)
     {
-        validator.ValidateAndThrowSafe((DebitStatementImportModel)model);
+        validator.ValidateAndThrowSafe(model as DebitStatementImportModel);
+    }
+
+    public override void Parse(IStatement<DebitTransaction> statement, CancellationToken cancellationToken)
+    {
+        parser.ReadStatement(statement, model.File.OpenReadStream(), account.Bank);
     }
 
     /// <inheritdoc/>
-    protected internal override Task<Statement> Parse(AbstractStatementImportModel model, Account account, CancellationToken _)
+    protected internal override Task PostParse(IStatement<DebitTransaction> statement, CancellationToken _)
     {
-        try
-        {
-            var statement = (DebitStatement)statementFactory.Create(model, account);
+        DebitTransaction? lastTransaction = statement.Transactions.LastOrDefault();
 
-            parser.ReadStatement(statement, model.File.OpenReadStream(), account.Bank);
-
-            DebitTransaction? lastTransaction = statement.Transactions.LastOrDefault();
-
-            statement.RemainingBalance = lastTransaction?.RemainingBalance.Amount ?? 0;
-
-            return Task.FromResult<Statement>(statement);
-        }
-        catch (ParserException ex)
-        {
-            throw new ImportException(ImportErrors.CannotParseUploadedStatementFile, ex);
-        }
-        catch (Exception ex) when (ex is not ImportException)
-        {
-            throw new ServerException(CannotParseUploadedStatementFile.FormatMessage(account.Id), ex);
-        }
-    }
-
-    /// <inheritdoc/>
-    protected internal override Transaction[] DetectNew(Statement statement, Transaction[] existingTransactions)
-    {
         var debitStatement = Cast<DebitStatement>(statement);
 
+        debitStatement.RemainingBalance = lastTransaction?.RemainingBalance.Amount ?? 0;
+
+        return Task.CompletedTask;
+    }
+
+    /// <inheritdoc/>
+    public override DebitTransaction[] DetectNew(IStatement<DebitTransaction> statement, Transaction[] existingTransactions)
+    {
         //TODO: ref number nullable
         var existingIdentifiers = existingTransactions.OfType<DebitTransaction>().Select(x => new { x.ReferenceNumber, x.RemainingBalance });
-        IEnumerable<DebitTransaction> newTransactions = debitStatement.Transactions
+        IEnumerable<DebitTransaction> newTransactions = statement.Transactions
             .ExceptBy(existingIdentifiers, x => new { x.ReferenceNumber, x.RemainingBalance });
 
         return [.. newTransactions];
     }
 
     /// <inheritdoc/>
-    protected internal override Transaction[] DetectFinalized(Statement statement, Transaction[] existingTransactions)
+    public override DebitTransaction[] DetectFinalized(IStatement<DebitTransaction> statement, Transaction[] existingTransactions)
     {
         //Open provisions don't apply to debit accounts.
         return [];

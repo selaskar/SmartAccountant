@@ -10,7 +10,8 @@ internal static class ExceptionMiddlewareExtensions
 {
     internal static void ConfigureExceptionHandler(this IApplicationBuilder app)
     {
-        app.UseExceptionHandler(Handler);
+        //TODO: test
+        app.UseExceptionHandler().Run(Handler2);
     }
 
     private static void Handler(IApplicationBuilder builder)

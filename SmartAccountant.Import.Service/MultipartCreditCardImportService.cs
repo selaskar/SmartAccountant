@@ -15,7 +15,7 @@ using SmartAccountant.Shared.Enums.Errors;
 namespace SmartAccountant.Import.Service;
 
 internal sealed class MultipartCreditCardImportService(
-    ILogger<AbstractImportService> logger,
+    ILogger<MultipartCreditCardImportService> logger,
     IFileTypeValidator fileTypeValidator,
     IAuthorizationService authorizationService,
     IAccountRepository accountRepository,
@@ -27,7 +27,7 @@ internal sealed class MultipartCreditCardImportService(
     IValidator<MultipartStatementImportModel> validator,
     IStatementFactory statementFactory,
     IMultipartStatementParser parser)
-    : AbstractCreditCardImportService(logger, fileTypeValidator, authorizationService, accountRepository, storageService, unitOfWork, transactionRepository, statementRepository, dateTimeService)
+    : AbstractCreditCardImportService(logger, fileTypeValidator, authorizationService, accountRepository, storageService, unitOfWork, transactionRepository, statementRepository, dateTimeService, statementFactory)
 {
     private static readonly CompositeFormat DiscoveredCardNumbersMismatch = CompositeFormat.Parse(Messages.DiscoveredCardNumbersMismatch);
     private static readonly CompositeFormat CannotDetermineSecondaryAccount = CompositeFormat.Parse(Messages.CannotDetermineSecondaryAccount);
@@ -35,34 +35,23 @@ internal sealed class MultipartCreditCardImportService(
     /// <inheritdoc />
     protected internal override void Validate(AbstractStatementImportModel model)
     {
-        validator.ValidateAndThrowSafe((MultipartStatementImportModel)model);
+        validator.ValidateAndThrowSafe(model as MultipartStatementImportModel);
     }
 
-    /// <inheritdoc />
-    protected internal override async Task<Statement> Parse(AbstractStatementImportModel model, Account account, CancellationToken cancellationToken)
+    public override void Parse(IStatement<CreditCardTransaction> statement)
     {
-        try
-        {
-            var statement = (SharedStatement)statementFactory.Create(model, account);
-
-            parser.ReadMultipartStatement(statement, model.File.OpenReadStream(), account.Bank);
-
-            await AssignAccountIds(statement, account, cancellationToken);
-
-            return statement;
-        }
-        catch (ParserException ex)
-        {
-            throw new ImportException(ImportErrors.CannotParseUploadedStatementFile, ex);
-        }
-        catch (Exception ex) when (ex is not OperationCanceledException and not ServerException and not ImportException)
-        {
-            throw new ServerException(CannotParseUploadedStatementFile.FormatMessage(account.Id), ex);
-        }
+        parser.ReadMultipartStatement(statement, model.File.OpenReadStream(), account.Bank);
     }
 
     /// <inheritdoc />
-    protected internal override async Task<Transaction[]> FetchExistingTransactions(Statement statement, CancellationToken cancellationToken)
+    protected internal override async Task PostParse(SharedStatement statement, CancellationToken cancellationToken)
+    {
+        //TODO: re-throw the exceptions
+        await AssignAccountIds(statement, account, cancellationToken);
+    }
+
+    /// <inheritdoc />
+    protected internal override async Task<Transaction[]> FetchExistingTransactions(IStatement<CreditCardTransaction> statement, CancellationToken cancellationToken)
     {
         var sharedStatement = Cast<SharedStatement>(statement);
 
@@ -79,17 +68,17 @@ internal sealed class MultipartCreditCardImportService(
     }
 
     /// <inheritdoc />
-    protected internal override Transaction[] DetectNew(Statement statement, Transaction[] existingTransactions)
+    public override Transaction[] DetectNew(IStatement<CreditCardTransaction> statement, Transaction[] existingTransactions)
     {
         var sharedStatement = Cast<SharedStatement>(statement);
 
         var combinedTransactions = sharedStatement.Transactions.Union(sharedStatement.SecondaryTransactions);
 
-        return Except(news: combinedTransactions, existing: existingTransactions.OfType<CreditCardTransaction>());
+        return Except(newOnes: combinedTransactions, existing: existingTransactions.OfType<CreditCardTransaction>());
     }
 
     /// <inheritdoc />
-    protected internal override Transaction[] DetectFinalized(Statement statement, Transaction[] existingTransactions)
+    public override Transaction[] DetectFinalized(IStatement<CreditCardTransaction> statement, Transaction[] existingTransactions)
     {
         //Open provisions don't apply to multipart statements.
         return [];
@@ -104,7 +93,7 @@ internal sealed class MultipartCreditCardImportService(
     private async Task AssignAccountIds(SharedStatement statement, Account primaryAccount, CancellationToken cancellationToken)
     {
         var abstractPrimaryCreditCard = primaryAccount as AbstractCreditCard
-            ?? throw new ImportException(ImportErrors.AbstractCreditCardExpected ,$"Primary account (type: {primaryAccount.GetType().Name}) is expected to be type of {typeof(AbstractCreditCard).Name}");
+            ?? throw new ImportException(ImportErrors.AbstractCreditCardExpected, $"Primary account (type: {primaryAccount.GetType().Name}) is expected to be type of {typeof(AbstractCreditCard).Name}");
 
         string cardNumberToSearch;
         bool transactionsInCorrectOrder;
@@ -113,7 +102,7 @@ internal sealed class MultipartCreditCardImportService(
             cardNumberToSearch = statement.CardNumber2
                 ?? throw new ImportException(ImportErrors.SecondaryCardNumberNotDetermined);
 
-            transactionsInCorrectOrder = true;           
+            transactionsInCorrectOrder = true;
         }
         else if (CreditCardUtilities.CompareNumbersWithMasking(abstractPrimaryCreditCard.CardNumber, statement.CardNumber2))
         {

@@ -7,5 +7,5 @@ public interface IStatementRepository
 {
     /// <exception cref="ServerException" />
     /// <exception cref="OperationCanceledException" />
-    Task Insert(Statement statement, CancellationToken cancellationToken);
+    Task Insert(IStatement<Transaction> statement, CancellationToken cancellationToken);
 }

@@ -7,7 +7,7 @@ using SmartAccountant.Repositories.Core.Abstract;
 namespace SmartAccountant.Import.Service;
 
 internal abstract class AbstractCreditCardImportService(
-    ILogger<AbstractImportService> logger,
+    ILogger<AbstractCreditCardImportService> logger,
     IFileTypeValidator fileTypeValidator,
     IAuthorizationService authorizationService,
     IAccountRepository accountRepository,
@@ -15,18 +15,19 @@ internal abstract class AbstractCreditCardImportService(
     IUnitOfWork unitOfWork,
     ITransactionRepository transactionRepository,
     IStatementRepository statementRepository,
-    IDateTimeService dateTimeService)
-    : AbstractImportService(logger, fileTypeValidator, authorizationService, accountRepository, storageService, unitOfWork, transactionRepository, statementRepository, dateTimeService)
+    IDateTimeService dateTimeService,
+    IStatementFactory statementFactory)
+    : AbstractImportService<CreditCardTransaction>(logger, fileTypeValidator, authorizationService, accountRepository, storageService, unitOfWork, transactionRepository, statementRepository, dateTimeService, statementFactory)
 {
     /// <exception cref="ArgumentOutOfRangeException"/>
     /// <exception cref="ArgumentException"/>
     /// <exception cref="ArgumentNullException"/>
-    protected internal static Transaction[] Except(IEnumerable<CreditCardTransaction> news, IEnumerable<CreditCardTransaction> existing)
+    protected internal static Transaction[] Except(IEnumerable<CreditCardTransaction> newOnes, IEnumerable<CreditCardTransaction> existing)
     {
         var groupedExisting = existing.GroupBy(x => new { x.Timestamp, x.Description, x.Amount, x.ProvisionState })
             .ToDictionary(x => x.Key, grp => grp.ToArray());
 
-        var groupedNew = news.GroupBy(x => new { x.Timestamp, x.Description, x.Amount, x.ProvisionState })
+        var groupedNew = newOnes.GroupBy(x => new { x.Timestamp, x.Description, x.Amount, x.ProvisionState })
             .ToDictionary(x => x.Key, grp => grp.ToList());
 
         foreach (var key in groupedNew.Keys.Intersect(groupedExisting.Keys))

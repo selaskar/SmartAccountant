@@ -6,6 +6,7 @@ using SmartAccountant.Abstractions.Exceptions;
 using SmartAccountant.Abstractions.Interfaces;
 using SmartAccountant.Core.Helpers;
 using SmartAccountant.Import.Service.Abstract;
+using SmartAccountant.Import.Service.Factories;
 using SmartAccountant.Import.Service.Resources;
 using SmartAccountant.Models;
 using SmartAccountant.Models.Request;
@@ -14,8 +15,18 @@ using SmartAccountant.Shared.Enums.Errors;
 
 namespace SmartAccountant.Import.Service;
 
-internal abstract partial class AbstractImportService(
-    ILogger<AbstractImportService> logger,
+internal interface ITransactionCollider<in TTransaction>
+    where TTransaction : Transaction
+{
+    Transaction[] DetectNew(IStatement<TTransaction> statement, Transaction[] existingTransactions);
+
+    Transaction[] DetectFinalized(IStatement<TTransaction> statement, Transaction[] existingTransactions);
+
+    void Parse(IStatement<TTransaction> statement);
+}
+
+internal abstract partial class AbstractImportService<TTransaction>(
+    ILogger<AbstractImportService<TTransaction>> logger,
     IFileTypeValidator fileTypeValidator,
     IAuthorizationService authorizationService,
     IAccountRepository accountRepository,
@@ -23,8 +34,10 @@ internal abstract partial class AbstractImportService(
     IUnitOfWork unitOfWork,
     ITransactionRepository transactionRepository,
     IStatementRepository statementRepository,
-    IDateTimeService dateTimeService)
-    : IImportService
+    IDateTimeService dateTimeService,
+    IStatementFactory statementFactory)
+        : IImportService, ITransactionCollider<TTransaction>
+        where TTransaction : Transaction
 {
     /// <remarks>In bytes</remarks>
     internal const long MaxFileSize = 1024 * 1024;
@@ -43,10 +56,11 @@ internal abstract partial class AbstractImportService(
     private protected ITransactionRepository TransactionRepository { get; } = transactionRepository;
 
     /// <inheritdoc/>
-    public async Task<Statement> ImportStatement(AbstractStatementImportModel model, CancellationToken cancellationToken)
+    public async Task<IStatement<Transaction>> ImportStatement(AbstractStatementImportModel model, CancellationToken cancellationToken)
     {
-        Statement? statement = null;
+        IStatement<TTransaction>? statement = null;
 
+        //TODO: catch or declare argument null exception.
         Validate(model);
 
         Guid userId = authorizationService.UserId;
@@ -58,7 +72,9 @@ internal abstract partial class AbstractImportService(
 
             Account account = await ValidateAccountHolder(userId, model.AccountId, cancellationToken);
 
-            statement = await Parse(model, account, cancellationToken);
+            statement = Read(model, account);
+
+            await PostParse(statement, cancellationToken);
 
             await SaveFile(statement, model.File, cancellationToken);
 
@@ -76,17 +92,42 @@ internal abstract partial class AbstractImportService(
 
 
     /// <exception cref="ValidationException"/>
+    /// <exception cref="ArgumentNullException"/>
     protected internal abstract void Validate(AbstractStatementImportModel model);
 
     /// <exception cref="ImportException"/>
     /// <exception cref="ServerException"/>
+    private IStatement<TTransaction> Read(AbstractStatementImportModel model, Account account) //TODO: ren
+    {
+        try
+        {
+            IStatement<TTransaction> statement = statementFactory.Create<TTransaction>(model, account);
+
+            Parse(statement);
+
+            return statement;
+        }
+        catch (ParserException ex)
+        {
+            throw new ImportException(ImportErrors.CannotParseUploadedStatementFile, ex);
+        }
+        catch (Exception ex) when (ex is not ImportException)
+        {
+            throw new ServerException(CannotParseUploadedStatementFile.FormatMessage(account.Id), ex);
+        }
+    }
+
+    //TODO:
+    public abstract void Parse(IStatement<TTransaction> statement);
+
+    /// <exception cref="ImportException"/>
     /// <exception cref="OperationCanceledException"/>
-    protected internal abstract Task<Statement> Parse(AbstractStatementImportModel model, Account account, CancellationToken cancellationToken);
+    protected internal abstract Task PostParse(IStatement<TTransaction> statement, CancellationToken cancellationToken);
 
     /// <exception cref="ImportException"/>
     /// <exception cref="ServerException"/>
     /// <exception cref="OperationCanceledException"/>
-    protected internal virtual async Task<Transaction[]> FetchExistingTransactions(Statement statement, CancellationToken cancellationToken)
+    protected internal virtual async Task<Transaction[]> FetchExistingTransactions(IStatement<TTransaction> statement, CancellationToken cancellationToken)
     {
         try
         {
@@ -104,14 +145,14 @@ internal abstract partial class AbstractImportService(
     /// <exception cref="ArgumentOutOfRangeException"/>
     /// <exception cref="ArgumentException"/>
     /// <exception cref="ArgumentNullException"/>
-    protected internal abstract Transaction[] DetectNew(Statement statement, Transaction[] existingTransactions);
+    public abstract Transaction[] DetectNew(IStatement<TTransaction> statement, Transaction[] existingTransactions);
 
     /// <returns>Returns the transactions that previously existed as open provisions, but became finalized since then.</returns>
     /// <exception cref="ImportException"/>
     /// <exception cref="ArgumentOutOfRangeException"/>
     /// <exception cref="ArgumentException"/>
     /// <exception cref="ArgumentNullException"/>
-    protected internal abstract Transaction[] DetectFinalized(Statement statement, Transaction[] existingTransactions);
+    public abstract Transaction[] DetectFinalized(IStatement<TTransaction> statement, Transaction[] existingTransactions);
 
     /// <exception cref="ImportException" />
     /// <exception cref="ServerException" />
@@ -134,7 +175,7 @@ internal abstract partial class AbstractImportService(
     /// <exception cref="ImportException"/>
     /// <exception cref="ServerException"/>
     /// <exception cref="OperationCanceledException"/>
-    private async Task SaveFile(Statement statement, ImportFile file, CancellationToken cancellationToken)
+    private async Task SaveFile(IStatement<Transaction> statement, ImportFile file, CancellationToken cancellationToken)
     {
         try
         {
@@ -172,7 +213,7 @@ internal abstract partial class AbstractImportService(
     /// <exception cref="ArgumentOutOfRangeException"/>
     /// <exception cref="ArgumentException"/>
     /// <exception cref="ArgumentNullException"/>
-    private async Task<(Transaction[], Transaction[])> Collide(Statement statement, CancellationToken cancellationToken)
+    private async Task<(Transaction[], Transaction[])> Collide(IStatement<TTransaction> statement, CancellationToken cancellationToken)
     {
         Transaction[] existingTransactions = await FetchExistingTransactions(statement, cancellationToken);
 
@@ -185,7 +226,7 @@ internal abstract partial class AbstractImportService(
 
     /// <exception cref="ServerException"/>
     /// <exception cref="OperationCanceledException"/>
-    private async Task PersistStatement(Statement statement, Transaction[] newTransactions, Transaction[] finalizedTransactions, CancellationToken cancellationToken)
+    private async Task PersistStatement(IStatement<Transaction> statement, Transaction[] newTransactions, Transaction[] finalizedTransactions, CancellationToken cancellationToken)
     {
         try
         {
@@ -213,8 +254,8 @@ internal abstract partial class AbstractImportService(
 
 
     /// <exception cref="ImportException"/>
-    private protected static TStatement Cast<TStatement>(Statement statement)
-        where TStatement : Statement
+    private protected static TStatement Cast<TStatement>(IStatement<TTransaction> statement)
+        where TStatement : class, IStatement<TTransaction>
     {
         return statement as TStatement ??
             throw new ImportException(ImportErrors.StatementTypeMismatch, $"Statement (type: {statement.GetType().Name}) was expected to be type of {typeof(TStatement).Name}");

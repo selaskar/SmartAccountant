@@ -4,15 +4,16 @@ using SmartAccountant.Models;
 
 namespace SmartAccountant.Services.Parser.Abstract;
 
-internal interface IStatementParseStrategy<TTransaction> where TTransaction : Transaction
+internal interface IStatementParseStrategy<in TTransaction> //TODO: any benefit on contravariance?
+    where TTransaction : Transaction
 {
     /// <exception cref="ParserException"/>
     /// <exception cref="ServerException"/>
     /// <exception cref="InvalidCastException"/>
     /// <exception cref="ArgumentNullException"/>
-    void ParseStatement(Statement<TTransaction> statement, Worksheet worksheet, SharedStringTable stringTable);
+    void ParseStatement(IStatement<TTransaction> statement, Worksheet worksheet, SharedStringTable stringTable);
 
     /// <exception cref="ParserException"/>
     /// <exception cref="InvalidCastException"/>
-    void CrossCheck(Statement<TTransaction> statement);
+    void CrossCheck(IStatement<TTransaction> statement);
 }

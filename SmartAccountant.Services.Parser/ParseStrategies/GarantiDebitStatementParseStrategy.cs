@@ -19,9 +19,9 @@ internal sealed class GarantiDebitStatementParseStrategy : AbstractGarantiStatem
     private static readonly CompositeFormat UnexpectedRemainingAmountFormat = CompositeFormat.Parse(Messages.UnexpectedRemainingAmountFormat);
 
     /// <inheritdoc/>
-    public void ParseStatement(Statement<DebitTransaction> statement, Worksheet worksheet, SharedStringTable stringTable)
+    public void ParseStatement(IStatement<DebitTransaction> statement, Worksheet worksheet, SharedStringTable stringTable)
     {
-        var debitStatement = Cast<DebitStatement>(statement);
+        DebitStatement debitStatement = Cast<DebitTransaction,DebitStatement>(statement);
 
         try
         {
@@ -29,7 +29,7 @@ internal sealed class GarantiDebitStatementParseStrategy : AbstractGarantiStatem
             foreach (Row row in worksheet.Descendants<Row>().Skip(HeaderRowCount))
             {
                 DebitTransaction transaction = ParseDebitTransaction(debitStatement, rowNumber++, row, stringTable);
-                statement.Transactions.Add(transaction);
+                debitStatement.Transactions.Add(transaction);
             }
         }
         catch (Exception ex) when (ex is ArgumentNullException or ArgumentOutOfRangeException or FormatException or OverflowException)
@@ -43,9 +43,9 @@ internal sealed class GarantiDebitStatementParseStrategy : AbstractGarantiStatem
     }
 
     /// <inheritdoc/>
-    public void CrossCheck(Statement<DebitTransaction> statement)
+    public void CrossCheck(IStatement<DebitTransaction> statement)
     {
-        if (statement.Transactions.Count == 0)
+        if (!statement.Transactions.Any())
             return;
 
         decimal totalAmount = statement.Transactions.Skip(1).Sum(x => x.Amount.Amount);
