@@ -16,6 +16,7 @@ internal sealed class RequestResponseMappings : Profile
             .ForMember(x => x.OpenReadStream, opt => opt.MapFrom(e => (Func<Stream>)e.OpenReadStream));
 
 
+        // request mappings
         CreateMap<AbstractUploadStatementRequest, AbstractStatementImportModel>()
             .ForMember(x => x.RequestId, opt => opt.MapFrom(e => e.RequestId))
             .ForMember(x => x.AccountId, opt => opt.MapFrom(e => e.AccountId))
@@ -37,16 +38,21 @@ internal sealed class RequestResponseMappings : Profile
             .ForMember(x => x.DependentAccountId, opt => opt.MapFrom(e => e.DependentAccountId));
 
 
+        // response mappings
         CreateMap<IStatement<Transaction>, UploadStatementResponse>()
             .ForMember(x => x.StatementId, opt => opt.MapFrom(e => e.Id))
             .ForMember(x => x.AccountId, opt => opt.MapFrom(e => e.AccountId))
             .ForMember(x => x.RequestId, opt => opt.Ignore());
 
-        CreateMap<IStatement<XCreditCardTransaction>, UploadStatementResponse>()
+
+
+        CreateMap<IStatement<CreditCardTransactionX>, UploadStatementResponse>()
             .IncludeBase<IStatement<Transaction>, UploadStatementResponse>();
 
         //TODO: mappings for other statement types
         CreateMap<SharedStatement, UploadStatementResponse>()
-            .IncludeBase<IStatement<XCreditCardTransaction>, UploadStatementResponse>();
+            .IncludeBase<IStatement<CreditCardTransactionX>, UploadStatementResponse>();
+
+
     }
 }

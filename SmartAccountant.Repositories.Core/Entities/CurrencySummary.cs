@@ -3,7 +3,7 @@ using SmartAccountant.Shared.Enums;
 
 namespace SmartAccountant.Repositories.Core.Entities;
 
-internal class CurrencySummary
+internal sealed class CurrencySummary
 {
     public Guid Id { get; set; }
     

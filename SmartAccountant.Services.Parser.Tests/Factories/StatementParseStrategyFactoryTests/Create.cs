@@ -9,7 +9,7 @@ namespace SmartAccountant.Services.Parser.Tests.Factories.StatementParseStrategy
 [TestClass]
 public class Create
 {
-    private StatementParseStrategyFactory sut = null!;
+    private SpreadsheetParseStrategyFactory sut = null!;
 
     [TestInitialize]
     public void Initialize() => sut = new();

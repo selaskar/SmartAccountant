@@ -4,7 +4,7 @@ using SmartAccountant.Models;
 
 namespace SmartAccountant.Services.Parser.Abstract;
 
-internal interface IStatementParseStrategy<in TTransaction> //TODO: any benefit on contravariance? Probably allows the cast in factory class.
+internal interface IStatementParseStrategy<TTransaction>
     where TTransaction : Transaction
 {
     /// <exception cref="ParserException"/>

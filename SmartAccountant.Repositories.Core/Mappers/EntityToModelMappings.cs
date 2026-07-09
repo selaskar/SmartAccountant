@@ -107,7 +107,7 @@ internal sealed class EntityToModelMappings : Profile
             .ForMember(x => x.ProvisionState, opt => opt.MapFrom(e => e.ProvisionState))
             .ReverseMap();
 
-        CreateMap<Models.XCreditCardTransaction, Entities.CreditCardTransaction>()
+        CreateMap<Models.CreditCardTransactionX, Entities.CreditCardTransaction>()
             .IncludeBase<Models.CreditCardTransaction, Entities.CreditCardTransaction>()
             .ReverseMap();
 

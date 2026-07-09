@@ -15,7 +15,7 @@ using SmartAccountant.Shared.Enums.Errors;
 namespace SmartAccountant.Services.Parser.ParseStrategies;
 
 internal sealed partial class GarantiMultipartStatementParseStrategy : AbstractGarantiCreditCardStatementParseStrategy,
-    ISpreadsheetParseStrategy<XCreditCardTransaction>
+    ISpreadsheetParseStrategy<CreditCardTransactionX>
 {
     /// <summary>
     /// This is the gap from card number row to first transaction in that section.
@@ -29,13 +29,13 @@ internal sealed partial class GarantiMultipartStatementParseStrategy : AbstractG
 
 
     //TODO: exceptions
-    void IStatementParseStrategy<XCreditCardTransaction>.ParseStatement(IStatement<XCreditCardTransaction> statement, Worksheet worksheet, SharedStringTable stringTable)
+    void IStatementParseStrategy<CreditCardTransactionX>.ParseStatement(IStatement<CreditCardTransactionX> statement, Worksheet worksheet, SharedStringTable stringTable)
     {
         ParseStatement((SharedStatement)statement, worksheet, stringTable);
     }
 
     //TODO: exceptions
-    void IStatementParseStrategy<XCreditCardTransaction>.CrossCheck(IStatement<XCreditCardTransaction> statement)
+    void IStatementParseStrategy<CreditCardTransactionX>.CrossCheck(IStatement<CreditCardTransactionX> statement)
     {
         CrossCheck((SharedStatement)statement);
     }
