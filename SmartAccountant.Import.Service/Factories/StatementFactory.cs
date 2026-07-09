@@ -6,11 +6,11 @@ using SmartAccountant.Shared.Enums.Errors;
 
 namespace SmartAccountant.Import.Service.Factories;
 
-//This factory class isn't strictly necessary, as long as not called by a generic class.
 internal class StatementFactory : IStatementFactory
 {
     /// <inheritdoc/>
-    public Statement Create(AbstractStatementImportModel model, Account account)
+    public IStatement<TTransaction> Create<TTransaction>(AbstractStatementImportModel model, Account account)
+        where TTransaction : Transaction
     {
         switch (model)
         {
@@ -18,7 +18,7 @@ internal class StatementFactory : IStatementFactory
                 if (account is not SavingAccount savingAccount)
                     throw new ImportException(ImportErrors.SavingAccountExpected, $"Account (type:{account.GetType().Name}) is expected to be a {typeof(SavingAccount).Name}.");
 
-                return new DebitStatement()
+                return (IStatement<TTransaction>)new DebitStatement()
                 {
                     Id = Guid.NewGuid(),
                     AccountId = model.AccountId,
@@ -26,7 +26,7 @@ internal class StatementFactory : IStatementFactory
                     Currency = savingAccount.Currency,
                 };
             case MultipartStatementImportModel multipartStatementImportModel:
-                return new SharedStatement()
+                return (IStatement<TTransaction>)new SharedStatement()
                 {
                     Id = Guid.NewGuid(),
                     AccountId = account.Id,
@@ -41,7 +41,7 @@ internal class StatementFactory : IStatementFactory
                     RemainingLimit = multipartStatementImportModel.RemainingLimit,
                 };
             case CreditCardStatementImportModel creditCardStatementImportModel:
-                return new CreditCardStatement()
+                return (IStatement<TTransaction>)new CreditCardStatement()
                 {
                     Id = Guid.NewGuid(),
                     AccountId = model.AccountId,
@@ -54,7 +54,6 @@ internal class StatementFactory : IStatementFactory
                     MinimumDueAmount = creditCardStatementImportModel.MinimumDueAmount,
                     DueDate = creditCardStatementImportModel.DueDate,
                     RemainingLimit = creditCardStatementImportModel.RemainingLimit,
-
                 };
             default:
                 throw new NotImplementedException($"{model.GetType().Name} is not implemented yet.");

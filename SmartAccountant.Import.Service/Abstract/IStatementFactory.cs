@@ -8,5 +8,6 @@ internal interface IStatementFactory
 {
     /// <exception cref="ImportException"/>
     /// <exception cref="NotImplementedException"/>
-    Statement Create(AbstractStatementImportModel model, Account account);
+    IStatement<TTransaction> Create<TTransaction>(AbstractStatementImportModel model, Account account)
+        where TTransaction : Transaction;
 }

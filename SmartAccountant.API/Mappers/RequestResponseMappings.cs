@@ -36,9 +36,16 @@ internal sealed class RequestResponseMappings : Profile
             .IncludeBase<UploadCreditCardStatementRequest, CreditCardStatementImportModel>()
             .ForMember(x => x.DependentAccountId, opt => opt.MapFrom(e => e.DependentAccountId));
 
-        CreateMap<Statement, UploadStatementResponse>()
+
+        CreateMap<IStatement<Transaction>, UploadStatementResponse>()
             .ForMember(x => x.StatementId, opt => opt.MapFrom(e => e.Id))
             .ForMember(x => x.AccountId, opt => opt.MapFrom(e => e.AccountId))
             .ForMember(x => x.RequestId, opt => opt.Ignore());
+
+        CreateMap<IStatement<XCreditCardTransaction>, UploadStatementResponse>()
+            .IncludeBase<IStatement<Transaction>, UploadStatementResponse>();
+
+        CreateMap<SharedStatement, UploadStatementResponse>()
+            .IncludeBase<IStatement<XCreditCardTransaction>, UploadStatementResponse>();
     }
 }

@@ -10,15 +10,10 @@ internal static class ExceptionMiddlewareExtensions
 {
     internal static void ConfigureExceptionHandler(this IApplicationBuilder app)
     {
-        app.UseExceptionHandler(Handler);
+        app.UseExceptionHandler(static (IApplicationBuilder builder) => builder.Run(Handler));
     }
 
-    private static void Handler(IApplicationBuilder builder)
-    {
-        builder.Run(Handler2);
-    }
-
-    private static async Task Handler2(HttpContext httpContext)
+    private static async Task Handler(HttpContext httpContext)
     {
         httpContext.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
         httpContext.Response.ContentType = MediaTypeNames.Application.Json;

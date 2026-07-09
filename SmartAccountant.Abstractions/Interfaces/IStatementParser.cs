@@ -9,7 +9,8 @@ public interface IStatementParser
     /// <remarks>
     /// May leave the statement object in dirty state, if encounters an error during parse.
     /// </remarks>
+    /// <exception cref="ServerException" />
     /// <exception cref="ParserException" />
-    void ReadStatement<TTransaction>(Statement<TTransaction> statement, Stream stream, Bank bank)
+    void ReadStatement<TTransaction>(IStatement<TTransaction> statement, Stream stream, Bank bank)
          where TTransaction : Transaction;
 }

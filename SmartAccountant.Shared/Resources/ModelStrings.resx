@@ -294,9 +294,6 @@
   <data name="ParserErrors_CardNumbersInUnexpectedFormat" xml:space="preserve">
     <value>Card numbers are in unexpected format.</value>
   </data>
-  <data name="ParserErrors_CouldNotReadMultipartStatement" xml:space="preserve">
-    <value>Multipart statement couldn't be read.</value>
-  </data>
   <data name="ParserErrors_UnexpectedDebitStatementFormat" xml:space="preserve">
     <value>Debit statement has an unexpected format.</value>
   </data>

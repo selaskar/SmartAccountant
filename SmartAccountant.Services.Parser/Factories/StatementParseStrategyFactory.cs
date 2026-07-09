@@ -23,12 +23,18 @@ internal class StatementParseStrategyFactory : IStatementParseStrategyFactory
                 Bank.GarantiBBVA => Cast<TTransaction, CreditCardTransaction>(new GarantiCreditCardStatementParseStrategy()),
                 _ => throw new NotImplementedException($"Transaction type ({typeof(TTransaction).Name}) is not implemented for the bank ({bank})."),
             },
+            Type t when t == typeof(XCreditCardTransaction) => bank switch
+            {
+                Bank.GarantiBBVA => Cast<TTransaction, XCreditCardTransaction>(new GarantiMultipartStatementParseStrategy()),
+                _ => throw new NotImplementedException($"Transaction type ({typeof(TTransaction).Name}) is not implemented for the bank ({bank})."),
+            },
             _ => throw new NotImplementedException($"Transaction type ({typeof(TTransaction).Name}) is not implemented yet."),
         };
     }
 
     private static IStatementParseStrategy<TTransaction> Cast<TTransaction, TTransaction2>(IStatementParseStrategy<TTransaction2> parseStrategy)
-        where TTransaction2 : Transaction where TTransaction : Transaction
+        where TTransaction : Transaction
+        where TTransaction2 : Transaction
     {
         return (IStatementParseStrategy<TTransaction>)parseStrategy;
     }

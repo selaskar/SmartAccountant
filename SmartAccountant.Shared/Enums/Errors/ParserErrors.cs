@@ -1,6 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.Security.AccessControl;
-using System.Xml.Linq;
 using SmartAccountant.Shared.Resources;
 
 namespace SmartAccountant.Shared.Enums.Errors;
@@ -35,6 +33,6 @@ public enum ParserErrors
     CouldNotReadStatement = 13,
     [Display(Name = nameof(ModelStrings.ParserErrors_CardNumbersInUnexpectedFormat), ResourceType = typeof(ModelStrings))]
     CardNumbersInUnexpectedFormat = 14,
-    [Display(Name = nameof(ModelStrings.ParserErrors_CouldNotReadMultipartStatement), ResourceType = typeof(ModelStrings))]
-    CouldNotReadMultipartStatement = 15,
+    //[Display(Name = nameof(ModelStrings.ParserErrors_CouldNotReadMultipartStatement), ResourceType = typeof(ModelStrings))]
+    //CouldNotReadMultipartStatement = 15,
 }

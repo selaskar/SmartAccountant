@@ -1,5 +1,6 @@
 ﻿using FluentValidation;
 using SmartAccountant.Core.Helpers;
+using SmartAccountant.Models;
 using SmartAccountant.Models.Request;
 using SmartAccountant.Shared.Enums.Errors;
 
@@ -20,6 +21,6 @@ internal abstract class StatementImportModelValidator<T> : AbstractValidator<T>
 
         RuleFor(x => x.File.Length)
             .GreaterThan(0).WithErrorCode(ImportErrors.UploadedStatementFileEmpty)
-            .LessThanOrEqualTo(AbstractImportService.MaxFileSize).WithErrorCode(ImportErrors.UploadedStatementFileTooBig);
+            .LessThanOrEqualTo(AbstractImportService<Transaction>.MaxFileSize).WithErrorCode(ImportErrors.UploadedStatementFileTooBig);
     }
 }

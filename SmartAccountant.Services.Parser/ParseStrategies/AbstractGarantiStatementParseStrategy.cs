@@ -83,10 +83,12 @@ internal abstract class AbstractGarantiStatementParseStrategy
     }
 
     /// <exception cref="InvalidCastException"/>
-    protected internal static TStatement Cast<TStatement>(Statement statement)
-        where TStatement : Statement
+    protected internal static TStatement Cast<TTransaction, TStatement>(IStatement<TTransaction> statement)
+        where TTransaction : Transaction
+        where TStatement : class, IStatement<TTransaction>
     {
         return statement as TStatement
+            //TODO: update exception message
             ?? throw new InvalidCastException($"Statement (type: {statement.GetType().Name}) was expected to be type of {typeof(TStatement).Name}.");
     }
 }

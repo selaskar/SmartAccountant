@@ -394,15 +394,6 @@ namespace SmartAccountant.Shared.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Multipart statement couldn&apos;t be read..
-        /// </summary>
-        public static string ParserErrors_CouldNotReadMultipartStatement {
-            get {
-                return ResourceManager.GetString("ParserErrors_CouldNotReadMultipartStatement", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Statement couldn&apos;t be read..
         /// </summary>
         public static string ParserErrors_CouldNotReadStatement {

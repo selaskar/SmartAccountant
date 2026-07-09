@@ -46,7 +46,7 @@ public sealed class ImportStatementController(IMapper mapper) : ControllerBase
         return await ImportInternal<CreditCardStatementImportModel>(importService, request, cancellationToken);
     }
 
-    [EndpointSummary("Allows importing external statement reports which are consist of transactions from multiple dependent accounts.")]
+    [EndpointSummary("Allows importing external statement reports which are consist of transactions from multiple interdependent accounts.")]
     [HttpPost(nameof(ImportableStatementTypes.Multipart))]
     [Consumes(MediaTypeNames.Multipart.FormData)]
     [ProducesResponseType(StatusCodes.Status200OK)]
@@ -72,9 +72,9 @@ public sealed class ImportStatementController(IMapper mapper) : ControllerBase
     {
         var requestModel = mapper.Map<TModel>(request);
 
-        Statement statement = await importService.ImportStatement(requestModel, cancellationToken);
+        IStatement<Transaction> statement = await importService.ImportStatement(requestModel, cancellationToken);
 
-        UploadStatementResponse response = mapper.Map<UploadStatementResponse>(statement) with
+        UploadStatementResponse response = mapper.Map<UploadStatementResponse>(statement) with //TODO: test
         {
             RequestId = request.RequestId
         };

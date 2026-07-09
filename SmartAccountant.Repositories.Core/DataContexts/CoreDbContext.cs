@@ -19,9 +19,9 @@ internal sealed class CoreDbContext(DbContextOptions<CoreDbContext> options) : D
 
     public DbSet<DebitTransaction> DebitTransactions { get; set; }
 
-    public DbSet<SavingAccount> SavingAccounts { get; set; }
+    public DbSet<MonthlySummary> MonthlySummaries { get; set; }
 
-    public DbSet<SharedStatement> SharedStatements { get; set; }
+    public DbSet<SavingAccount> SavingAccounts { get; set; }
 
     public DbSet<StatementDocument> StatementDocuments { get; set; }
 
@@ -30,6 +30,7 @@ internal sealed class CoreDbContext(DbContextOptions<CoreDbContext> options) : D
     public DbSet<Transaction> Transactions { get; set; }
 
     public DbSet<VirtualCard> VirtualCards { get; set; }
+
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

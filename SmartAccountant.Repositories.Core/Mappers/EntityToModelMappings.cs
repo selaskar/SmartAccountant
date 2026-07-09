@@ -7,8 +7,8 @@ internal sealed class EntityToModelMappings : Profile
 {
     public EntityToModelMappings()
     {
-        //TODO: base entity and mapping
-
+        //TODO: create base entity and do mapping
+        // accounts
         CreateMap<Entities.Account, Models.Account>()
             .ForMember(x => x.Id, opt => opt.MapFrom(e => e.Id))
             .ForMember(x => x.Bank, opt => opt.MapFrom(e => e.Bank))
@@ -19,7 +19,7 @@ internal sealed class EntityToModelMappings : Profile
             .ForMember(x => x.Currency, opt => opt.MapFrom(e => e.Currency))
             .ForMember(x => x.AccountNumber, opt => opt.MapFrom(e => e.AccountNumber));
 
-        //TODO: abstract credit card entity and mapping
+        //TODO: create abstract credit card entity and do mapping
 
         CreateMap<Entities.CreditCard, Models.CreditCard>()
             .IncludeBase<Entities.Account, Models.Account>()
@@ -32,22 +32,28 @@ internal sealed class EntityToModelMappings : Profile
             .ForMember(x => x.ParentId, opt => opt.MapFrom(e => e.Parent))
             .ForMember(x => x.Parent, opt => opt.Ignore());
 
-        CreateMap<Models.Statement, Entities.Statement>()
+
+        // statements
+        CreateMap<Models.IStatement<Models.Transaction>, Entities.Statement>()
             .ForMember(x => x.Id, opt => opt.MapFrom(e => e.Id))
             .ForMember(x => x.AccountId, opt => opt.MapFrom(e => e.AccountId))
-            .ForMember(x => x.Account, opt => opt.Ignore())
-            .ForMember(x => x.Documents, opt => opt.MapFrom(e => e.Documents));
-
-        CreateMap<Models.Statement<Models.DebitTransaction>, Entities.Statement>()
-            .IncludeBase<Models.Statement, Entities.Statement>()
+            .ForMember(x => x.Account, opt => opt.Ignore()) //TODO: are we sure on ignoring it?
+            .ForMember(x => x.Documents, opt => opt.MapFrom(e => e.Documents))
             .ForSourceMember(x => x.Transactions, opt => opt.DoNotValidate());
 
+        //TODO: is this mapping necessary? If so, write for other trx types too.
+        CreateMap<Models.Statement<Models.DebitTransaction>, Entities.Statement>()
+            .IncludeBase<Models.IStatement<Models.Transaction>, Entities.Statement>();
+
         CreateMap<Models.DebitStatement, Entities.DebitStatement>()
-            .IncludeBase<Models.Statement, Entities.Statement>()
+            .IncludeBase<Models.Statement<Models.DebitTransaction>, Entities.Statement>()
             .ForMember(x => x.Currency, opt => opt.MapFrom(e => e.Currency));
 
+        CreateMap<Models.Statement<Models.CreditCardTransaction>, Entities.Statement>()
+            .IncludeBase<Models.IStatement<Models.Transaction>, Entities.Statement>();
+
         CreateMap<Models.CreditCardStatement, Entities.CreditCardStatement>()
-            .IncludeBase<Models.Statement, Entities.Statement>()
+            .IncludeBase<Models.Statement<Models.CreditCardTransaction>, Entities.Statement>()
             .ForMember(x => x.RolloverAmount, opt => opt.MapFrom(e => e.RolloverAmount))
             .ForMember(x => x.TotalDueAmount, opt => opt.MapFrom(e => e.TotalDueAmount))
             .ForMember(x => x.MinimumDueAmount, opt => opt.MapFrom(e => e.MinimumDueAmount))
@@ -61,6 +67,8 @@ internal sealed class EntityToModelMappings : Profile
             .ForMember(x => x.Statement, opt => opt.MapFrom(e => e.Statement))
             .ForMember(x => x.FilePath, opt => opt.MapFrom(e => e.FilePath));
 
+
+        // transactions
         CreateMap<Models.Transaction, Entities.Transaction>()
             .ForMember(x => x.Id, opt => opt.MapFrom(e => e.Id))
             .ForMember(x => x.AccountId, opt => opt.MapFrom(e => e.AccountId!.Value))
@@ -98,6 +106,11 @@ internal sealed class EntityToModelMappings : Profile
             .IncludeBase<Models.Transaction, Entities.Transaction>()
             .ForMember(x => x.ProvisionState, opt => opt.MapFrom(e => e.ProvisionState))
             .ReverseMap();
+
+        CreateMap<Models.XCreditCardTransaction, Entities.CreditCardTransaction>()
+            .IncludeBase<Models.CreditCardTransaction, Entities.CreditCardTransaction>()
+            .ReverseMap();
+
 
         CreateMap<Entities.CreditCardLimit, Models.CreditCardLimit>()
             .ForMember(x => x.Id, opt => opt.MapFrom(e => e.Id))

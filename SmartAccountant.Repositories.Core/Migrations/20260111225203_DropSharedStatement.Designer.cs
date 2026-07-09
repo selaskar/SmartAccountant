@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SmartAccountant.Repositories.Core.DataContexts;
 
@@ -11,9 +12,11 @@ using SmartAccountant.Repositories.Core.DataContexts;
 namespace SmartAccountant.Repositories.Core.Migrations
 {
     [DbContext(typeof(CoreDbContext))]
-    partial class CoreDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260111225203_DropSharedStatement")]
+    partial class DropSharedStatement
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -73,98 +76,6 @@ namespace SmartAccountant.Repositories.Core.Migrations
                     b.HasIndex("CardId");
 
                     b.ToTable("CreditCardLimits");
-                });
-
-            modelBuilder.Entity("SmartAccountant.Repositories.Core.Entities.CurrencySummary", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<decimal>("ExpensesTotal")
-                        .HasColumnType("decimal(19, 4)");
-
-                    b.Property<short>("ExpensesTotalCurrency")
-                        .HasColumnType("smallint");
-
-                    b.Property<decimal>("IncomeTotal")
-                        .HasColumnType("decimal(19, 4)");
-
-                    b.Property<short>("IncomeTotalCurrency")
-                        .HasColumnType("smallint");
-
-                    b.Property<decimal>("InterestAndFeesTotal")
-                        .HasColumnType("decimal(19, 4)");
-
-                    b.Property<short>("InterestAndFeesTotalCurrency")
-                        .HasColumnType("smallint");
-
-                    b.Property<decimal>("LoansTotal")
-                        .HasColumnType("decimal(19, 4)");
-
-                    b.Property<short>("LoansTotalCurrency")
-                        .HasColumnType("smallint");
-
-                    b.Property<Guid>("MonthlySummaryId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<decimal>("Net")
-                        .HasColumnType("decimal(19, 4)");
-
-                    b.Property<short>("NetCurrency")
-                        .HasColumnType("smallint");
-
-                    b.Property<decimal>("OriginalLimitsTotal")
-                        .HasColumnType("decimal(19, 4)");
-
-                    b.Property<short>("OriginalLimitsTotalCurrency")
-                        .HasColumnType("smallint");
-
-                    b.Property<decimal>("PlannedExpensesTotal")
-                        .HasColumnType("decimal(19, 4)");
-
-                    b.Property<short>("PlannedExpensesTotalCurrency")
-                        .HasColumnType("smallint");
-
-                    b.Property<decimal>("RemainingBalancesTotal")
-                        .HasColumnType("decimal(19, 4)");
-
-                    b.Property<short>("RemainingBalancesTotalCurrency")
-                        .HasColumnType("smallint");
-
-                    b.Property<decimal>("SavingsTotal")
-                        .HasColumnType("decimal(19, 4)");
-
-                    b.Property<short>("SavingsTotalCurrency")
-                        .HasColumnType("smallint");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("MonthlySummaryId");
-
-                    b.ToTable("CurrencySummary");
-                });
-
-            modelBuilder.Entity("SmartAccountant.Repositories.Core.Entities.MonthlySummary", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateOnly>("Month")
-                        .HasColumnType("date");
-
-                    b.Property<byte>("State")
-                        .HasColumnType("tinyint");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId", "Month");
-
-                    b.ToTable("MonthlySummaries");
                 });
 
             modelBuilder.Entity("SmartAccountant.Repositories.Core.Entities.Statement", b =>
@@ -361,15 +272,6 @@ namespace SmartAccountant.Repositories.Core.Migrations
                     b.Navigation("Card");
                 });
 
-            modelBuilder.Entity("SmartAccountant.Repositories.Core.Entities.CurrencySummary", b =>
-                {
-                    b.HasOne("SmartAccountant.Repositories.Core.Entities.MonthlySummary", null)
-                        .WithMany("CurrenciesS")
-                        .HasForeignKey("MonthlySummaryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("SmartAccountant.Repositories.Core.Entities.Statement", b =>
                 {
                     b.HasOne("SmartAccountant.Repositories.Core.Entities.Account", "Account")
@@ -479,11 +381,6 @@ namespace SmartAccountant.Repositories.Core.Migrations
                     b.Navigation("Statements");
 
                     b.Navigation("Transactions");
-                });
-
-            modelBuilder.Entity("SmartAccountant.Repositories.Core.Entities.MonthlySummary", b =>
-                {
-                    b.Navigation("CurrenciesS");
                 });
 
             modelBuilder.Entity("SmartAccountant.Repositories.Core.Entities.Statement", b =>

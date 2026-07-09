@@ -10,8 +10,9 @@ public interface IImportService
     /// <exception cref="ImportException"/>
     /// <exception cref="ServerException"/>
     /// <exception cref="OperationCanceledException"/>
+    /// <exception cref="AuthenticationException"/>
     /// <exception cref="ValidationException"/>
-    Task<Statement> ImportStatement(AbstractStatementImportModel model, CancellationToken cancellationToken);
+    Task<IStatement<Transaction>> ImportStatement(AbstractStatementImportModel model, CancellationToken cancellationToken);
 }
 
 

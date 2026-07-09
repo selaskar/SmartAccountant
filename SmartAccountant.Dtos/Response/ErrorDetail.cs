@@ -1,6 +1,6 @@
 ﻿namespace SmartAccountant.Dtos.Response;
 
-public class ErrorDetail
+public class ErrorDetail //TODO: use ProblemDetail?
 {
     public int Code { get; set; }
 

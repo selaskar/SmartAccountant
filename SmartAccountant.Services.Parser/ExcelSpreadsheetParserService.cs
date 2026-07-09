@@ -11,12 +11,12 @@ using SmartAccountant.Shared.Enums.Errors;
 namespace SmartAccountant.Services.Parser;
 
 internal class ExcelSpreadsheetParserService(
-    IStatementParseStrategyFactory factory, 
-    IMultipartStatementParseStrategy multipartStatementParseStrategy) : 
-    ISpreadsheetParser, IMultipartStatementParser
+    IStatementParseStrategyFactory factory
+    /*IMultipartStatementParseStrategy multipartStatementParseStrategy*/) :
+    ISpreadsheetParser//, IMultipartStatementParser
 {
     /// <inheritdoc />
-    public void ReadStatement<TTransaction>(Statement<TTransaction> statement, Stream stream, Bank bank)
+    public void ReadStatement<TTransaction>(IStatement<TTransaction> statement, Stream stream, Bank bank)
          where TTransaction : Transaction
     {
         try
@@ -37,25 +37,25 @@ internal class ExcelSpreadsheetParserService(
         }
     }
 
-    /// <inheritdoc />
-    public void ReadMultipartStatement(SharedStatement statement, Stream stream, Bank bank)
-    {
-        try
-        {
-            (Worksheet worksheet, SharedStringTable sharedStringTable) = ParseCommon(stream);
+    ///// <inheritdoc />
+    //public void ReadMultipartStatement(SharedStatement statement, Stream stream, Bank bank)
+    //{
+    //    try
+    //    {
+    //        (Worksheet worksheet, SharedStringTable sharedStringTable) = ParseCommon(stream);
 
-            multipartStatementParseStrategy.ParseMultipartStatement(statement, worksheet, sharedStringTable);
-            multipartStatementParseStrategy.CrossCheck(statement);
-        }
-        catch (Exception ex) when (ex is ArgumentNullException or ArgumentOutOfRangeException or FormatException or OverflowException)
-        {
-            throw new ParserException(ParserErrors.CouldNotReadMultipartStatement, ex);
-        }
-        catch (Exception ex) when (ex is not ParserException and not ServerException)
-        {
-            throw new ServerException(Messages.UnexpectedErrorReadingMultipartStatement, ex);
-        }
-    }
+    //        multipartStatementParseStrategy.ParseMultipartStatement(statement, worksheet, sharedStringTable);
+    //        multipartStatementParseStrategy.CrossCheck(statement);
+    //    }
+    //    catch (Exception ex) when (ex is ArgumentNullException or ArgumentOutOfRangeException or FormatException or OverflowException)
+    //    {
+    //        throw new ParserException(ParserErrors.CouldNotReadMultipartStatement, ex);
+    //    }
+    //    catch (Exception ex) when (ex is not ParserException and not ServerException)
+    //    {
+    //        throw new ServerException(Messages.UnexpectedErrorReadingMultipartStatement, ex);
+    //    }
+    //}
 
     /// <exception cref="ParserException"/>
     /// <exception cref="ServerException"/>

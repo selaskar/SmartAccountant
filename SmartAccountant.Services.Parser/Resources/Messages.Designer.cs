@@ -124,15 +124,6 @@ namespace SmartAccountant.Services.Parser.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to An unexpected error occurred while reading the multipart statement..
-        /// </summary>
-        internal static string UnexpectedErrorReadingMultipartStatement {
-            get {
-                return ResourceManager.GetString("UnexpectedErrorReadingMultipartStatement", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to An unexpected error occurred while reading the statement..
         /// </summary>
         internal static string UnexpectedErrorReadingStatement {
