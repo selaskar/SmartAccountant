@@ -10,7 +10,7 @@ using SmartAccountant.Shared.Enums.Errors;
 namespace SmartAccountant.Services.Parser.ParseStrategies;
 
 internal sealed partial class GarantiCreditCardStatementParseStrategy : AbstractGarantiCreditCardStatementParseStrategy,
-    IStatementParseStrategy<CreditCardTransaction>
+    ISpreadsheetParseStrategy<CreditCardTransaction>
 {
     /// Non-empty rows
     internal const int HeaderRowCount = 3;

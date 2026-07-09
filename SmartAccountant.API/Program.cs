@@ -68,7 +68,7 @@ internal sealed class Program
         // By default, the claims mapping will map claim names in the old format to accommodate older SAML applications.
         // For instance, 'http://schemas.microsoft.com/ws/2008/06/identity/claims/role' instead of 'roles' claim.
         // This flag ensures that the ClaimsIdentity claims collection will be built from the claims in the token
-        JwtSecurityTokenHandler.DefaultMapInboundClaims = false;
+        JwtSecurityTokenHandler.DefaultMapInboundClaims = false; //When true, RequireRole() requirement works, but can no longer "oid" claim.
 
 
         builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -80,6 +80,7 @@ internal sealed class Program
         AuthorizationPolicy defaultPolicy = new AuthorizationPolicyBuilder()
             .RequireAuthenticatedUser()
             .RequireScope(AppScopes.Statement.ToString())
+            //.RequireRole(AppRoles.RegularUser.ToString())
             .Build();
 
         //Used when a controller doesn't specify an authorize attribute.
@@ -90,12 +91,12 @@ internal sealed class Program
         builder.Services.AddAuthorizationBuilder()
             .SetDefaultPolicy(defaultPolicy)
             .SetFallbackPolicy(fallbackPolicy)
-            .AddPolicy(AuthPolicies.ApiConsumer.ToString(), builder => builder.RequireRole(AppRoles.Developer.ToString()));
+            .AddPolicy(AuthPolicies.ApiConsumer.ToString(), builder => builder.RequireRole(AppRoles.Developer.ToString())); //TODO: currenct claim mapping doesn't allow using the built-in role check.
     }
 
     private static void ConfigureDocumentation(WebApplicationBuilder builder)
     {
-        //Note that adding XML documentation to API description is not yet supported as of .NET 9.
+        //Note that adding XML documentation to API description is not yet supported as of .NET 9. (Probably 10, neither)
         builder.Services.AddOpenApi();
     }
 

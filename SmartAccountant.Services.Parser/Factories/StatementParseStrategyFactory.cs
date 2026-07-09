@@ -5,11 +5,49 @@ using SmartAccountant.Shared.Enums;
 
 namespace SmartAccountant.Services.Parser.Factories;
 
-internal class StatementParseStrategyFactory : IStatementParseStrategyFactory
+internal class StatementParseStrategyFactory : ISpreadsheetParseStrategyFactory//IStatementParseStrategyFactory
 {
     /// <inheritdoc/>
-    public IStatementParseStrategy<TTransaction> Create<TTransaction>(Bank bank)
-         where TTransaction : Transaction
+    //public IStatementParseStrategy<TTransaction> Create<TTransaction>(Bank bank)
+    //     where TTransaction : Transaction
+    //{
+    //    return typeof(TTransaction) switch
+    //    {
+    //        Type t when t == typeof(DebitTransaction) => bank switch
+    //        {
+    //            Bank.GarantiBBVA => Cast<TTransaction, DebitTransaction>(new GarantiDebitStatementParseStrategy()),
+    //            _ => throw new NotImplementedException($"Transaction type ({typeof(TTransaction).Name}) is not implemented for the bank ({bank})."),
+    //        },
+    //        Type t when t == typeof(CreditCardTransaction) => bank switch
+    //        {
+    //            Bank.GarantiBBVA => Cast<TTransaction, CreditCardTransaction>(new GarantiCreditCardStatementParseStrategy()),
+    //            _ => throw new NotImplementedException($"Transaction type ({typeof(TTransaction).Name}) is not implemented for the bank ({bank})."),
+    //        },
+    //        Type t when t == typeof(XCreditCardTransaction) => bank switch
+    //        {
+    //            Bank.GarantiBBVA => Cast<TTransaction, XCreditCardTransaction>(new GarantiMultipartStatementParseStrategy()),
+    //            _ => throw new NotImplementedException($"Transaction type ({typeof(TTransaction).Name}) is not implemented for the bank ({bank})."),
+    //        },
+    //        _ => throw new NotImplementedException($"Transaction type ({typeof(TTransaction).Name}) is not implemented yet."),
+    //    };
+    //}
+
+    //private static IStatementParseStrategy<TTransaction> Cast<TTransaction, TTransaction2>(IStatementParseStrategy<TTransaction2> parseStrategy)
+    //    where TTransaction : Transaction
+    //    where TTransaction2 : Transaction
+    //{
+    //    return (IStatementParseStrategy<TTransaction>)parseStrategy;
+    //}
+
+    private static ISpreadsheetParseStrategy<TTransaction> Cast<TTransaction, TTransaction2>(ISpreadsheetParseStrategy<TTransaction2> parseStrategy)
+        where TTransaction : Transaction
+        where TTransaction2 : Transaction
+    {
+        return (ISpreadsheetParseStrategy<TTransaction>)parseStrategy;
+    }
+
+
+    public override ISpreadsheetParseStrategy<TTransaction> Create<TTransaction>(Bank bank)
     {
         return typeof(TTransaction) switch
         {
@@ -30,12 +68,5 @@ internal class StatementParseStrategyFactory : IStatementParseStrategyFactory
             },
             _ => throw new NotImplementedException($"Transaction type ({typeof(TTransaction).Name}) is not implemented yet."),
         };
-    }
-
-    private static IStatementParseStrategy<TTransaction> Cast<TTransaction, TTransaction2>(IStatementParseStrategy<TTransaction2> parseStrategy)
-        where TTransaction : Transaction
-        where TTransaction2 : Transaction
-    {
-        return (IStatementParseStrategy<TTransaction>)parseStrategy;
     }
 }

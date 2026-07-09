@@ -9,3 +9,17 @@ internal interface IStatementParseStrategyFactory
     IStatementParseStrategy<TTransaction> Create<TTransaction>(Bank bank)
          where TTransaction : Transaction;
 }
+
+internal abstract class ISpreadsheetParseStrategyFactory : IStatementParseStrategyFactory
+{
+    /// <exception cref="NotImplementedException" />
+    public abstract ISpreadsheetParseStrategy<TTransaction> Create<TTransaction>(Bank bank)
+         where TTransaction : Transaction;
+
+
+    IStatementParseStrategy<TTransaction> IStatementParseStrategyFactory.Create<TTransaction>(Bank bank)
+    //where TTransaction : Transaction
+    {
+        return Create<TTransaction>(bank);
+    }
+}

@@ -15,14 +15,14 @@ using SmartAccountant.Shared.Enums.Errors;
 
 namespace SmartAccountant.Import.Service;
 
-//TODO: do we still need this interface?
-internal interface ITransactionCollider<in TTransaction>
-    where TTransaction : Transaction
-{
-    Transaction[] DetectNew(IStatement<TTransaction> statement, Transaction[] existingTransactions);
+////TODO: do we still need this interface?
+//internal interface ITransactionCollider<in TTransaction>
+//    where TTransaction : Transaction
+//{
+//    Transaction[] DetectNew(IStatement<TTransaction> statement, Transaction[] existingTransactions);
 
-    Transaction[] DetectFinalized(IStatement<TTransaction> statement, Transaction[] existingTransactions);
-}
+//    Transaction[] DetectFinalized(IStatement<TTransaction> statement, Transaction[] existingTransactions);
+//}
 
 internal abstract partial class AbstractImportService<TTransaction>(
     ILogger<AbstractImportService<TTransaction>> logger,
@@ -36,7 +36,7 @@ internal abstract partial class AbstractImportService<TTransaction>(
     IDateTimeService dateTimeService,
     IStatementFactory statementFactory,
     IStatementParser parser)
-    : IImportService, ITransactionCollider<TTransaction>
+    : IImportService//, ITransactionCollider<TTransaction>
     where TTransaction : Transaction
 {
     /// <remarks>In bytes</remarks>

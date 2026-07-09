@@ -45,6 +45,7 @@ internal sealed class RequestResponseMappings : Profile
         CreateMap<IStatement<XCreditCardTransaction>, UploadStatementResponse>()
             .IncludeBase<IStatement<Transaction>, UploadStatementResponse>();
 
+        //TODO: mappings for other statement types
         CreateMap<SharedStatement, UploadStatementResponse>()
             .IncludeBase<IStatement<XCreditCardTransaction>, UploadStatementResponse>();
     }

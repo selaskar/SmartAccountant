@@ -10,10 +10,8 @@ using SmartAccountant.Shared.Enums.Errors;
 
 namespace SmartAccountant.Services.Parser;
 
-internal class ExcelSpreadsheetParserService(
-    IStatementParseStrategyFactory factory
-    /*IMultipartStatementParseStrategy multipartStatementParseStrategy*/) :
-    ISpreadsheetParser//, IMultipartStatementParser
+internal class ExcelSpreadsheetParserService(ISpreadsheetParseStrategyFactory factory) :
+    ISpreadsheetParser
 {
     /// <inheritdoc />
     public void ReadStatement<TTransaction>(IStatement<TTransaction> statement, Stream stream, Bank bank)
@@ -23,9 +21,9 @@ internal class ExcelSpreadsheetParserService(
         {
             (Worksheet worksheet, SharedStringTable sharedStringTable) = ParseCommon(stream);
 
-            IStatementParseStrategy<TTransaction> statementParseStrategy = factory.Create<TTransaction>(bank);
-            statementParseStrategy.ParseStatement(statement, worksheet, sharedStringTable);
-            statementParseStrategy.CrossCheck(statement);
+            ISpreadsheetParseStrategy<TTransaction> spreadsheetParseStrategy = factory.Create<TTransaction>(bank);
+            spreadsheetParseStrategy.ParseStatement(statement, worksheet, sharedStringTable);
+            spreadsheetParseStrategy.CrossCheck(statement);
         }
         catch (ArgumentNullException ex)
         {
@@ -36,26 +34,6 @@ internal class ExcelSpreadsheetParserService(
             throw new ServerException(Messages.UnexpectedErrorReadingStatement, ex);
         }
     }
-
-    ///// <inheritdoc />
-    //public void ReadMultipartStatement(SharedStatement statement, Stream stream, Bank bank)
-    //{
-    //    try
-    //    {
-    //        (Worksheet worksheet, SharedStringTable sharedStringTable) = ParseCommon(stream);
-
-    //        multipartStatementParseStrategy.ParseMultipartStatement(statement, worksheet, sharedStringTable);
-    //        multipartStatementParseStrategy.CrossCheck(statement);
-    //    }
-    //    catch (Exception ex) when (ex is ArgumentNullException or ArgumentOutOfRangeException or FormatException or OverflowException)
-    //    {
-    //        throw new ParserException(ParserErrors.CouldNotReadMultipartStatement, ex);
-    //    }
-    //    catch (Exception ex) when (ex is not ParserException and not ServerException)
-    //    {
-    //        throw new ServerException(Messages.UnexpectedErrorReadingMultipartStatement, ex);
-    //    }
-    //}
 
     /// <exception cref="ParserException"/>
     /// <exception cref="ServerException"/>

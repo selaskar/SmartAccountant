@@ -1,6 +1,8 @@
 ﻿namespace SmartAccountant.Abstractions.Interfaces;
 
-//TODO: what is the use of this interface exactly?
+/// <summary>
+/// This interface is designated as common interface for all spreadsheet parsers.
+/// </summary>
 public interface ISpreadsheetParser : IStatementParser
 {
 

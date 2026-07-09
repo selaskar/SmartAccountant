@@ -12,16 +12,13 @@ public static class ServiceCollectionExtensions
 {
     public static IServiceCollection ConfigureParser(this IServiceCollection services)
     {
-        //// parse strategies
-        //services.AddSingleton<IMultipartStatementParseStrategy, GarantiMultipartStatementParseStrategy>();
-
         // factories
-        services.AddSingleton<IStatementParseStrategyFactory, StatementParseStrategyFactory>();
+        //services.AddSingleton<IStatementParseStrategyFactory, StatementParseStrategyFactory>();
+        services.AddSingleton<ISpreadsheetParseStrategyFactory, StatementParseStrategyFactory>();
 
         // parsers
         services.AddSingleton<IStatementParser, ExcelSpreadsheetParserService>();
-        //services.AddSingleton<IMultipartStatementParser, ExcelSpreadsheetParserService>();
-        //services.AddSingleton<ISpreadsheetParser, ExcelSpreadsheetParserService>();
+        services.AddSingleton<ISpreadsheetParser, ExcelSpreadsheetParserService>();
 
         return services;
     }

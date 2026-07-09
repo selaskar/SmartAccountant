@@ -33,7 +33,6 @@ internal sealed class CreditCardImportService(
         validator.ValidateAndThrowSafe(model as CreditCardStatementImportModel);
     }
 
-    //TODO: can be moved to upper class?
     /// <inheritdoc/>
     protected internal override Task PostParse(IStatement<CreditCardTransaction> statement, CancellationToken _)
     {

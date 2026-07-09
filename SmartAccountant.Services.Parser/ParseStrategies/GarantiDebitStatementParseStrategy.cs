@@ -11,7 +11,7 @@ using SmartAccountant.Shared.Structs;
 
 namespace SmartAccountant.Services.Parser.ParseStrategies;
 
-internal sealed class GarantiDebitStatementParseStrategy : AbstractGarantiStatementParseStrategy, IStatementParseStrategy<DebitTransaction>
+internal sealed class GarantiDebitStatementParseStrategy : AbstractGarantiStatementParseStrategy, ISpreadsheetParseStrategy<DebitTransaction>
 {
     /// Non-empty rows
     internal const int HeaderRowCount = 11;
@@ -21,7 +21,7 @@ internal sealed class GarantiDebitStatementParseStrategy : AbstractGarantiStatem
     /// <inheritdoc/>
     public void ParseStatement(IStatement<DebitTransaction> statement, Worksheet worksheet, SharedStringTable stringTable)
     {
-        DebitStatement debitStatement = Cast<DebitTransaction,DebitStatement>(statement);
+        DebitStatement debitStatement = Cast<DebitTransaction, DebitStatement>(statement);
 
         try
         {

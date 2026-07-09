@@ -15,8 +15,7 @@ using SmartAccountant.Shared.Enums.Errors;
 namespace SmartAccountant.Services.Parser.ParseStrategies;
 
 internal sealed partial class GarantiMultipartStatementParseStrategy : AbstractGarantiCreditCardStatementParseStrategy,
-    //IMultipartStatementParseStrategy,
-    IStatementParseStrategy<XCreditCardTransaction>
+    ISpreadsheetParseStrategy<XCreditCardTransaction>
 {
     /// <summary>
     /// This is the gap from card number row to first transaction in that section.
@@ -29,18 +28,20 @@ internal sealed partial class GarantiMultipartStatementParseStrategy : AbstractG
     private static readonly CompositeFormat DeflectionTooLarge = CompositeFormat.Parse(Messages.DeflectionTooLarge);
 
 
+    //TODO: exceptions
     void IStatementParseStrategy<XCreditCardTransaction>.ParseStatement(IStatement<XCreditCardTransaction> statement, Worksheet worksheet, SharedStringTable stringTable)
     {
-        ParseMultipartStatement((SharedStatement)statement, worksheet, stringTable);
+        ParseStatement((SharedStatement)statement, worksheet, stringTable);
     }
 
+    //TODO: exceptions
     void IStatementParseStrategy<XCreditCardTransaction>.CrossCheck(IStatement<XCreditCardTransaction> statement)
     {
         CrossCheck((SharedStatement)statement);
     }
 
     /// <inheritdoc />
-    public void ParseMultipartStatement(SharedStatement statement, Worksheet worksheet, SharedStringTable stringTable)
+    private static void ParseStatement(SharedStatement statement, Worksheet worksheet, SharedStringTable stringTable)
     {
         Row[] rows = worksheet.Descendants<Row>().ToArray();
 
@@ -75,7 +76,7 @@ internal sealed partial class GarantiMultipartStatementParseStrategy : AbstractG
     }
 
     /// <exception cref="ParserException"/>
-    public void CrossCheck(SharedStatement statement)
+    private static void CrossCheck(SharedStatement statement)
     {
         //TODO: will give wrong results when there are cancelled transactions.
         decimal totalExpenses = statement.Transactions.Union(statement.SecondaryTransactions)
