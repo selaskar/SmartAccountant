@@ -1,7 +1,6 @@
 ﻿using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Spreadsheet;
 using SmartAccountant.Abstractions.Exceptions;
-using SmartAccountant.Abstractions.Interfaces;
 using SmartAccountant.Models;
 using SmartAccountant.Services.Parser.Abstract;
 using SmartAccountant.Services.Parser.Resources;

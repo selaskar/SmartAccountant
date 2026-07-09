@@ -6,16 +6,15 @@ using DocumentFormat.OpenXml.Spreadsheet;
 using SmartAccountant.Abstractions.Exceptions;
 using SmartAccountant.Core.Helpers;
 using SmartAccountant.Models;
-using SmartAccountant.Services.Parser.Abstract;
 using SmartAccountant.Services.Parser.Extensions;
 using SmartAccountant.Services.Parser.Resources;
 using SmartAccountant.Shared.Enums;
 using SmartAccountant.Shared.Enums.Errors;
+using SmartAccountant.Shared.Structs;
 
 namespace SmartAccountant.Services.Parser.ParseStrategies;
 
-internal sealed partial class GarantiMultipartStatementParseStrategy : AbstractGarantiCreditCardStatementParseStrategy,
-    ISpreadsheetParseStrategy<CreditCardTransactionX>
+internal sealed partial class GarantiMultipartStatementParseStrategy : AbstractGarantiCreditCardStatementParseStrategy<CreditCardTransactionX>
 {
     /// <summary>
     /// This is the gap from card number row to first transaction in that section.
@@ -29,19 +28,19 @@ internal sealed partial class GarantiMultipartStatementParseStrategy : AbstractG
 
 
     //TODO: exceptions
-    void IStatementParseStrategy<CreditCardTransactionX>.ParseStatement(IStatement<CreditCardTransactionX> statement, Worksheet worksheet, SharedStringTable stringTable)
+    public override void ParseStatement(IStatement<CreditCardTransactionX> statement, Worksheet worksheet, SharedStringTable stringTable)
     {
         ParseStatement((SharedStatement)statement, worksheet, stringTable);
     }
 
     //TODO: exceptions
-    void IStatementParseStrategy<CreditCardTransactionX>.CrossCheck(IStatement<CreditCardTransactionX> statement)
+    public override void CrossCheck(IStatement<CreditCardTransactionX> statement)
     {
         CrossCheck((SharedStatement)statement);
     }
 
     /// <inheritdoc />
-    private static void ParseStatement(SharedStatement statement, Worksheet worksheet, SharedStringTable stringTable)
+    private void ParseStatement(SharedStatement statement, Worksheet worksheet, SharedStringTable stringTable)
     {
         Row[] rows = worksheet.Descendants<Row>().ToArray();
 
@@ -106,4 +105,26 @@ internal sealed partial class GarantiMultipartStatementParseStrategy : AbstractG
     // Example: 1234 **** **** 5678
     [GeneratedRegex("^\\d{4}[ *]{11}\\d{4}")]
     private static partial Regex CardNumberPattern();
+
+
+    /// <inheritdoc/>
+    private protected override CreditCardTransactionX CreateTransaction(
+        Guid? accountId,
+        DateTimeOffset date,
+        MonetaryValue amount,
+        Row row,
+        SharedStringTable stringTable,
+        ProvisionState provisionState)
+    {
+        return new CreditCardTransactionX()
+        {
+            Id = Guid.NewGuid(),
+            AccountId = accountId,
+            Timestamp = date,
+            Amount = amount * -1, //Since the normal balance is credit
+            ReferenceNumber = null,
+            Description = row.GetCell(1).GetCellValue(stringTable),
+            ProvisionState = provisionState
+        };
+    }
 }

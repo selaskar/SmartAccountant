@@ -45,14 +45,40 @@ internal sealed class RequestResponseMappings : Profile
             .ForMember(x => x.RequestId, opt => opt.Ignore());
 
 
-
-        CreateMap<IStatement<CreditCardTransactionX>, UploadStatementResponse>()
+        CreateMap<IStatement<DebitTransaction>, UploadStatementResponse>()
             .IncludeBase<IStatement<Transaction>, UploadStatementResponse>();
 
-        //TODO: mappings for other statement types
-        CreateMap<SharedStatement, UploadStatementResponse>()
-            .IncludeBase<IStatement<CreditCardTransactionX>, UploadStatementResponse>();
+        CreateMap<DebitStatement, UploadStatementResponse>()
+            .IncludeBase<IStatement<DebitTransaction>, UploadStatementResponse>()
+            .ForSourceMember(x => x.Currency, opt => opt.DoNotValidate())
+            .ForSourceMember(x => x.RemainingBalance, opt => opt.DoNotValidate());
 
 
+        CreateMap<IStatement<CreditCardTransaction>, UploadStatementResponse>()
+            .IncludeBase<IStatement<Transaction>, UploadStatementResponse>();
+
+        CreateMap<AbstractCreditCardStatement<CreditCardTransaction>, UploadStatementResponse>()
+            .IncludeBase<IStatement<CreditCardTransaction>, UploadStatementResponse>()
+            .ForSourceMember(x => x.RolloverAmount, opt => opt.DoNotValidate())
+            .ForSourceMember(x => x.TotalPayments, opt => opt.DoNotValidate())
+            .ForSourceMember(x => x.TotalExpenses, opt => opt.DoNotValidate())
+            .ForSourceMember(x => x.TotalFees, opt => opt.DoNotValidate())
+            .ForSourceMember(x => x.TotalDueAmount, opt => opt.DoNotValidate())
+            .ForSourceMember(x => x.MinimumDueAmount, opt => opt.DoNotValidate())
+            .ForSourceMember(x => x.DueDate, opt => opt.DoNotValidate())
+            .ForSourceMember(x => x.RemainingLimit, opt => opt.DoNotValidate());
+
+        CreateMap<CreditCardStatement, UploadStatementResponse>()
+            .IncludeBase<AbstractCreditCardStatement<CreditCardTransaction>, UploadStatementResponse>();
+
+        //CreateMap<IStatement<CreditCardTransactionX>, UploadStatementResponse>()
+        //    .IncludeBase<IStatement<Transaction>, UploadStatementResponse>();
+
+        //CreateMap<SharedStatement, UploadStatementResponse>()
+        //    .IncludeBase<AbstractCreditCardStatement<CreditCardTransactionX>, UploadStatementResponse>()
+        //    .ForSourceMember(x => x.CardNumber1, opt => opt.DoNotValidate())
+        //    .ForSourceMember(x => x.CardNumber2, opt => opt.DoNotValidate())
+        //    .ForSourceMember(x => x.DependentAccountId, opt => opt.DoNotValidate())
+        //    .ForSourceMember(x => x.SecondaryTransactions, opt => opt.DoNotValidate());
     }
 }

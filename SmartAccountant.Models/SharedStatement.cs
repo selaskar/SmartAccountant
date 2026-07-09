@@ -1,6 +1,6 @@
 ﻿namespace SmartAccountant.Models;
 
-public record class SharedStatement : CreditCardStatement, IStatement<CreditCardTransactionX> /* Call me the trickster. */
+public record class SharedStatement : AbstractCreditCardStatement<CreditCardTransactionX>
 {
     public string? CardNumber1 { get; set; }
 
@@ -8,7 +8,5 @@ public record class SharedStatement : CreditCardStatement, IStatement<CreditCard
 
     public Guid? DependentAccountId { get; set; }
 
-    public IList<CreditCardTransaction> SecondaryTransactions { get; init; } = [];
-
-    IEnumerable<CreditCardTransactionX> IStatement<CreditCardTransactionX>.Transactions => Transactions.Cast<CreditCardTransactionX>();
+    public IList<CreditCardTransactionX> SecondaryTransactions { get; init; } = [];
 }

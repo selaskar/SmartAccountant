@@ -1,16 +1,16 @@
 ﻿using DocumentFormat.OpenXml.Spreadsheet;
 using SmartAccountant.Abstractions.Exceptions;
+using SmartAccountant.Core.Helpers;
 using SmartAccountant.Models;
-using SmartAccountant.Services.Parser.Abstract;
 using SmartAccountant.Services.Parser.Extensions;
 using SmartAccountant.Services.Parser.Resources;
 using SmartAccountant.Shared.Enums;
 using SmartAccountant.Shared.Enums.Errors;
+using SmartAccountant.Shared.Structs;
 
 namespace SmartAccountant.Services.Parser.ParseStrategies;
 
-internal sealed partial class GarantiCreditCardStatementParseStrategy : AbstractGarantiCreditCardStatementParseStrategy,
-    ISpreadsheetParseStrategy<CreditCardTransaction>
+internal sealed partial class GarantiCreditCardStatementParseStrategy : AbstractGarantiCreditCardStatementParseStrategy<CreditCardTransaction>
 {
     /// Non-empty rows
     internal const int HeaderRowCount = 3;
@@ -22,7 +22,7 @@ internal sealed partial class GarantiCreditCardStatementParseStrategy : Abstract
     internal const string RegularTransactionsLabel = "Dönemiçi İşlemler - TL";
 
     /// <inheritdoc/>
-    public void ParseStatement(IStatement<CreditCardTransaction> statement, Worksheet worksheet, SharedStringTable stringTable)
+    public override void ParseStatement(IStatement<CreditCardTransaction> statement, Worksheet worksheet, SharedStringTable stringTable)
     {
         CreditCardStatement creditCardStatement = Cast<CreditCardTransaction, CreditCardStatement>(statement);
 
@@ -32,7 +32,7 @@ internal sealed partial class GarantiCreditCardStatementParseStrategy : Abstract
     }
 
     /// <inheritdoc/>
-    public void CrossCheck(IStatement<CreditCardTransaction> statement)
+    public override void CrossCheck(IStatement<CreditCardTransaction> statement)
     {
         //TODO: will give wrong results when there are cancelled transactions.
         decimal totalExpenses = statement.Transactions.Select(t => t.Amount.Amount)
@@ -45,9 +45,10 @@ internal sealed partial class GarantiCreditCardStatementParseStrategy : Abstract
             throw new ParserException(ParserErrors.TransactionAmountAndTotalExpensesMismatch);
     }
 
+
     /// <exception cref="ParserException"/>
     /// <exception cref="ServerException"/>
-    private static void Parse(CreditCardStatement statement, Row[] rows, SharedStringTable stringTable)
+    private void Parse(CreditCardStatement statement, Row[] rows, SharedStringTable stringTable)
     {
         try
         {
@@ -84,5 +85,27 @@ internal sealed partial class GarantiCreditCardStatementParseStrategy : Abstract
         {
             throw new ServerException(Messages.UnexpectedErrorParsingStatement, ex);
         }
+    }
+
+
+    /// <inheritdoc/>
+    private protected override CreditCardTransaction CreateTransaction(
+        Guid? accountId,
+        DateTimeOffset date,
+        MonetaryValue amount,
+        Row row,
+        SharedStringTable stringTable,
+        ProvisionState provisionState)
+    {
+        return new CreditCardTransaction()
+        {
+            Id = Guid.NewGuid(),
+            AccountId = accountId,
+            Timestamp = date,
+            Amount = amount * -1, //Since the normal balance is credit
+            ReferenceNumber = null,
+            Description = row.GetCell(1).GetCellValue(stringTable),
+            ProvisionState = provisionState
+        };
     }
 }
