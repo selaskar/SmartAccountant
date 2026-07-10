@@ -11,20 +11,20 @@ internal abstract class AbstractCreditCardImportService<TTransaction>(
     IFileTypeValidator fileTypeValidator,
     IAuthorizationService authorizationService,
     IAccountRepository accountRepository,
+    IStatementFactory statementFactory,
+    IStatementParser parser,
     IStorageService storageService,
     IUnitOfWork unitOfWork,
-    ITransactionRepository transactionRepository,
     IStatementRepository statementRepository,
-    IDateTimeService dateTimeService,
-    IStatementFactory statementFactory,
-    IStatementParser parser)
-    : AbstractImportService<TTransaction>(logger, fileTypeValidator, authorizationService, accountRepository, storageService, unitOfWork, transactionRepository, statementRepository, dateTimeService, statementFactory, parser)
+    ITransactionRepository transactionRepository,
+    IDateTimeService dateTimeService)
+    : AbstractImportService<TTransaction>(logger, fileTypeValidator, authorizationService, accountRepository, statementFactory, parser, storageService, unitOfWork, statementRepository, transactionRepository, dateTimeService)
     where TTransaction : CreditCardTransaction
 {
     /// <exception cref="ArgumentOutOfRangeException"/>
     /// <exception cref="ArgumentException"/>
     /// <exception cref="ArgumentNullException"/>
-    protected internal static Transaction[] Except(IEnumerable<CreditCardTransaction> newOnes, IEnumerable<CreditCardTransaction> existing)
+    private protected static Transaction[] Except(IEnumerable<CreditCardTransaction> newOnes, IEnumerable<CreditCardTransaction> existing)
     {
         var groupedExisting = existing.GroupBy(x => new { x.Timestamp, x.Description, x.Amount, x.ProvisionState })
             .ToDictionary(x => x.Key, grp => grp.ToArray());

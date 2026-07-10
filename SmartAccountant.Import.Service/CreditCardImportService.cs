@@ -25,22 +25,22 @@ internal sealed class CreditCardImportService(
     IValidator<CreditCardStatementImportModel> validator,
     IStatementFactory statementFactory,
     IStatementParser parser)
-    : AbstractCreditCardImportService<CreditCardTransaction>(logger, fileTypeValidator, authorizationService, accountRepository, storageService, unitOfWork, transactionRepository, statementRepository, dateTimeService, statementFactory, parser)
+    : AbstractCreditCardImportService<CreditCardTransaction>(logger, fileTypeValidator, authorizationService, accountRepository, statementFactory, parser, storageService, unitOfWork, statementRepository, transactionRepository, dateTimeService)
 {
     /// <inheritdoc/>
-    protected internal override void Validate(AbstractStatementImportModel model)
+    private protected override void Validate(AbstractStatementImportModel model)
     {
         validator.ValidateAndThrowSafe(model as CreditCardStatementImportModel);
     }
 
     /// <inheritdoc/>
-    protected internal override Task PostParse(IStatement<CreditCardTransaction> statement, CancellationToken _)
+    private protected override Task PostParse(IStatement<CreditCardTransaction> statement, CancellationToken _)
     {
         return Task.CompletedTask;
     }
 
     /// <inheritdoc/>
-    public override Transaction[] DetectNew(IStatement<CreditCardTransaction> statement, Transaction[] existingTransactions)
+    private protected override Transaction[] DetectNew(IStatement<CreditCardTransaction> statement, Transaction[] existingTransactions)
     {
         var creditCardStatement = Cast<CreditCardStatement>(statement);
 
@@ -48,7 +48,7 @@ internal sealed class CreditCardImportService(
     }
 
     /// <inheritdoc/>
-    public override Transaction[] DetectFinalized(IStatement<CreditCardTransaction> statement, Transaction[] existingTransactions)
+    private protected override Transaction[] DetectFinalized(IStatement<CreditCardTransaction> statement, Transaction[] existingTransactions)
     {
         var newOpenProvision = statement.Transactions.Where(x => x.ProvisionState == ProvisionState.Open);
 

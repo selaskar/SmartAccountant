@@ -13,7 +13,7 @@ internal sealed partial class ServerExceptionFilter(ILogger<ServerExceptionFilte
         if (!(context?.Exception is not null and ServerException exception))
             return;
 
-        ServerExceptionOccurred(exception);
+        LogServerExceptionOccurred(exception);
 
         context.HttpContext.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
 
@@ -28,5 +28,5 @@ internal sealed partial class ServerExceptionFilter(ILogger<ServerExceptionFilte
 
 
     [LoggerMessage(Level = LogLevel.Error, Message = "A server exception occurred.")]
-    private partial void ServerExceptionOccurred(Exception ex);
+    private partial void LogServerExceptionOccurred(Exception ex);
 }

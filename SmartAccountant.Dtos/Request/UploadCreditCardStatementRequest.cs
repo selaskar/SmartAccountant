@@ -11,6 +11,7 @@ public record UploadCreditCardStatementRequest : AbstractUploadStatementRequest
 
     public decimal TotalExpenses { get; init; }
 
+    //TODO: check for new OpenApi description attribute. make sure it is VS-compatible.
     /// <summary>
     /// Fees and total interest amount
     /// </summary>

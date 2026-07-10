@@ -24,16 +24,16 @@ internal sealed class DebitImportService(
     IStatementFactory statementFactory, //TODO: move up?
     IStatementParser parser,
     IValidator<DebitStatementImportModel> validator)
-    : AbstractImportService<DebitTransaction>(logger, fileTypeValidator, authorizationService, accountRepository, storageService, unitOfWork, transactionRepository, statementRepository, dateTimeService, statementFactory, parser)
+    : AbstractImportService<DebitTransaction>(logger, fileTypeValidator, authorizationService, accountRepository, statementFactory, parser, storageService, unitOfWork, statementRepository, transactionRepository, dateTimeService)
 {
     /// <inheritdoc/>
-    protected internal override void Validate(AbstractStatementImportModel model)
+    private protected override void Validate(AbstractStatementImportModel model)
     {
         validator.ValidateAndThrowSafe(model as DebitStatementImportModel);
     }
 
     /// <inheritdoc/>
-    protected internal override Task PostParse(IStatement<DebitTransaction> statement, CancellationToken _)
+    private protected override Task PostParse(IStatement<DebitTransaction> statement, CancellationToken _)
     {
         DebitTransaction? lastTransaction = statement.Transactions.LastOrDefault();
 
@@ -45,7 +45,7 @@ internal sealed class DebitImportService(
     }
 
     /// <inheritdoc/>
-    public override DebitTransaction[] DetectNew(IStatement<DebitTransaction> statement, Transaction[] existingTransactions)
+    private protected override DebitTransaction[] DetectNew(IStatement<DebitTransaction> statement, Transaction[] existingTransactions)
     {
         //TODO: ref number nullable
         var existingIdentifiers = existingTransactions.OfType<DebitTransaction>().Select(x => new { x.ReferenceNumber, x.RemainingBalance });
@@ -56,7 +56,7 @@ internal sealed class DebitImportService(
     }
 
     /// <inheritdoc/>
-    public override DebitTransaction[] DetectFinalized(IStatement<DebitTransaction> statement, Transaction[] existingTransactions)
+    private protected override DebitTransaction[] DetectFinalized(IStatement<DebitTransaction> statement, Transaction[] existingTransactions)
     {
         //Open provisions don't apply to debit accounts.
         return [];

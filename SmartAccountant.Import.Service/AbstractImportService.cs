@@ -6,7 +6,6 @@ using SmartAccountant.Abstractions.Exceptions;
 using SmartAccountant.Abstractions.Interfaces;
 using SmartAccountant.Core.Helpers;
 using SmartAccountant.Import.Service.Abstract;
-using SmartAccountant.Import.Service.Factories;
 using SmartAccountant.Import.Service.Resources;
 using SmartAccountant.Models;
 using SmartAccountant.Models.Request;
@@ -15,28 +14,19 @@ using SmartAccountant.Shared.Enums.Errors;
 
 namespace SmartAccountant.Import.Service;
 
-////TODO: do we still need this interface?
-//internal interface ITransactionCollider<in TTransaction>
-//    where TTransaction : Transaction
-//{
-//    Transaction[] DetectNew(IStatement<TTransaction> statement, Transaction[] existingTransactions);
-
-//    Transaction[] DetectFinalized(IStatement<TTransaction> statement, Transaction[] existingTransactions);
-//}
-
 internal abstract partial class AbstractImportService<TTransaction>(
     ILogger<AbstractImportService<TTransaction>> logger,
     IFileTypeValidator fileTypeValidator,
     IAuthorizationService authorizationService,
     IAccountRepository accountRepository,
+    IStatementFactory statementFactory,
+    IStatementParser parser,
     IStorageService storageService,
     IUnitOfWork unitOfWork,
-    ITransactionRepository transactionRepository,
     IStatementRepository statementRepository,
-    IDateTimeService dateTimeService,
-    IStatementFactory statementFactory,
-    IStatementParser parser)
-    : IImportService//, ITransactionCollider<TTransaction>
+    ITransactionRepository transactionRepository,
+    IDateTimeService dateTimeService)
+    : IImportService
     where TTransaction : Transaction
 {
     /// <remarks>In bytes</remarks>
@@ -49,6 +39,7 @@ internal abstract partial class AbstractImportService<TTransaction>(
     private static readonly CompositeFormat CannotValidateAccountHolder = CompositeFormat.Parse(Messages.CannotValidateAccountHolder);
     private static readonly CompositeFormat CannotSaveUploadedStatementFile = CompositeFormat.Parse(Messages.CannotSaveUploadedStatementFile);
     private static readonly CompositeFormat CannotSaveImportingStatement = CompositeFormat.Parse(Messages.CannotSaveImportingStatement);
+
     private protected static readonly CompositeFormat CannotCheckExistingTransactions = CompositeFormat.Parse(Messages.CannotCheckExistingTransactions);
     private protected static readonly CompositeFormat CannotParseUploadedStatementFile = CompositeFormat.Parse(Messages.CannotParseUploadedStatementFile);
 
@@ -72,7 +63,7 @@ internal abstract partial class AbstractImportService<TTransaction>(
 
             Account account = await ValidateAccountHolder(userId, model.AccountId, cancellationToken);
 
-            statement = Read(model, account);
+            statement = ParseStatement(model, account);
 
             await PostParse(statement, cancellationToken);
 
@@ -93,11 +84,11 @@ internal abstract partial class AbstractImportService<TTransaction>(
 
     /// <exception cref="ValidationException"/>
     /// <exception cref="ArgumentNullException"/>
-    protected internal abstract void Validate(AbstractStatementImportModel model);
+    private protected abstract void Validate(AbstractStatementImportModel model);
 
     /// <exception cref="ImportException"/>
     /// <exception cref="ServerException"/>
-    private IStatement<TTransaction> Read(AbstractStatementImportModel model, Account account) //TODO: ren
+    private IStatement<TTransaction> ParseStatement(AbstractStatementImportModel model, Account account)
     {
         try
         {
@@ -117,15 +108,14 @@ internal abstract partial class AbstractImportService<TTransaction>(
         }
     }
 
-
     /// <exception cref="ImportException"/>
     /// <exception cref="OperationCanceledException"/>
-    protected internal abstract Task PostParse(IStatement<TTransaction> statement, CancellationToken cancellationToken);
+    private protected abstract Task PostParse(IStatement<TTransaction> statement, CancellationToken cancellationToken);
 
     /// <exception cref="ImportException"/>
     /// <exception cref="ServerException"/>
     /// <exception cref="OperationCanceledException"/>
-    protected internal virtual async Task<Transaction[]> FetchExistingTransactions(IStatement<TTransaction> statement, CancellationToken cancellationToken)
+    private protected virtual async Task<Transaction[]> FetchExistingTransactions(IStatement<TTransaction> statement, CancellationToken cancellationToken)
     {
         try
         {
@@ -143,14 +133,15 @@ internal abstract partial class AbstractImportService<TTransaction>(
     /// <exception cref="ArgumentOutOfRangeException"/>
     /// <exception cref="ArgumentException"/>
     /// <exception cref="ArgumentNullException"/>
-    public abstract Transaction[] DetectNew(IStatement<TTransaction> statement, Transaction[] existingTransactions);
+    private protected abstract Transaction[] DetectNew(IStatement<TTransaction> statement, Transaction[] existingTransactions);
 
     /// <returns>Returns the transactions that previously existed as open provisions, but became finalized since then.</returns>
     /// <exception cref="ImportException"/>
     /// <exception cref="ArgumentOutOfRangeException"/>
     /// <exception cref="ArgumentException"/>
     /// <exception cref="ArgumentNullException"/>
-    public abstract Transaction[] DetectFinalized(IStatement<TTransaction> statement, Transaction[] existingTransactions);
+    private protected abstract Transaction[] DetectFinalized(IStatement<TTransaction> statement, Transaction[] existingTransactions);
+
 
     /// <exception cref="ImportException" />
     /// <exception cref="ServerException" />
@@ -177,7 +168,7 @@ internal abstract partial class AbstractImportService<TTransaction>(
     {
         try
         {
-            UploadStarting();
+            LogUploadStarting();
 
             var documentId = Guid.NewGuid();
             string path = $"{AccountsFolderName}/{statement.AccountId:D}/{dateTimeService.UtcNow.ToString(@"yyyy/MM", CultureInfo.InvariantCulture)}/{documentId:D}";
@@ -185,7 +176,7 @@ internal abstract partial class AbstractImportService<TTransaction>(
             using Stream readStream = file.OpenReadStream();
             await storageService.WriteToFile(UploadsContainerName, path, readStream, cancellationToken);
 
-            UploadSucceeded();
+            LogUploadSucceeded();
 
             statement.Documents.Add(new StatementDocument()
             {
@@ -240,7 +231,7 @@ internal abstract partial class AbstractImportService<TTransaction>(
 
             await unitOfWork.CommitAsync(cancellationToken);
 
-            PersistSucceeded();
+            LogPersistSucceeded();
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
@@ -261,11 +252,11 @@ internal abstract partial class AbstractImportService<TTransaction>(
 
 
     [LoggerMessage(Level = LogLevel.Trace, Message = "Starting to save the uploaded document.")]
-    private partial void UploadStarting();
+    private partial void LogUploadStarting();
 
     [LoggerMessage(Level = LogLevel.Trace, Message = "Statement document successfully uploaded.")]
-    private partial void UploadSucceeded();
+    private partial void LogUploadSucceeded();
 
     [LoggerMessage(Level = LogLevel.Trace, Message = "The uploaded statement successfully persisted.")]
-    private partial void PersistSucceeded();
+    private partial void LogPersistSucceeded();
 }

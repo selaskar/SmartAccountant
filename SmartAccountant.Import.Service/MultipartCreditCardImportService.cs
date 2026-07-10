@@ -27,26 +27,26 @@ internal sealed class MultipartCreditCardImportService(
     IValidator<MultipartStatementImportModel> validator,
     IStatementFactory statementFactory,
     IStatementParser parser)
-    : AbstractCreditCardImportService<CreditCardTransactionX>(logger, fileTypeValidator, authorizationService, accountRepository, storageService, unitOfWork, transactionRepository, statementRepository, dateTimeService, statementFactory, parser)
+    : AbstractCreditCardImportService<CreditCardTransactionX>(logger, fileTypeValidator, authorizationService, accountRepository, statementFactory, parser, storageService, unitOfWork, statementRepository, transactionRepository, dateTimeService)
 {
     private static readonly CompositeFormat DiscoveredCardNumbersMismatch = CompositeFormat.Parse(Messages.DiscoveredCardNumbersMismatch);
     private static readonly CompositeFormat CannotDetermineSecondaryAccount = CompositeFormat.Parse(Messages.CannotDetermineSecondaryAccount);
 
     /// <inheritdoc />
-    protected internal override void Validate(AbstractStatementImportModel model)
+    private protected override void Validate(AbstractStatementImportModel model)
     {
         validator.ValidateAndThrowSafe(model as MultipartStatementImportModel);
     }
 
     /// <inheritdoc />
-    protected internal override async Task PostParse(IStatement<CreditCardTransactionX> statement, CancellationToken cancellationToken)
+    private protected override async Task PostParse(IStatement<CreditCardTransactionX> statement, CancellationToken cancellationToken)
     {
         //TODO: re-throw the exceptions
         await AssignAccountIds((SharedStatement)statement, statement.Account, cancellationToken);
     }
 
     /// <inheritdoc />
-    protected internal override async Task<Transaction[]> FetchExistingTransactions(IStatement<CreditCardTransactionX> statement, CancellationToken cancellationToken)
+    private protected override async Task<Transaction[]> FetchExistingTransactions(IStatement<CreditCardTransactionX> statement, CancellationToken cancellationToken)
     {
         var sharedStatement = Cast<SharedStatement>(statement);
 
@@ -63,17 +63,17 @@ internal sealed class MultipartCreditCardImportService(
     }
 
     /// <inheritdoc />
-    public override Transaction[] DetectNew(IStatement<CreditCardTransactionX> statement, Transaction[] existingTransactions)
+    private protected override Transaction[] DetectNew(IStatement<CreditCardTransactionX> statement, Transaction[] existingTransactions)
     {
         var sharedStatement = Cast<SharedStatement>(statement);
 
-        var combinedTransactions = sharedStatement.Transactions.Union(sharedStatement.SecondaryTransactions);
+        IEnumerable<CreditCardTransactionX> combinedTransactions = sharedStatement.Transactions.Union(sharedStatement.SecondaryTransactions);
 
         return Except(newOnes: combinedTransactions, existing: existingTransactions.OfType<CreditCardTransaction>());
     }
 
     /// <inheritdoc />
-    public override Transaction[] DetectFinalized(IStatement<CreditCardTransactionX> statement, Transaction[] existingTransactions)
+    private protected override Transaction[] DetectFinalized(IStatement<CreditCardTransactionX> statement, Transaction[] existingTransactions)
     {
         //Open provisions don't apply to multipart statements.
         return [];
