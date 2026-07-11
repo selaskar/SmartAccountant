@@ -68,7 +68,7 @@ internal sealed class Program
         // By default, the claims mapping will map claim names in the old format to accommodate older SAML applications.
         // For instance, 'http://schemas.microsoft.com/ws/2008/06/identity/claims/role' instead of 'roles' claim.
         // This flag ensures that the ClaimsIdentity claims collection will be built from the claims in the token
-        JwtSecurityTokenHandler.DefaultMapInboundClaims = false; //When true, RequireRole() requirement works, but can no longer "oid" claim.
+        JwtSecurityTokenHandler.DefaultMapInboundClaims = false; //When true, RequireRole() requirement works, but can no longer use "oid" claim.
 
 
         builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
